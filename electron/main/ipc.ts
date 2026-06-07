@@ -1,29 +1,30 @@
 import { ipcMain } from 'electron'
-import { initClient, startClient, sendPhoneCode, verifyCode, check2FA, getAuthState, getSession, logout, setLoggedIn } from './telegram/auth'
+import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('auth:init', async () => {
     const session = loadSession()
-    await initClient(session || undefined)
     try {
+      await initClient(session || undefined)
       await startClient()
       if (session) {
         setLoggedIn(true)
         return { initialized: true }
       }
-    } catch {
-      // Need to re-authenticate
+      return { initialized: false }
+    } catch (err: any) {
+      console.error('auth:init error:', err.message)
+      return { initialized: false, error: err.message }
     }
-    return { initialized: false }
   })
 
   ipcMain.handle('auth:sendCode', async (_event, phone: string) => {
-    return sendPhoneCode(phone)
+    return startPhoneAuth(phone)
   })
 
   ipcMain.handle('auth:verifyCode', async (_event, phone: string, code: string, codeHash: string) => {
-    const result = await verifyCode(phone, code, codeHash)
+    const result = await verifyPhoneCode(code)
     if (!result.needs2FA) {
       saveSession(getSession())
     }
@@ -31,7 +32,7 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('auth:check2FA', async (_event, password: string) => {
-    await check2FA(password)
+    await verify2FAPassword(password)
     saveSession(getSession())
   })
 

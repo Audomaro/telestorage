@@ -7,6 +7,14 @@ let stringSession: StringSession
 const API_ID = Number(process.env.TELEGRAM_API_ID) || 0
 const API_HASH = process.env.TELEGRAM_API_HASH || ''
 
+if (!API_ID || !API_HASH) {
+  console.warn('TeleDrive: TELEGRAM_API_ID and TELEGRAM_API_HASH must be set in environment')
+  console.warn('Get them at https://my.telegram.org/apps')
+}
+
+let pendingPhone: string | undefined
+let pendingPhoneCodeHash: string | undefined
+
 export interface AuthState {
   isLoggedIn: boolean
   phone?: string
@@ -31,43 +39,48 @@ export async function startClient(): Promise<void> {
   if (!client) throw new Error('Client not initialized')
   try {
     await client.start({
-      phoneNumber: async () => { throw new Error('Use sendPhoneCode instead') },
-      password: async () => { throw new Error('Use check2FA instead') },
-      phoneCode: async () => { throw new Error('Use verifyCode instead') },
+      phoneNumber: async () => { throw new Error('Use startPhoneAuth instead') },
+      password: async () => { throw new Error('Use verify2FAPassword instead') },
+      phoneCode: async () => { throw new Error('Use verifyPhoneCode instead') },
       onError: (err) => { throw err }
     })
   } catch (err: any) {
-    if (err.errorMessage === 'AUTH_KEY_UNREGISTERED' || err.message?.includes('phone')) {
-      // This is fine, we'll auth manually
-    } else {
-      throw err
+    if (err.errorMessage === 'AUTH_KEY_UNREGISTERED' || err.code === 401) {
+      return
     }
+    throw err
   }
 }
 
-export async function sendPhoneCode(phone: string): Promise<{ codeHash: string }> {
+export async function startPhoneAuth(phone: string): Promise<{ codeHash: string }> {
   if (!client) throw new Error('Client not initialized')
   const result = await client.sendCode(
     { apiId: API_ID, apiHash: API_HASH },
     phone
   )
+  pendingPhone = phone
+  pendingPhoneCodeHash = result.phoneCodeHash
   authState.phone = phone
   authState.codeHash = result.phoneCodeHash
   return { codeHash: result.phoneCodeHash }
 }
 
-export async function verifyCode(phone: string, code: string, codeHash: string): Promise<{ needs2FA: boolean }> {
+export async function verifyPhoneCode(code: string): Promise<{ needs2FA: boolean }> {
   if (!client) throw new Error('Client not initialized')
+  if (!pendingPhone || !pendingPhoneCodeHash) throw new Error('No pending auth')
+
   try {
     await client.invoke(
       new Api.auth.SignIn({
-        phoneNumber: phone,
-        phoneCodeHash: codeHash,
+        phoneNumber: pendingPhone,
+        phoneCodeHash: pendingPhoneCodeHash,
         phoneCode: code
       })
     )
     authState.isLoggedIn = true
     authState.needs2FA = false
+    pendingPhone = undefined
+    pendingPhoneCodeHash = undefined
     return { needs2FA: false }
   } catch (err: any) {
     if (err.errorMessage === 'SESSION_PASSWORD_NEEDED') {
@@ -78,18 +91,30 @@ export async function verifyCode(phone: string, code: string, codeHash: string):
   }
 }
 
-export async function check2FA(password: string): Promise<void> {
+export async function verify2FAPassword(password: string): Promise<void> {
   if (!client) throw new Error('Client not initialized')
-  await client.signInWithPassword(
-    { apiId: API_ID, apiHash: API_HASH },
-    {
-      password: async () => password,
-      onError: (err) => { throw err }
-    }
-  )
-  authState.isLoggedIn = true
-  authState.needs2FA = false
+  if (!pendingPhone) throw new Error('No pending auth')
+
+  try {
+    await client.signInWithPassword(
+      { apiId: API_ID, apiHash: API_HASH },
+      {
+        password: async () => password,
+        onError: (err) => { throw err }
+      }
+    )
+    authState.isLoggedIn = true
+    authState.needs2FA = false
+    pendingPhone = undefined
+    pendingPhoneCodeHash = undefined
+  } catch (err: any) {
+    throw err
+  }
 }
+
+export const sendPhoneCode = startPhoneAuth
+export const verifyCode = verifyPhoneCode
+export const check2FA = verify2FAPassword
 
 export function setLoggedIn(value: boolean): void {
   authState.isLoggedIn = value

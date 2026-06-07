@@ -41,18 +41,25 @@ describe('Auth functions module exports', () => {
     expect(mod.initClient).toBeDefined()
   })
 
-  it('should export sendPhoneCode', async () => {
+  it('should export startPhoneAuth', async () => {
+    const mod = await import('../../../../electron/main/telegram/auth')
+    expect(mod.startPhoneAuth).toBeDefined()
+  })
+
+  it('should export verifyPhoneCode', async () => {
+    const mod = await import('../../../../electron/main/telegram/auth')
+    expect(mod.verifyPhoneCode).toBeDefined()
+  })
+
+  it('should export verify2FAPassword', async () => {
+    const mod = await import('../../../../electron/main/telegram/auth')
+    expect(mod.verify2FAPassword).toBeDefined()
+  })
+
+  it('should keep backward compatibility aliases', async () => {
     const mod = await import('../../../../electron/main/telegram/auth')
     expect(mod.sendPhoneCode).toBeDefined()
-  })
-
-  it('should export verifyCode', async () => {
-    const mod = await import('../../../../electron/main/telegram/auth')
     expect(mod.verifyCode).toBeDefined()
-  })
-
-  it('should export check2FA', async () => {
-    const mod = await import('../../../../electron/main/telegram/auth')
     expect(mod.check2FA).toBeDefined()
   })
 
