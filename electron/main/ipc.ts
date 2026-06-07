@@ -2,6 +2,7 @@ import { ipcMain } from 'electron'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup } from './telegram/groups'
+import { listFiles, uploadFile, downloadFile, deleteFile, forwardFile } from './telegram/files'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('auth:init', async () => {
@@ -56,5 +57,25 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('groups:create', async (_event, title: string) => {
     return createGroup(title)
+  })
+
+  ipcMain.handle('files:list', async (_event, groupId: number) => {
+    return listFiles(groupId)
+  })
+
+  ipcMain.handle('files:upload', async (_event, groupId: number, filePath: string) => {
+    return uploadFile(groupId, filePath)
+  })
+
+  ipcMain.handle('files:download', async (_event, groupId: number, messageId: number, filePath: string) => {
+    return downloadFile(groupId, messageId, filePath)
+  })
+
+  ipcMain.handle('files:delete', async (_event, groupId: number, messageId: number) => {
+    return deleteFile(groupId, messageId)
+  })
+
+  ipcMain.handle('files:forward', async (_event, fromGroupId: number, toGroupId: number, messageId: number) => {
+    return forwardFile(fromGroupId, toGroupId, messageId)
   })
 }
