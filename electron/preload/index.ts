@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   getGroups: () => ipcRenderer.invoke('groups:list'),
   getArchivedGroups: () => ipcRenderer.invoke('groups:listArchived'),
   createGroup: (title: string) => ipcRenderer.invoke('groups:create', title),
-  listFiles: (groupId: number, filter: string) => ipcRenderer.invoke('files:list', groupId, filter),
+  listFiles: (groupId: number) => ipcRenderer.invoke('files:list', groupId),
   uploadFile: (groupId: number, filePath: string) => ipcRenderer.invoke('files:upload', groupId, filePath),
   downloadFile: (groupId: number, messageId: number, filePath: string) =>
     ipcRenderer.invoke('files:download', groupId, messageId, filePath),

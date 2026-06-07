@@ -8,6 +8,35 @@ export interface FileResult {
   mimeType: string
   date: Date
   groupId: number
+  thumbnail?: string
+}
+
+export function extractThumbnail(media: any): string | null {
+  if (!media) return null
+
+  if (media.photo?.sizes) {
+    const stripped = media.photo.sizes.find((s: any) =>
+      s.className === 'PhotoStrippedSize' || s.type === 'i'
+    )
+    if (stripped?.bytes) {
+      const bytes = stripped.bytes instanceof Buffer
+        ? stripped.bytes
+        : Buffer.from(stripped.bytes)
+      return `data:image/jpeg;base64,${bytes.toString('base64')}`
+    }
+  }
+
+  if (media.document?.thumbs) {
+    const thumb = media.document.thumbs.find((t: any) => t.bytes)
+    if (thumb?.bytes) {
+      const bytes = thumb.bytes instanceof Buffer
+        ? thumb.bytes
+        : Buffer.from(thumb.bytes)
+      return `data:image/jpeg;base64,${bytes.toString('base64')}`
+    }
+  }
+
+  return null
 }
 
 export async function listFiles(groupId: number): Promise<FileResult[]> {
@@ -38,7 +67,11 @@ export async function listFiles(groupId: number): Promise<FileResult[]> {
         size = lastSize?.size || 0
       }
 
-      return { id: m.id, messageId: m.id, name, size, mimeType, date: new Date(m.date * 1000), groupId }
+      return {
+        id: m.id, messageId: m.id, name, size, mimeType,
+        date: new Date(m.date * 1000), groupId,
+        thumbnail: extractThumbnail(media)
+      }
     })
 }
 
@@ -61,6 +94,32 @@ export async function downloadFile(groupId: number, messageId: number, destPath:
   if (!media) throw new Error('No media in message')
 
   await client.downloadMedia(media, { outputFile: destPath })
+}
+
+export async function downloadFileWithProgress(
+  groupId: number, messageId: number, destPath: string,
+  progressCb?: (progress: number) => void
+): Promise<string> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+
+  const messages = await client.getMessages(groupId, { ids: messageId })
+  if (messages.length === 0) throw new Error('Message not found')
+
+  const media = messages[0].media
+  if (!media) throw new Error('No media in message')
+
+  const { mkdir } = await import('fs/promises')
+  const { dirname } = await import('path')
+
+  await mkdir(dirname(destPath), { recursive: true })
+
+  await client.downloadMedia(media, {
+    outputFile: destPath,
+    progressCallback: progressCb
+  })
+
+  return destPath
 }
 
 export async function deleteFile(groupId: number, messageId: number): Promise<void> {
