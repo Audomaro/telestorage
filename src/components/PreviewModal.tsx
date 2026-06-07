@@ -8,10 +8,12 @@ interface PreviewModalProps {
   onDelete: (file: TelegramFile) => void
   onForward?: (file: TelegramFile) => void
   readonly?: boolean
+  localPath?: string
 }
 
-export default function PreviewModal({ file, onClose, onDownload, onDelete, onForward, readonly }: PreviewModalProps) {
+export default function PreviewModal({ file, onClose, onDownload, onDelete, onForward, readonly, localPath }: PreviewModalProps) {
   const isVideo = file.mimeType.startsWith('video/')
+  const isImage = file.mimeType.startsWith('image/')
 
   return (
     <div
@@ -42,17 +44,39 @@ export default function PreviewModal({ file, onClose, onDownload, onDelete, onFo
         background: '#1a1a2e', borderRadius: 12, padding: 24,
         maxWidth: '70vw', maxHeight: '60vh', minWidth: 300,
         display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center'
+        alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
       }}>
-        <div style={{ fontSize: 72, marginBottom: 16 }}>
-          {isVideo ? '🎬' : '🖼️'}
-        </div>
-        <div style={{ color: 'white', fontSize: 16, fontWeight: 600, marginBottom: 8, textAlign: 'center', wordBreak: 'break-all' }}>
-          {file.name}
-        </div>
-        <div style={{ color: '#aaa', fontSize: 13, textAlign: 'center' }}>
-          {formatFileSize(file.size)} · {file.mimeType} · {formatDate(new Date(file.date))}
-        </div>
+        {localPath && isImage ? (
+          <img
+            src={localPath}
+            alt={file.name}
+            style={{
+              maxWidth: '100%', maxHeight: '100%',
+              borderRadius: 8, objectFit: 'contain'
+            }}
+          />
+        ) : localPath && isVideo ? (
+          <video
+            src={localPath}
+            controls
+            style={{
+              maxWidth: '100%', maxHeight: '100%',
+              borderRadius: 8
+            }}
+          />
+        ) : (
+          <>
+            <div style={{ fontSize: 72, marginBottom: 16 }}>
+              {isVideo ? '🎬' : '🖼️'}
+            </div>
+            <div style={{ color: 'white', fontSize: 16, fontWeight: 600, marginBottom: 8, textAlign: 'center', wordBreak: 'break-all' }}>
+              {file.name}
+            </div>
+            <div style={{ color: '#aaa', fontSize: 13, textAlign: 'center' }}>
+              {formatFileSize(file.size)} · {file.mimeType} · {formatDate(new Date(file.date))}
+            </div>
+          </>
+        )}
       </div>
 
       <div style={{ marginTop: 16, display: 'flex', gap: 16, color: '#888', fontSize: 13 }}>
