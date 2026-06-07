@@ -1,35 +1,31 @@
 export interface TelegramUser {
   id: number
-  firstName: string
-  lastName?: string
+  phone: string
   username?: string
-  phone?: string
+  firstName?: string
+  lastName?: string
 }
 
 export interface TelegramGroup {
   id: number
   title: string
-  type: string
+  isArchived: boolean
+  isOwner: boolean
+  fileCount?: number
+  totalSize?: number
 }
 
 export interface TelegramFile {
-  id: string
+  id: number
+  messageId: number
   name: string
   size: number
   mimeType: string
   date: Date
-  from?: TelegramUser | TelegramGroup
+  groupId: number
+  thumbnail?: string
 }
 
-export type ViewMode = 'list' | 'grid'
-
-export interface FileFilter {
-  type?: string
-  mimeType?: string
-  dateFrom?: Date
-  dateTo?: Date
-  minSize?: number
-  maxSize?: number
-}
-
-export type AuthStep = 'phone' | 'code' | 'password' | 'done'
+export type ViewMode = 'list' | 'gallery'
+export type FileFilter = 'all' | 'media' | 'documents'
+export type AuthStep = 'phone' | 'code' | '2fa' | 'done'
