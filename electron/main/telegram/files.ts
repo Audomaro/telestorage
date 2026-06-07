@@ -121,7 +121,12 @@ export async function downloadFileWithProgress(
 
   await client.downloadMedia(media, {
     outputFile: destPath,
-    progressCallback: progressCb
+    progressCallback: (downloaded: any, total: any) => {
+      if (progressCb && total?.toJSNumber) {
+        const totalNum = total.toJSNumber()
+        if (totalNum > 0) progressCb(downloaded.toJSNumber() / totalNum)
+      }
+    }
   })
 
   return destPath
