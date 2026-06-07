@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
+import { getGroups, getArchivedGroups, createGroup } from './telegram/groups'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('auth:init', async () => {
@@ -43,5 +44,17 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('auth:logout', async () => {
     await logout()
     clearSession()
+  })
+
+  ipcMain.handle('groups:list', async () => {
+    return getGroups()
+  })
+
+  ipcMain.handle('groups:listArchived', async () => {
+    return getArchivedGroups()
+  })
+
+  ipcMain.handle('groups:create', async (_event, title: string) => {
+    return createGroup(title)
   })
 }
