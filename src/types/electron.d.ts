@@ -11,6 +11,7 @@ interface TelegramAPI {
   listFiles(groupId: number): Promise<any[]>
   uploadFile(groupId: number, filePath: string): Promise<any>
   downloadFile(groupId: number, messageId: number, filePath: string): Promise<void>
+  downloadFileWithProgress(groupId: number, messageId: number, destPath: string, onProgress: (p: number) => void): Promise<string>
   deleteFile(groupId: number, messageId: number): Promise<void>
   forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void>
 }
