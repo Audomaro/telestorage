@@ -1,0 +1,145 @@
+<h2>TeleDrive — Design Spec</h2>
+<p class="subtitle">Resumen visual de la especificación</p>
+
+<div class="section">
+  <h3>1. Login Flow</h3>
+  <div class="mockup" style="max-width:360px;margin:0 auto;">
+    <div class="mockup-header">TeleDrive</div>
+    <div class="mockup-body" style="padding:16px;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <label style="font-size:12px;color:#666;">Número de teléfono</label>
+          <div class="mock-input" style="width:100%;">+52 555 123 4567</div>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#666;">Código de verificación</label>
+          <div class="mock-input" style="width:100%;">_ _ _ _ _</div>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#666;">Contraseña 2FA (opcional)</label>
+          <div class="mock-input" style="width:100%;">••••••••</div>
+        </div>
+        <button class="mock-button" style="width:100%;">Conectar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Arquitectura</h3>
+  <div class="mockup" style="max-width:600px;margin:0 auto;">
+    <div class="mockup-body" style="padding:20px;">
+      <div style="display:flex;gap:12px;align-items:stretch;">
+        <div style="flex:1;border:2px solid #4CAF50;border-radius:8px;padding:12px;">
+          <div style="font-weight:bold;font-size:13px;color:#4CAF50;">⚡ Main Process</div>
+          <ul style="font-size:11px;padding-left:16px;margin:8px 0 0;">
+            <li>gramjs (MTProto)</li>
+            <li>Sesión encriptada</li>
+            <li>CRUD archivos</li>
+            <li>Listar grupos</li>
+          </ul>
+        </div>
+        <div style="display:flex;align-items:center;font-size:20px;color:#999;">⇄ IPC</div>
+        <div style="flex:1;border:2px solid #2196F3;border-radius:8px;padding:12px;">
+          <div style="font-weight:bold;font-size:13px;color:#2196F3;">🖥️ Renderer (React)</div>
+          <ul style="font-size:11px;padding-left:16px;margin:8px 0 0;">
+            <li>Login UI</li>
+            <li>Lista/Galería</li>
+            <li>Filtros</li>
+            <li>Preview modal</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. Group List</h3>
+  <div class="mockup" style="max-width:500px;margin:0 auto;">
+    <div class="mockup-header">Grupos | Buscar...</div>
+    <div class="mockup-body" style="padding:8px;">
+      <div style="display:flex;align-items:center;padding:8px;border-bottom:1px solid #eee;">
+        <div style="background:#4CAF50;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;margin-right:10px;font-weight:bold;">M</div>
+        <div style="flex:1;">
+          <div style="font-weight:bold;">MiDrive-Fotos <span style="background:#4CAF50;color:white;font-size:10px;padding:1px 5px;border-radius:3px;">Propio</span></div>
+          <div style="font-size:11px;color:#888;">245 archivos</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;padding:8px;border-bottom:1px solid #eee;">
+        <div style="background:#FF9800;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;margin-right:10px;font-weight:bold;">V</div>
+        <div style="flex:1;">
+          <div style="font-weight:bold;">Vacaciones <span style="background:#FF9800;color:white;font-size:10px;padding:1px 5px;border-radius:3px;">Tercero</span></div>
+          <div style="font-size:11px;color:#888;">Solo lectura</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>4. File Views</h3>
+  <div style="display:flex;gap:16px;">
+    <div class="mockup" style="flex:1;">
+      <div class="mockup-header" style="font-size:11px;">📋 Lista</div>
+      <div class="mockup-body" style="padding:6px;">
+        <div style="display:flex;align-items:center;padding:4px;border-bottom:1px solid #eee;font-size:11px;">
+          <span style="margin-right:8px;">🖼️</span>
+          <span style="flex:1;">foto.jpg</span>
+          <span>2.4 MB</span>
+        </div>
+        <div style="display:flex;align-items:center;padding:4px;font-size:11px;">
+          <span style="margin-right:8px;">🎬</span>
+          <span style="flex:1;">video.mp4</span>
+          <span>45 MB</span>
+        </div>
+      </div>
+    </div>
+    <div class="mockup" style="flex:1;">
+      <div class="mockup-header" style="font-size:11px;">🖼️ Galería</div>
+      <div class="mockup-body" style="padding:6px;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:4px;"></div>
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:4px;"></div>
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:4px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>5. Filtros</h3>
+  <div style="display:flex;gap:8px;">
+    <span style="padding:4px 12px;border:1px solid #4CAF50;border-radius:12px;font-size:12px;font-weight:bold;">📋 Ver</span>
+    <span style="padding:4px 12px;border:1px solid #ddd;border-radius:12px;font-size:12px;cursor:pointer;">Todos</span>
+    <span style="padding:4px 12px;border:1px solid #ddd;border-radius:12px;font-size:12px;cursor:pointer;">Multimedia</span>
+    <span style="padding:4px 12px;border:1px solid #ddd;border-radius:12px;font-size:12px;cursor:pointer;">Documentos</span>
+  </div>
+</div>
+
+<div class="section">
+  <h3>6. Testing (TDD)</h3>
+  <div style="display:flex;gap:8px;">
+    <span style="padding:6px 12px;background:#E8F5E9;border-radius:6px;font-size:12px;">🧪 Unit (Vitest)</span>
+    <span style="padding:6px 12px;background:#E3F2FD;border-radius:6px;font-size:12px;">🔌 Integration</span>
+    <span style="padding:6px 12px;background:#FFF3E0;border-radius:6px;font-size:12px;">🖥️ E2E (Playwright)</span>
+  </div>
+</div>
+
+<div class="options" style="margin-top:24px;">
+  <div class="option" data-choice="approved" onclick="toggleSelect(this)">
+    <div class="letter">✅</div>
+    <div class="content">
+      <h3>Todo ok</h3>
+      <p>Aprobado, pasemos a implementación</p>
+    </div>
+  </div>
+  <div class="option" data-choice="changes" onclick="toggleSelect(this)">
+    <div class="letter">✏️</div>
+    <div class="content">
+      <h3>Quiero cambios</h3>
+      <p>Ajustar algo del spec</p>
+    </div>
+  </div>
+</div>

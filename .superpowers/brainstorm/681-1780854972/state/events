@@ -1,0 +1,23 @@
+{"type":"click","text":"✏️\n    \n      Haría algunos cambios\n      Quiero ajustar algo de la estructura","choice":"cambios","id":null,"timestamp":1780857122997}
+{"type":"click","text":"✅\n    \n      Todo ok\n      Aprobado, pasemos a implementación","choice":"approved","id":null,"timestamp":1780858769196}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858775892}
+{"type":"click","text":"✅\n    \n      Todo ok\n      Aprobado, pasemos a implementación","choice":"approved","id":null,"timestamp":1780858776852}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858777490}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858778345}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858778502}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858778649}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858778787}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858803350}
+{"type":"click","text":"✅\n    \n      Todo ok\n      Aprobado, pasemos a implementación","choice":"approved","id":null,"timestamp":1780858803778}
+{"type":"click","text":"✅\n    \n      Todo ok\n      Aprobado, pasemos a implementación","choice":"approved","id":null,"timestamp":1780858803935}
+{"type":"click","text":"✅\n    \n      Todo ok\n      Aprobado, pasemos a implementación","choice":"approved","id":null,"timestamp":1780858804103}
+{"type":"click","text":"✅\n    \n      Todo ok\n      Aprobado, pasemos a implementación","choice":"approved","id":null,"timestamp":1780858804251}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858804640}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858804842}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858804985}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858805151}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858805316}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858805476}
+{"type":"click","text":"✏️\n    \n      Quiero cambios\n      Ajustar algo del spec","choice":"changes","id":null,"timestamp":1780858824479}
+{"type":"click","text":"👍\n    \n      Me gusta\n      Toolbar + navegación + preview funcional ok","choice":"ok","id":null,"timestamp":1780858943688}
+{"type":"click","text":"👍\n    \n      Me gusta\n      Toolbar + navegación + preview funcional ok","choice":"ok","id":null,"timestamp":1780858956919}

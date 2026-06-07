@@ -1,0 +1,54 @@
+<h2>Arquitectura técnica — 2 enfoques</h2>
+<p class="subtitle">Elige cómo organizar el código</p>
+
+<div class="options">
+  <div class="option" data-choice="mono" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Monolito Electron + React</h3>
+      <p><strong>Todo en el mismo proceso:</strong> Electron con React en el renderer, gramjs (MTProto) directo desde el main process. Comunicación via IPC.</p>
+      <div class="pros-cons" style="margin-top:8px;font-size:13px;">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Más simple de construir</li>
+            <li>Un solo package.json</li>
+            <li>Arranque rápido</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Contras</h4>
+          <ul>
+            <li>Menos separación de concerns</li>
+            <li>Pruebas más complejas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="separado" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Electron + React + Backend Node separado <span style="background:#4CAF50;color:white;font-size:10px;padding:2px 6px;border-radius:4px;">Recomendado</span></h3>
+      <p><strong>Procesos separados:</strong> Electron (UI React) se comunica via HTTP/IPC con un backend Node que maneja la lógica de Telegram (gramjs), almacenamiento seguro de sesión y operaciones de archivos.</p>
+      <div class="pros-cons" style="margin-top:8px;font-size:13px;">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Separación clara UI / lógica Telegram</li>
+            <li>Backend testeable independientemente</li>
+            <li>Mejor seguridad (sesión aislada)</li>
+            <li>Fácil de testear con TDD</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Contras</h4>
+          <ul>
+            <li>Más archivos/código boilerplate</li>
+            <li>Comunicación entre procesos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

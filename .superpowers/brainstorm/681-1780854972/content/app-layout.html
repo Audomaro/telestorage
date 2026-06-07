@@ -1,0 +1,121 @@
+<h2>Estructura general de la app</h2>
+<p class="subtitle">Así se organizaría la navegación principal</p>
+
+<div class="section">
+  <h3>1. Pantalla de Login</h3>
+  <div class="mockup" style="max-width:400px;margin:0 auto;">
+    <div class="mockup-header">TeleDrive — Login</div>
+    <div class="mockup-body" style="padding:16px;">
+      <div style="margin-bottom:12px;">
+        <label>Número de teléfono</label>
+        <div class="mock-input" style="width:100%;">+52 555 123 4567</div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label>Código de verificación</label>
+        <div class="mock-input" style="width:100%;">_ _ _ _ _</div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label>Contraseña 2FA (si aplica)</label>
+        <div class="mock-input" style="width:100%;">••••••••</div>
+      </div>
+      <button class="mock-button" style="width:100%;">Conectar</button>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Pantalla principal — Lista de grupos</h3>
+  <div class="mockup" style="max-width:600px;margin:0 auto;">
+    <div class="mockup-header">Mis grupos | Buscar...</div>
+    <div class="mockup-body" style="padding:8px;">
+      <div style="display:flex;align-items:center;padding:8px;border-bottom:1px solid #eee;">
+        <div style="background:#4CAF50;color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin-right:12px;font-weight:bold;">M</div>
+        <div style="flex:1;">
+          <div style="font-weight:bold;">MiDrive-Fotos <span style="background:#4CAF50;color:white;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;">Propio</span></div>
+          <div style="font-size:12px;color:#666;">245 archivos · 1.2 GB</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;padding:8px;border-bottom:1px solid #eee;">
+        <div style="background:#2196F3;color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin-right:12px;font-weight:bold;">D</div>
+        <div style="flex:1;">
+          <div style="font-weight:bold;">MiDrive-Docs <span style="background:#4CAF50;color:white;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;">Propio</span></div>
+          <div style="font-size:12px;color:#666;">89 archivos · 340 MB</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;padding:8px;border-bottom:1px solid #eee;">
+        <div style="background:#9E9E9E;color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin-right:12px;font-weight:bold;">V</div>
+        <div style="flex:1;">
+          <div style="font-weight:bold;">Vacaciones 2025 <span style="background:#FF9800;color:white;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;">Tercero</span></div>
+          <div style="font-size:12px;color:#666;">Solo lectura · 1,230 archivos</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;padding:8px;opacity:0.6;">
+        <div style="background:#607D8B;color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin-right:12px;font-weight:bold;">A</div>
+        <div style="flex:1;">
+          <div style="font-weight:bold;">Archivado-2024 <span style="background:#4CAF50;color:white;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;">Propio</span></div>
+          <div style="font-size:12px;color:#666;">Archivado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. Vista de archivos en un grupo</h3>
+  <div class="mockup" style="max-width:700px;margin:0 auto;">
+    <div class="mockup-header">
+      <span>📁 MiDrive-Fotos</span>
+      <span style="font-size:12px;">
+        <span style="margin:0 8px;cursor:pointer;font-weight:bold;">📋 Lista</span>
+        <span style="margin:0 8px;cursor:pointer;">🖼️ Galería</span>
+        <span style="margin-left:16px;">
+          <select style="padding:2px 4px;">
+            <option>Todos</option>
+            <option>Multimedia</option>
+            <option>Documentos</option>
+          </select>
+        </span>
+      </span>
+    </div>
+    <div class="mockup-body" style="padding:8px;">
+      <div style="display:flex;align-items:center;padding:6px;border-bottom:1px solid #eee;">
+        <span style="margin-right:12px;">🖼️</span>
+        <span style="flex:1;">playa_atardecer.jpg</span>
+        <span style="color:#666;font-size:12px;margin-right:16px;">2.4 MB</span>
+        <span style="color:#666;font-size:12px;">⬇️ 🗑️</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:6px;border-bottom:1px solid #eee;">
+        <span style="margin-right:12px;">🎬</span>
+        <span style="flex:1;">vacaciones.mp4</span>
+        <span style="color:#666;font-size:12px;margin-right:16px;">45 MB</span>
+        <span style="color:#666;font-size:12px;">⬇️ 🗑️</span>
+      </div>
+      <div style="display:flex;align-items:center;padding:6px;border-bottom:1px solid #eee;">
+        <span style="margin-right:12px;">📄</span>
+        <span style="flex:1;">documento.pdf</span>
+        <span style="color:#666;font-size:12px;margin-right:16px;">1.1 MB</span>
+        <span style="color:#666;font-size:12px;">⬇️ 🗑️</span>
+      </div>
+    </div>
+    <div class="mockup-body" style="padding:8px;border-top:1px solid #ddd;">
+      <button class="mock-button" style="width:100%;">+ Subir archivo</button>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="si" onclick="toggleSelect(this)">
+    <div class="letter">👍</div>
+    <div class="content">
+      <h3>Me gusta la estructura</h3>
+      <p>Continúa con el diseño detallado</p>
+    </div>
+  </div>
+  <div class="option" data-choice="cambios" onclick="toggleSelect(this)">
+    <div class="letter">✏️</div>
+    <div class="content">
+      <h3>Haría algunos cambios</h3>
+      <p>Quiero ajustar algo de la estructura</p>
+    </div>
+  </div>
+</div>

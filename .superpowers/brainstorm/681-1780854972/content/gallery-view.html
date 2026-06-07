@@ -1,0 +1,84 @@
+<h2>Vista Galería</h2>
+<p class="subtitle">Modo galería para fotos y videos con visualización inline</p>
+
+<div class="section">
+  <div class="mockup" style="max-width:700px;margin:0 auto;">
+    <div class="mockup-header">
+      <span>📁 MiDrive-Fotos</span>
+      <span style="font-size:12px;">
+        <span style="margin:0 8px;cursor:pointer;">📋 Lista</span>
+        <span style="margin:0 8px;cursor:pointer;font-weight:bold;border-bottom:2px solid #4CAF50;">🖼️ Galería</span>
+        <span style="margin-left:16px;">
+          <select style="padding:2px 4px;">
+            <option>Todos</option>
+            <option selected>Multimedia</option>
+            <option>Documentos</option>
+          </select>
+        </span>
+      </span>
+    </div>
+    <div class="mockup-body" style="padding:12px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+        <div style="aspect-ratio:1;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;text-align:center;cursor:pointer;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;padding:1px 4px;border-radius:3px;">📍</div>
+        </div>
+        <div style="aspect-ratio:1;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;text-align:center;cursor:pointer;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;padding:1px 4px;border-radius:3px;">📍</div>
+        </div>
+        <div style="aspect-ratio:1;background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;text-align:center;cursor:pointer;position:relative;">
+          <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;padding:1px 4px;border-radius:3px;">📍</div>
+        </div>
+        <div style="aspect-ratio:1;background:linear-gradient(135deg,#43e97b,#38f9d7);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;text-align:center;cursor:pointer;position:relative;">
+          <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;padding:1px 4px;border-radius:3px;">▶️ 0:45</div>
+        </div>
+        <div style="aspect-ratio:1;background:linear-gradient(135deg,#a18cd1,#fbc2eb);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;text-align:center;cursor:pointer;position:relative;">
+          <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;padding:1px 4px;border-radius:3px;">📍</div>
+        </div>
+        <div style="aspect-ratio:1;background:linear-gradient(135deg,#fa709a,#fee140);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;text-align:center;cursor:pointer;position:relative;">
+          <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;padding:1px 4px;border-radius:3px;">▶️ 2:30</div>
+        </div>
+      </div>
+    </div>
+    <div class="mockup-body" style="padding:8px;border-top:1px solid #ddd;display:flex;gap:8px;">
+      <button class="mock-button" style="flex:1;">+ Subir archivo</button>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Modal de vista previa</h3>
+  <p class="subtitle">Al hacer clic en una imagen/video se abre el visor</p>
+  <div class="mockup" style="max-width:500px;margin:0 auto;">
+    <div class="mockup-body" style="padding:0;">
+      <div style="background:#1a1a2e;height:300px;display:flex;align-items:center;justify-content:center;color:white;font-size:48px;border-radius:8px 8px 0 0;">🖼️</div>
+      <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:bold;">playa_atardecer.jpg</div>
+          <div style="font-size:12px;color:#666;">2.4 MB · 1920x1080</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="mock-button" style="padding:4px 12px;font-size:12px;">⬇️</button>
+          <button class="mock-button" style="padding:4px 12px;font-size:12px;">🗑️</button>
+          <button class="mock-button" style="padding:4px 12px;font-size:12px;">↗️ Reenviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="aprobado" onclick="toggleSelect(this)">
+    <div class="letter">👍</div>
+    <div class="content">
+      <h3>Me gusta así</h3>
+      <p>Galeria en grid, modal con preview y acciones</p>
+    </div>
+  </div>
+  <div class="option" data-choice="ajustes" onclick="toggleSelect(this)">
+    <div class="letter">✏️</div>
+    <div class="content">
+      <h3>Cambiaría algo</h3>
+      <p>Dime qué ajustar</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,140 @@
+<h2>Toolbar + Preview funcional</h2>
+<p class="subtitle">Al hacer clic en un grupo se navega a la vista con toolbar</p>
+
+<div class="section">
+  <h3>Navegación: Grupo → Toolbar → Vista</h3>
+  <div style="display:flex;gap:16px;align-items:flex-start;">
+    <div class="mockup" style="flex:1;">
+      <div class="mockup-header">Grupos</div>
+      <div class="mockup-body" style="padding:6px;">
+        <div style="display:flex;align-items:center;padding:6px;border-bottom:1px solid #eee;cursor:pointer;">
+          <div style="background:#4CAF50;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin-right:8px;font-weight:bold;font-size:12px;">M</div>
+          <div>
+            <div style="font-weight:bold;font-size:13px;">MiDrive-Fotos</div>
+            <div style="font-size:10px;color:#888;">245 archivos</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;padding:6px;cursor:pointer;">
+          <div style="background:#FF9800;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin-right:8px;font-weight:bold;font-size:12px;">V</div>
+          <div>
+            <div style="font-weight:bold;font-size:13px;">Vacaciones</div>
+            <div style="font-size:10px;color:#888;">Solo lectura</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:24px;color:#999;display:flex;align-items:center;padding-top:40px;">→</div>
+    <div class="mockup" style="flex:2;">
+      <div class="mockup-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+        <span>⬅️ MiDrive-Fotos</span>
+        <span style="font-size:12px;">
+          <span style="margin:0 4px;cursor:pointer;font-weight:bold;border-bottom:2px solid #4CAF50;">📋 Lista</span>
+          <span style="margin:0 4px;cursor:pointer;">🖼️ Galería</span>
+          <span style="margin-left:8px;">
+            <select style="padding:2px 4px;font-size:11px;">
+              <option>Todos</option>
+              <option>Multimedia</option>
+              <option>Documentos</option>
+            </select>
+          </span>
+        </span>
+      </div>
+      <div class="mockup-body" style="padding:6px;">
+        <div style="display:flex;align-items:center;padding:4px;border-bottom:1px solid #eee;font-size:12px;">
+          <span style="margin-right:8px;">🖼️</span>
+          <span style="flex:1;">playa_atardecer.jpg</span>
+          <span style="color:#888;font-size:11px;margin-right:12px;">2.4 MB</span>
+          <span style="font-size:11px;">⬇️ 🗑️</span>
+        </div>
+        <div style="display:flex;align-items:center;padding:4px;border-bottom:1px solid #eee;font-size:12px;">
+          <span style="margin-right:8px;">🎬</span>
+          <span style="flex:1;">vacaciones.mp4</span>
+          <span style="color:#888;font-size:11px;margin-right:12px;">45 MB</span>
+          <span style="font-size:11px;">⬇️ 🗑️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Toolbar (siempre visible en la vista de grupo)</h3>
+  <div class="mockup" style="max-width:700px;margin:0 auto;">
+    <div class="mockup-body" style="padding:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <button style="padding:6px 12px;background:transparent;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;">📋 Lista</button>
+          <button style="padding:6px 12px;background:#4CAF50;color:white;border:1px solid #4CAF50;border-radius:6px;cursor:pointer;font-size:12px;">🖼️ Galería</button>
+        </div>
+        <div style="display:flex;gap:4px;">
+          <button style="padding:6px 12px;border:1px solid #ddd;border-radius:12px;font-size:12px;cursor:pointer;background:#E8F5E9;font-weight:bold;">Todos</button>
+          <button style="padding:6px 12px;border:1px solid #ddd;border-radius:12px;font-size:12px;cursor:pointer;">Multimedia</button>
+          <button style="padding:6px 12px;border:1px solid #ddd;border-radius:12px;font-size:12px;cursor:pointer;">Documentos</button>
+        </div>
+        <button style="padding:6px 16px;background:#4CAF50;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;">+ Subir</button>
+      </div>
+    </div>
+    <div style="padding:8px 12px;border-top:1px solid #eee;font-size:11px;color:#888;">
+      Los filtros cambian según el modo: en Galería filtra multimedia/documentos, en Lista filtra todos
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Preview funcional</h3>
+  <div class="mockup" style="max-width:650px;margin:0 auto;">
+    <div style="background:#1a1a2e;height:300px;display:flex;align-items:center;justify-content:center;color:white;border-radius:8px 8px 0 0;position:relative;">
+      <div style="font-size:64px;">🖼️</div>
+      <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:24px;cursor:pointer;opacity:0.7;">‹</div>
+      <div style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:24px;cursor:pointer;opacity:0.7;">›</div>
+      <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;background:rgba(0,0,0,0.5);padding:2px 10px;border-radius:10px;">2 / 15</div>
+      <div style="position:absolute;top:8px;right:8px;font-size:18px;cursor:pointer;opacity:0.7;">✕</div>
+    </div>
+    <div class="mockup-body" style="padding:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:bold;font-size:14px;">playa_atardecer.jpg</div>
+          <div style="font-size:12px;color:#888;">2.4 MB · 1920×1080 · 24 may 2026</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button style="padding:6px 12px;background:#E3F2FD;border:none;border-radius:6px;cursor:pointer;font-size:12px;" title="Descargar">⬇️</button>
+          <button style="padding:6px 12px;background:#FFEBEE;border:none;border-radius:6px;cursor:pointer;font-size:12px;" title="Eliminar">🗑️</button>
+          <button style="padding:6px 12px;background:#E8F5E9;border:none;border-radius:6px;cursor:pointer;font-size:12px;" title="Reenviar a grupo">↗️</button>
+          <button style="padding:6px 12px;background:#F3E5F5;border:none;border-radius:6px;cursor:pointer;font-size:12px;" title="Zoom">🔍</button>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#666;display:flex;gap:16px;">
+        <span>📦 Telegram Message ID: 4521</span>
+        <span style="cursor:pointer;color:#2196F3;">🔗 Copiar enlace</span>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:8px;display:flex;gap:12px;font-size:12px;color:#666;justify-content:center;">
+    <span>‹ Anterior</span>
+    <span>|</span>
+    <span>Siguiente ›</span>
+    <span>|</span>
+    <span>🔍 Zoom</span>
+    <span>|</span>
+    <span>↕ Ajustar</span>
+    <span>|</span>
+    <span>⏬ Descargar</span>
+  </div>
+</div>
+
+<div class="options" style="margin-top:24px;">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">👍</div>
+    <div class="content">
+      <h3>Me gusta</h3>
+      <p>Toolbar + navegación + preview funcional ok</p>
+    </div>
+  </div>
+  <div class="option" data-choice="adjust" onclick="toggleSelect(this)">
+    <div class="letter">✏️</div>
+    <div class="content">
+      <h3>Ajustar</h3>
+      <p>Quiero cambiar algo del toolbar o preview</p>
+    </div>
+  </div>
+</div>

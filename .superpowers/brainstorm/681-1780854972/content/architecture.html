@@ -1,0 +1,82 @@
+<h2>Arquitectura revisada — 100% cliente</h2>
+<p class="subtitle">Todo corre dentro de Electron, sin backend externo</p>
+
+<div class="section">
+  <div class="mockup" style="max-width:650px;margin:0 auto;">
+    <div class="mockup-header">Arquitectura del proceso</div>
+    <div class="mockup-body" style="padding:20px;">
+      <div style="display:flex;gap:16px;align-items:stretch;">
+        <div style="flex:1;border:2px solid #4CAF50;border-radius:8px;padding:12px;">
+          <div style="font-weight:bold;font-size:14px;margin-bottom:8px;color:#4CAF50;">⚡ Main Process</div>
+          <div style="font-size:11px;line-height:1.6;">
+            • gramjs (MTProto client)<br>
+            • Sesión encriptada (safeStorage)<br>
+            • Upload / Download / Delete<br>
+            • Listar grupos, archivos<br>
+            • Forward entre grupos
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:24px;color:#666;">⇄ IPC</div>
+        <div style="flex:1;border:2px solid #2196F3;border-radius:8px;padding:12px;">
+          <div style="font-weight:bold;font-size:14px;margin-bottom:8px;color:#2196F3;">🖥️ Renderer (React)</div>
+          <div style="font-size:11px;line-height:1.6;">
+            • Login flow (phone/code/2FA)<br>
+            • Lista de grupos con badges<br>
+            • Vista Lista / Galería<br>
+            • Filtros (media/docs/todos)<br>
+            • Modal preview + acciones
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#FFF3E0;border-radius:8px;font-size:12px;">
+        <strong>🔒 Seguridad:</strong> API ID/Hash + sesión encriptados con safeStorage de Electron. npm audit en CI.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Pruebas (TDD)</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:120px;padding:12px;border:1px solid #e0e0e0;border-radius:8px;">
+      <strong style="font-size:13px;">🧪 Unit tests</strong>
+      <ul style="font-size:11px;padding-left:16px;">
+        <li>Componentes React</li>
+        <li>Hooks personalizados</li>
+        <li>Utils/formateo</li>
+      </ul>
+    </div>
+    <div style="flex:1;min-width:120px;padding:12px;border:1px solid #e0e0e0;border-radius:8px;">
+      <strong style="font-size:13px;">🔌 Integration tests</strong>
+      <ul style="font-size:11px;padding-left:16px;">
+        <li>IPC handlers mockeados</li>
+        <li>Flujo de login</li>
+        <li>Operaciones de archivos</li>
+      </ul>
+    </div>
+    <div style="flex:1;min-width:120px;padding:12px;border:1px solid #e0e0e0;border-radius:8px;">
+      <strong style="font-size:13px;">🖥️ E2E tests</strong>
+      <ul style="font-size:11px;padding-left:16px;">
+        <li>Playwright + Electron</li>
+        <li>Flujo completo login→navegar</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+    <div class="letter">👍</div>
+    <div class="content">
+      <h3>Aprobado</h3>
+      <p>Arquitectura clara, continuemos</p>
+    </div>
+  </div>
+  <div class="option" data-choice="dudas" onclick="toggleSelect(this)">
+    <div class="letter">❓</div>
+    <div class="content">
+      <h3>Tengo dudas</h3>
+      <p>Preguntar antes de avanzar</p>
+    </div>
+  </div>
+</div>
