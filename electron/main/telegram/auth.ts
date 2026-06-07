@@ -91,6 +91,10 @@ export async function check2FA(password: string): Promise<void> {
   authState.needs2FA = false
 }
 
+export function setLoggedIn(value: boolean): void {
+  authState.isLoggedIn = value
+}
+
 export function getAuthState(): AuthState {
   return { ...authState }
 }

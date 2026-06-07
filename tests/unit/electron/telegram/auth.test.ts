@@ -75,4 +75,9 @@ describe('Auth functions module exports', () => {
     const mod = await import('../../../../electron/main/telegram/auth')
     expect(mod.getClient).toBeDefined()
   })
+
+  it('should export setLoggedIn', async () => {
+    const mod = await import('../../../../electron/main/telegram/auth')
+    expect(mod.setLoggedIn).toBeDefined()
+  })
 })

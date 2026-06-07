@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { initClient, startClient, sendPhoneCode, verifyCode, check2FA, getAuthState, getSession, logout } from './telegram/auth'
+import { initClient, startClient, sendPhoneCode, verifyCode, check2FA, getAuthState, getSession, logout, setLoggedIn } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 
 export function registerIpcHandlers(): void {
@@ -9,6 +9,7 @@ export function registerIpcHandlers(): void {
     try {
       await startClient()
       if (session) {
+        setLoggedIn(true)
         return { initialized: true }
       }
     } catch {
