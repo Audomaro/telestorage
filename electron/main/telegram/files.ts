@@ -1,4 +1,6 @@
 import { getClient } from './auth'
+import { mkdir } from 'fs/promises'
+import { dirname } from 'path'
 
 export interface FileResult {
   id: number
@@ -12,31 +14,37 @@ export interface FileResult {
 }
 
 export function extractThumbnail(media: any): string | null {
-  if (!media) return null
+  try {
+    if (!media) return null
 
-  if (media.photo?.sizes) {
-    const stripped = media.photo.sizes.find((s: any) =>
-      s.className === 'PhotoStrippedSize' || s.type === 'i'
-    )
-    if (stripped?.bytes) {
-      const bytes = stripped.bytes instanceof Buffer
-        ? stripped.bytes
-        : Buffer.from(stripped.bytes)
-      return `data:image/jpeg;base64,${bytes.toString('base64')}`
+    if (media.photo?.sizes) {
+      const sizes = Array.isArray(media.photo.sizes) ? media.photo.sizes : []
+      const stripped = sizes.find((s: any) =>
+        s?.className === 'PhotoStrippedSize' || s?.type === 'i'
+      )
+      if (stripped?.bytes) {
+        const bytes = stripped.bytes instanceof Buffer
+          ? stripped.bytes
+          : Buffer.from(stripped.bytes)
+        return `data:image/jpeg;base64,${bytes.toString('base64')}`
+      }
     }
-  }
 
-  if (media.document?.thumbs) {
-    const thumb = media.document.thumbs.find((t: any) => t.bytes)
-    if (thumb?.bytes) {
-      const bytes = thumb.bytes instanceof Buffer
-        ? thumb.bytes
-        : Buffer.from(thumb.bytes)
-      return `data:image/jpeg;base64,${bytes.toString('base64')}`
+    if (media.document?.thumbs) {
+      const thumbs = Array.isArray(media.document.thumbs) ? media.document.thumbs : []
+      const thumb = thumbs.find((t: any) => t?.bytes)
+      if (thumb?.bytes) {
+        const bytes = thumb.bytes instanceof Buffer
+          ? thumb.bytes
+          : Buffer.from(thumb.bytes)
+        return `data:image/jpeg;base64,${bytes.toString('base64')}`
+      }
     }
-  }
 
-  return null
+    return null
+  } catch {
+    return null
+  }
 }
 
 export async function listFiles(groupId: number): Promise<FileResult[]> {
@@ -108,9 +116,6 @@ export async function downloadFileWithProgress(
 
   const media = messages[0].media
   if (!media) throw new Error('No media in message')
-
-  const { mkdir } = await import('fs/promises')
-  const { dirname } = await import('path')
 
   await mkdir(dirname(destPath), { recursive: true })
 
