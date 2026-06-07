@@ -1,5 +1,5 @@
 {
-  "name": "teleg",
+  "name": "teledrive",
   "version": "0.0.0",
   "description": "",
   "main": "./out/main/index.js",
@@ -9,12 +9,12 @@
     "preview": "electron-vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "echo lint",
+    "lint": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
     "postinstall": "echo \"postinstall done\"",
     "rebuild": "electron-builder install-app-deps",
-    "audit": "echo audit"
+    "audit": "npm audit"
   },
   "dependencies": {
     "telegram": "^2.26.0"
