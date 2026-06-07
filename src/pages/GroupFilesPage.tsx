@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { TelegramGroup, TelegramFile, ViewMode, FileFilter } from '../types'
 import Toolbar from '../components/Toolbar'
 import FileList from '../components/FileList'
@@ -18,6 +18,7 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [filter, setFilter] = useState<FileFilter>('all')
   const [previewFile, setPreviewFile] = useState<TelegramFile | null>(null)
+  const [previewLocalPath, setPreviewLocalPath] = useState<string | undefined>(undefined)
   const [showUpload, setShowUpload] = useState(false)
 
   const loadFiles = async () => {
@@ -58,11 +59,25 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
     }
   }
 
+  const handleGridDownload = useCallback(async (file: TelegramFile, onProgress: (p: number) => void): Promise<string> => {
+    const destPath = `downloads/${file.messageId}_${file.name}`
+    const localPath = await window.telegramAPI.downloadFileWithProgress(
+      group.id, file.messageId, destPath, onProgress
+    )
+    return localPath
+  }, [group.id])
+
+  const handlePreviewOpen = (file: TelegramFile, localPath?: string) => {
+    setPreviewFile(file)
+    setPreviewLocalPath(localPath)
+  }
+
   const handleDelete = async (file: TelegramFile) => {
     if (!confirm(`¿Eliminar "${file.name}"?`)) return
     try {
       await window.telegramAPI.deleteFile(group.id, file.messageId)
       setPreviewFile(null)
+      setPreviewLocalPath(undefined)
       loadFiles()
     } catch (err: any) {
       alert(err.message || 'Error al eliminar')
@@ -106,14 +121,15 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} onDownload={handleDownload} onDelete={handleDelete} readonly={!group.isOwner} />
         ) : (
-          <FileGrid files={filteredFiles} onPreview={setPreviewFile} />
+          <FileGrid files={filteredFiles} onDownload={handleGridDownload} onPreview={handlePreviewOpen} />
         )}
       </div>
 
       {previewFile && (
         <PreviewModal
           file={previewFile}
-          onClose={() => setPreviewFile(null)}
+          localPath={previewLocalPath}
+          onClose={() => { setPreviewFile(null); setPreviewLocalPath(undefined) }}
           onDownload={handleDownload}
           onDelete={handleDelete}
           onForward={handleForward}

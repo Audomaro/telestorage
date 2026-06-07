@@ -12,7 +12,7 @@ interface DownloadState {
 interface FileGridProps {
   files: TelegramFile[]
   onDownload: (file: TelegramFile, onProgress: (p: number) => void) => Promise<string>
-  onPreview?: (file: TelegramFile) => void
+  onPreview?: (file: TelegramFile, localPath?: string) => void
 }
 
 const GRADIENT_MAP: Record<string, [string, string]> = {
@@ -50,7 +50,7 @@ export default function FileGrid({ files, onDownload, onPreview }: FileGridProps
       downloadStatesRef.current[file.id] = { status: 'done', progress: 1, localPath }
       setDownloadStates({ ...downloadStatesRef.current })
 
-      if (onPreview) onPreview(file)
+      if (onPreview) onPreview(file, localPath)
     } catch {
       downloadStatesRef.current[file.id] = { status: 'idle', progress: 0 }
       setDownloadStates({ ...downloadStatesRef.current })
