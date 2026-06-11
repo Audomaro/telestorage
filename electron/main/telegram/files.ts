@@ -2,6 +2,41 @@ import { getClient } from './auth'
 import { mkdir } from 'fs/promises'
 import { dirname } from 'path'
 
+const JPEG_HEADER = Buffer.from([
+  0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01,
+  0x00, 0x01, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0x08, 0x06, 0x06, 0x07, 0x06, 0x05, 0x08,
+  0x07, 0x07, 0x07, 0x09, 0x09, 0x08, 0x0A, 0x0C, 0x14, 0x0D, 0x0C, 0x0B, 0x0B, 0x0C, 0x19, 0x12,
+  0x13, 0x0F, 0x14, 0x1D, 0x1A, 0x1F, 0x1E, 0x1D, 0x1A, 0x1C, 0x1C, 0x20, 0x24, 0x2E, 0x27, 0x20,
+  0x22, 0x2C, 0x23, 0x1C, 0x1C, 0x28, 0x37, 0x29, 0x2C, 0x30, 0x31, 0x34, 0x34, 0x34, 0x1F, 0x27,
+  0x39, 0x3D, 0x38, 0x32, 0x3C, 0x2E, 0x33, 0x34, 0x32
+])
+
+function reconstructStrippedThumb(bytes: Buffer): Buffer | null {
+  try {
+    if (bytes.length === 0) return null
+    const headerLen = Math.min(bytes[0], JPEG_HEADER.length)
+    const prefix = JPEG_HEADER.subarray(0, headerLen)
+    const rest = bytes.subarray(1)
+    return Buffer.concat([prefix, rest])
+  } catch {
+    return null
+  }
+}
+
+function isStrippedSize(s: any): boolean {
+  const name = s?.className || s?._
+  return name === 'PhotoStrippedSize' || name === 'photoStrippedSize'
+}
+
+function reconstructedToDataUrl(buf: Buffer): string {
+  return `data:image/jpeg;base64,${buf.toString('base64')}`
+}
+
+function toBuffer(data: any): Buffer | null {
+  if (!data) return null
+  return data instanceof Buffer ? data : Buffer.from(data)
+}
+
 export interface FileResult {
   id: number
   messageId: number
@@ -10,7 +45,7 @@ export interface FileResult {
   mimeType: string
   date: Date
   groupId: number
-  thumbnail?: string
+  thumbnail: string | null
 }
 
 export function extractThumbnail(media: any): string | null {
@@ -19,25 +54,35 @@ export function extractThumbnail(media: any): string | null {
 
     if (media.photo?.sizes) {
       const sizes = Array.isArray(media.photo.sizes) ? media.photo.sizes : []
-      const stripped = sizes.find((s: any) =>
-        s?.className === 'PhotoStrippedSize' || s?.type === 'i'
-      )
-      if (stripped?.bytes) {
-        const bytes = stripped.bytes instanceof Buffer
-          ? stripped.bytes
-          : Buffer.from(stripped.bytes)
-        return `data:image/jpeg;base64,${bytes.toString('base64')}`
+
+      for (const s of sizes) {
+        if (!s?.bytes) continue
+        const buf = toBuffer(s.bytes)
+        if (!buf) continue
+
+        if (isStrippedSize(s)) {
+          const reconstructed = reconstructStrippedThumb(buf)
+          if (reconstructed) return reconstructedToDataUrl(reconstructed)
+        } else {
+          return reconstructedToDataUrl(buf)
+        }
       }
     }
 
     if (media.document?.thumbs) {
       const thumbs = Array.isArray(media.document.thumbs) ? media.document.thumbs : []
-      const thumb = thumbs.find((t: any) => t?.bytes)
-      if (thumb?.bytes) {
-        const bytes = thumb.bytes instanceof Buffer
-          ? thumb.bytes
-          : Buffer.from(thumb.bytes)
-        return `data:image/jpeg;base64,${bytes.toString('base64')}`
+
+      for (const t of thumbs) {
+        if (!t?.bytes) continue
+        const buf = toBuffer(t.bytes)
+        if (!buf) continue
+
+        if (isStrippedSize(t)) {
+          const reconstructed = reconstructStrippedThumb(buf)
+          if (reconstructed) return reconstructedToDataUrl(reconstructed)
+        } else {
+          return reconstructedToDataUrl(buf)
+        }
       }
     }
 
@@ -101,6 +146,7 @@ export async function downloadFile(groupId: number, messageId: number, destPath:
   const media = messages[0].media
   if (!media) throw new Error('No media in message')
 
+  await mkdir(dirname(destPath), { recursive: true })
   await client.downloadMedia(media, { outputFile: destPath })
 }
 

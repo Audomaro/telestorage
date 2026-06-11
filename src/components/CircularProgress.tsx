@@ -1,3 +1,5 @@
+import styles from './CircularProgress.module.css'
+
 interface CircularProgressProps {
   size: number
   progress: number
@@ -31,7 +33,7 @@ export default function CircularProgress({ size, progress, strokeWidth = 4 }: Ci
         strokeDashoffset={offset}
         strokeLinecap="round"
         transform={`rotate(-90 ${center} ${center})`}
-        style={{ transition: 'stroke-dashoffset 0.15s ease' }}
+        className={styles.arc}
       />
       <text
         x={center}

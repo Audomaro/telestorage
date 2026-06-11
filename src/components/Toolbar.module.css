@@ -1,0 +1,62 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid #ddd;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: #fafafa;
+}
+
+.group {
+  display: flex;
+  gap: 4px;
+}
+
+.viewBtn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  background: transparent;
+  color: #555;
+  font-weight: 400;
+}
+
+.viewBtnActive {
+  background: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+  font-weight: 600;
+}
+
+.filterBtn {
+  padding: 5px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  background: transparent;
+  color: #666;
+  font-weight: 400;
+}
+
+.filterBtnActive {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border-color: #4CAF50;
+  font-weight: 600;
+}
+
+.uploadBtn {
+  padding: 6px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}

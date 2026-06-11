@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import PreviewModal from '../../../src/components/PreviewModal'
 import { TelegramFile } from '../../../src/types'
 
@@ -35,7 +35,16 @@ describe('PreviewModal', () => {
     expect(onClose).toHaveBeenCalled()
   })
 
-  it('should call onDownload when download button clicked', () => {
+  it('should call onSaveToDisk when download button clicked with onSaveToDisk', async () => {
+    const onSaveToDisk = vi.fn().mockResolvedValue(undefined)
+    render(<PreviewModal file={imageFile} onClose={vi.fn()} onDownload={vi.fn()} onDelete={vi.fn()} onSaveToDisk={onSaveToDisk} />)
+    fireEvent.click(screen.getByText('⬇️'))
+    await waitFor(() => {
+      expect(onSaveToDisk).toHaveBeenCalledWith(imageFile, expect.any(Function))
+    })
+  })
+
+  it('should fallback to onDownload when onSaveToDisk is not provided', () => {
     const onDownload = vi.fn()
     render(<PreviewModal file={imageFile} onClose={vi.fn()} onDownload={onDownload} onDelete={vi.fn()} />)
     fireEvent.click(screen.getByText('⬇️'))
@@ -47,5 +56,14 @@ describe('PreviewModal', () => {
     render(<PreviewModal file={imageFile} onClose={vi.fn()} onDownload={vi.fn()} onDelete={onDelete} />)
     fireEvent.click(screen.getByText('🗑️'))
     expect(onDelete).toHaveBeenCalledWith(imageFile)
+  })
+
+  it('should show saving progress indicator during save', async () => {
+    const onSaveToDisk = vi.fn(() => new Promise<void>(() => {}))
+    render(<PreviewModal file={imageFile} onClose={vi.fn()} onDownload={vi.fn()} onDelete={vi.fn()} onSaveToDisk={onSaveToDisk} />)
+    fireEvent.click(screen.getByText('⬇️'))
+    await waitFor(() => {
+      expect(screen.getByText(/guardando/i)).toBeDefined()
+    })
   })
 })

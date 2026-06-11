@@ -1,4 +1,5 @@
 import { getClient } from './auth'
+import { getSettings, addCreatedGroupId } from './settings'
 
 export interface GroupResult {
   id: number
@@ -7,6 +8,11 @@ export interface GroupResult {
   isOwner: boolean
   fileCount: number
   totalSize: number
+  isAppCreated: boolean
+}
+
+export function isGroupAppCreated(groupId: number, createdIds: number[]): boolean {
+  return createdIds.includes(groupId)
 }
 
 export async function getGroups(): Promise<GroupResult[]> {
@@ -14,6 +20,7 @@ export async function getGroups(): Promise<GroupResult[]> {
   if (!client) throw new Error('Not authenticated')
 
   const dialogs = await client.getDialogs({ archived: false, limit: 200 })
+  const createdIds = getSettings().createdGroupIds
 
   return dialogs
     .filter(d => d.isGroup || d.isChannel)
@@ -23,7 +30,8 @@ export async function getGroups(): Promise<GroupResult[]> {
       isArchived: false,
       isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
       fileCount: 0,
-      totalSize: 0
+      totalSize: 0,
+      isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
     }))
 }
 
@@ -32,6 +40,7 @@ export async function getArchivedGroups(): Promise<GroupResult[]> {
   if (!client) throw new Error('Not authenticated')
 
   const dialogs = await client.getDialogs({ archived: true, limit: 200 })
+  const createdIds = getSettings().createdGroupIds
 
   return dialogs
     .filter(d => d.isGroup || d.isChannel)
@@ -41,7 +50,8 @@ export async function getArchivedGroups(): Promise<GroupResult[]> {
       isArchived: true,
       isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
       fileCount: 0,
-      totalSize: 0
+      totalSize: 0,
+      isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
     }))
 }
 
@@ -59,5 +69,15 @@ export async function createGroup(title: string): Promise<GroupResult> {
 
   const updates = result as any
   const channel = updates.chats?.[0] || result
-  return { id: Number(channel.id), title, isArchived: false, isOwner: true, fileCount: 0, totalSize: 0 }
+  addCreatedGroupId(Number(channel.id))
+  return { id: Number(channel.id), title, isArchived: false, isOwner: true, fileCount: 0, totalSize: 0, isAppCreated: true }
+}
+
+export async function deleteGroup(groupId: number): Promise<void> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+
+  await client.invoke(
+    new (await import('telegram')).Api.channels.DeleteChannel({ channel: groupId })
+  )
 }

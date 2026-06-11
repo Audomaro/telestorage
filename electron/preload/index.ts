@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   getGroups: () => ipcRenderer.invoke('groups:list'),
   getArchivedGroups: () => ipcRenderer.invoke('groups:listArchived'),
   createGroup: (title: string) => ipcRenderer.invoke('groups:create', title),
+  deleteGroup: (groupId: number) => ipcRenderer.invoke('groups:delete', groupId),
   listFiles: (groupId: number) => ipcRenderer.invoke('files:list', groupId),
   uploadFile: (groupId: number, filePath: string) => ipcRenderer.invoke('files:upload', groupId, filePath),
   downloadFile: (groupId: number, messageId: number, filePath: string) =>
@@ -28,7 +29,23 @@ contextBridge.exposeInMainWorld('telegramAPI', {
         ipcRenderer.removeListener('files:download:progress', handler)
       })
   },
+  downloadPreview: (groupId: number, messageId: number, ext: string, onProgress: (p: number) => void) => {
+    const downloadId = `${messageId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const handler = (_event: any, data: any) => {
+      if (data.downloadId === downloadId) {
+        onProgress(data.progress)
+      }
+    }
+    ipcRenderer.on('files:download:progress', handler)
+    return ipcRenderer.invoke('files:downloadPreview', { downloadId, groupId, messageId, ext })
+      .finally(() => {
+        ipcRenderer.removeListener('files:download:progress', handler)
+      })
+  },
   deleteFile: (groupId: number, messageId: number) => ipcRenderer.invoke('files:delete', groupId, messageId),
   forwardFile: (fromGroupId: number, toGroupId: number, messageId: number) =>
     ipcRenderer.invoke('files:forward', fromGroupId, toGroupId, messageId),
+  getSettings: () => ipcRenderer.invoke('settings:get'),
+  setSettings: (s: Record<string, unknown>) => ipcRenderer.invoke('settings:set', s),
+  selectFolder: () => ipcRenderer.invoke('dialog:selectFolder'),
 })

@@ -11,3 +11,20 @@ export function formatDate(date: Date): string {
   const year = date.getFullYear()
   return `${day}/${month}/${year}`
 }
+
+const EXTENSION_MAP: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
+  'video/mp4': '.mp4',
+  'video/avi': '.avi',
+  'video/mkv': '.mkv',
+  'video/webm': '.webm',
+  'video/quicktime': '.mov',
+  'application/pdf': '.pdf',
+}
+
+export function getExtension(mimeType: string): string {
+  return EXTENSION_MAP[mimeType] || ''
+}

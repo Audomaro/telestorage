@@ -1,0 +1,50 @@
+.row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.icon {
+  margin-right: 12px;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
+}
+
+.size {
+  color: #888;
+  font-size: 12px;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.date {
+  color: #888;
+  font-size: 12px;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+}

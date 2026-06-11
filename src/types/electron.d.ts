@@ -1,3 +1,7 @@
+interface AppSettings {
+  downloadPath: string
+}
+
 interface TelegramAPI {
   init(): Promise<{ initialized: boolean; error?: string }>
   sendCode(phone: string): Promise<{ codeHash: string }>
@@ -8,12 +12,17 @@ interface TelegramAPI {
   getGroups(): Promise<any[]>
   getArchivedGroups(): Promise<any[]>
   createGroup(title: string): Promise<any>
+  deleteGroup(groupId: number): Promise<void>
   listFiles(groupId: number): Promise<any[]>
   uploadFile(groupId: number, filePath: string): Promise<any>
   downloadFile(groupId: number, messageId: number, filePath: string): Promise<void>
   downloadFileWithProgress(groupId: number, messageId: number, destPath: string, onProgress: (p: number) => void): Promise<string>
+  downloadPreview(groupId: number, messageId: number, ext: string, onProgress: (p: number) => void): Promise<string>
   deleteFile(groupId: number, messageId: number): Promise<void>
   forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void>
+  getSettings(): Promise<AppSettings>
+  setSettings(s: Partial<AppSettings>): Promise<AppSettings>
+  selectFolder(): Promise<string | null>
 }
 
 interface AuthState {

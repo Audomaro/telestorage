@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react'
+import styles from './LoginForm.module.css'
 
 interface LoginFormProps {
   onSendCode: (phone: string) => void
@@ -27,69 +28,65 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, codeHa
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: '100px auto', padding: 24 }}>
-      <h1 style={{ marginBottom: 24, textAlign: 'center', fontSize: 28, color: '#333' }}>TeleDrive</h1>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h1 className={styles.title}>TeleDrive</h1>
       
       {!codeHash && !needs2FA && (
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontSize: 14, color: '#555' }}>Número de teléfono</label>
+        <div className={styles.field}>
+          <label className={styles.label}>Número de teléfono</label>
           <input
             type="tel"
             placeholder="+52 555 123 4567"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             disabled={loading}
-            style={{ width: '100%', padding: 10, fontSize: 16, borderRadius: 6, border: '1px solid #ccc', outline: 'none' }}
+            className={styles.input}
             autoFocus
           />
         </div>
       )}
 
       {codeHash && !needs2FA && (
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontSize: 14, color: '#555' }}>Código de verificación</label>
-          <p style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Enviamos un código a {phone}</p>
+        <div className={styles.field}>
+          <label className={styles.label}>Código de verificación</label>
+          <p className={styles.hint}>Enviamos un código a {phone}</p>
           <input
             type="text"
             placeholder="Código"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             disabled={loading}
-            style={{ width: '100%', padding: 10, fontSize: 16, borderRadius: 6, border: '1px solid #ccc', outline: 'none' }}
+            className={styles.input}
             autoFocus
           />
         </div>
       )}
 
       {needs2FA && (
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontSize: 14, color: '#555' }}>Contraseña 2FA</label>
-          <p style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Tu cuenta tiene verificación en dos pasos</p>
+        <div className={styles.field}>
+          <label className={styles.label}>Contraseña 2FA</label>
+          <p className={styles.hint}>Tu cuenta tiene verificación en dos pasos</p>
           <input
             type="password"
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            style={{ width: '100%', padding: 10, fontSize: 16, borderRadius: 6, border: '1px solid #ccc', outline: 'none' }}
+            className={styles.input}
             autoFocus
           />
         </div>
       )}
 
       {error && (
-        <div style={{ color: '#d32f2f', marginBottom: 16, fontSize: 14, background: '#FFEBEE', padding: '8px 12px', borderRadius: 6 }}>
-          {error}
-        </div>
+        <div className={styles.errorBox}>{error}</div>
       )}
 
       <button
         type="submit"
         disabled={loading}
-        style={{
-          width: '100%', padding: 12, fontSize: 16, borderRadius: 6, cursor: loading ? 'not-allowed' : 'pointer',
-          background: loading ? '#A5D6A7' : '#4CAF50', color: 'white', border: 'none', fontWeight: 600
-        }}
+        className={styles.submitBtn}
+        style={{ background: loading ? '#A5D6A7' : '#4CAF50' }}
       >
         {loading ? 'Procesando...' : needs2FA ? 'Iniciar sesión' : codeHash ? 'Verificar código' : 'Enviar código'}
       </button>

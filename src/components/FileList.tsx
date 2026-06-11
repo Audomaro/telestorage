@@ -1,5 +1,6 @@
 import { TelegramFile } from '../types'
 import FileListItem from './FileListItem'
+import styles from './FileList.module.css'
 
 interface FileListProps {
   files: TelegramFile[]
@@ -10,7 +11,7 @@ interface FileListProps {
 
 export default function FileList({ files, onDownload, onDelete, readonly }: FileListProps) {
   if (files.length === 0) {
-    return <div style={{ padding: 60, textAlign: 'center', color: '#888', fontSize: 14 }}>Sin archivos</div>
+    return <div className={styles.container}>Sin archivos</div>
   }
 
   return (

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatFileSize, formatDate } from '../../../src/utils/format'
+import { formatFileSize, formatDate, getExtension } from '../../../src/utils/format'
 
 describe('formatFileSize', () => {
   it('should format bytes', () => {
@@ -23,5 +23,19 @@ describe('formatDate', () => {
   it('should format date as DD/MM/YYYY', () => {
     const date = new Date(2026, 5, 7)
     expect(formatDate(date)).toBe('07/06/2026')
+  })
+})
+
+describe('getExtension', () => {
+  it('should return extension for known mime types', () => {
+    expect(getExtension('image/jpeg')).toBe('.jpg')
+    expect(getExtension('image/png')).toBe('.png')
+    expect(getExtension('video/mp4')).toBe('.mp4')
+    expect(getExtension('application/pdf')).toBe('.pdf')
+  })
+
+  it('should return empty string for unknown mime types', () => {
+    expect(getExtension('application/octet-stream')).toBe('')
+    expect(getExtension('')).toBe('')
   })
 })

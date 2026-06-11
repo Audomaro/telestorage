@@ -5,14 +5,18 @@ import FileList from '../components/FileList'
 import FileGrid from '../components/FileGrid'
 import PreviewModal from '../components/PreviewModal'
 import UploadDialog from '../components/UploadDialog'
+import ConfirmDialog from '../components/ConfirmDialog'
 import { isMedia, isDocument } from '../utils/fileTypes'
+import { getExtension } from '../utils/format'
+import styles from './GroupFilesPage.module.css'
 
 interface GroupFilesPageProps {
   group: TelegramGroup
   onBack: () => void
+  onSettings?: () => void
 }
 
-export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
+export default function GroupFilesPage({ group, onBack, onSettings }: GroupFilesPageProps) {
   const [files, setFiles] = useState<TelegramFile[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
@@ -20,6 +24,8 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
   const [previewFile, setPreviewFile] = useState<TelegramFile | null>(null)
   const [previewLocalPath, setPreviewLocalPath] = useState<string | undefined>(undefined)
   const [showUpload, setShowUpload] = useState(false)
+  const [confirmDeleteFile, setConfirmDeleteFile] = useState<TelegramFile | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const loadFiles = async () => {
     setLoading(true)
@@ -51,20 +57,30 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
     }
   }
 
-  const handleDownload = async (file: TelegramFile) => {
+  const handleDownload = async (file: TelegramFile, onProgress?: (p: number) => void) => {
     try {
-      await window.telegramAPI.downloadFile(group.id, file.messageId, file.name)
+      const settings = await window.telegramAPI.getSettings()
+      const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
+      if (onProgress) {
+        await window.telegramAPI.downloadFileWithProgress(group.id, file.messageId, destPath, onProgress)
+      } else {
+        await window.telegramAPI.downloadFile(group.id, file.messageId, destPath)
+      }
     } catch (err: any) {
       alert(err.message || 'Error al descargar')
     }
   }
 
-  const handleGridDownload = useCallback(async (file: TelegramFile, onProgress: (p: number) => void): Promise<string> => {
-    const destPath = `downloads/${file.messageId}_${file.name}`
-    const localPath = await window.telegramAPI.downloadFileWithProgress(
-      group.id, file.messageId, destPath, onProgress
-    )
-    return localPath
+  const handleGridPreview = useCallback(async (file: TelegramFile, onProgress: (p: number) => void): Promise<string> => {
+    const ext = getExtension(file.mimeType)
+    const localPath = await window.telegramAPI.downloadPreview(group.id, file.messageId, ext, onProgress)
+    return `file:///${localPath.replace(/\\/g, '/')}`
+  }, [group.id])
+
+  const handleSaveToDisk = useCallback(async (file: TelegramFile, onProgress: (p: number) => void): Promise<void> => {
+    const settings = await window.telegramAPI.getSettings()
+    const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
+    await window.telegramAPI.downloadFileWithProgress(group.id, file.messageId, destPath, onProgress)
   }, [group.id])
 
   const handlePreviewOpen = (file: TelegramFile, localPath?: string) => {
@@ -73,14 +89,22 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
   }
 
   const handleDelete = async (file: TelegramFile) => {
-    if (!confirm(`¿Eliminar "${file.name}"?`)) return
+    setConfirmDeleteFile(file)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteFile) return
+    setDeleting(true)
     try {
-      await window.telegramAPI.deleteFile(group.id, file.messageId)
+      await window.telegramAPI.deleteFile(group.id, confirmDeleteFile.messageId)
       setPreviewFile(null)
       setPreviewLocalPath(undefined)
+      setConfirmDeleteFile(null)
       loadFiles()
     } catch (err: any) {
       alert(err.message || 'Error al eliminar')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -97,13 +121,15 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{
-        padding: '8px 16px', borderBottom: '1px solid #ddd',
-        display: 'flex', alignItems: 'center', gap: 8, background: '#fff'
-      }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, padding: '4px 8px' }}>⬅️</button>
-        <span style={{ fontWeight: 600, fontSize: 15, color: '#333' }}>{group.title}</span>
-        {!group.isOwner && <span style={{ fontSize: 11, color: '#FF9800' }}>(Solo lectura)</span>}
+      <div className={styles.header}>
+        <button onClick={onBack} className={styles.backBtn}>⬅️</button>
+        <span className={styles.groupTitle}>{group.title}</span>
+        {!group.isOwner && <span className={styles.readonlyLabel}>(Solo lectura)</span>}
+        <div className={styles.headerRight}>
+          {onSettings && (
+            <button onClick={onSettings} title="Configuración" className={styles.settingsBtn}>⚙️</button>
+          )}
+        </div>
       </div>
 
       <Toolbar
@@ -115,13 +141,13 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
         readonly={!group.isOwner}
       />
 
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <div className={styles.body}>
         {loading ? (
-          <div style={{ padding: 60, textAlign: 'center', color: '#888' }}>Cargando archivos...</div>
+          <div className={styles.loading}>Cargando archivos...</div>
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} onDownload={handleDownload} onDelete={handleDelete} readonly={!group.isOwner} />
         ) : (
-          <FileGrid files={filteredFiles} onDownload={handleGridDownload} onPreview={handlePreviewOpen} />
+          <FileGrid files={filteredFiles} onDownload={handleGridPreview} onPreview={handlePreviewOpen} />
         )}
       </div>
 
@@ -130,7 +156,8 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
           file={previewFile}
           localPath={previewLocalPath}
           onClose={() => { setPreviewFile(null); setPreviewLocalPath(undefined) }}
-          onDownload={handleDownload}
+          onDownload={(f) => handleDownload(f)}
+          onSaveToDisk={handleSaveToDisk}
           onDelete={handleDelete}
           onForward={handleForward}
           readonly={!group.isOwner}
@@ -141,6 +168,16 @@ export default function GroupFilesPage({ group, onBack }: GroupFilesPageProps) {
         <UploadDialog
           onUpload={handleUpload}
           onClose={() => setShowUpload(false)}
+        />
+      )}
+
+      {confirmDeleteFile && (
+        <ConfirmDialog
+          title="Eliminar archivo"
+          message={`¿Estás seguro de eliminar "${confirmDeleteFile.name}"? Esta acción no se puede deshacer.`}
+          loading={deleting}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmDeleteFile(null)}
         />
       )}
     </div>

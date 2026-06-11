@@ -47,7 +47,7 @@ describe('thumbnail extraction', () => {
     const mockMedia = {
       photo: {
         sizes: [
-          { className: 'PhotoStrippedSize', type: 'i', bytes: Buffer.from([0xff, 0xd8, 0xff, 0xe0]) }
+          { className: 'PhotoStrippedSize', type: 'i', bytes: Buffer.from([10, 0xd8, 0xff, 0xe0]) }
         ]
       }
     }

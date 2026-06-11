@@ -1,99 +1,90 @@
+import { useState } from 'react'
 import { TelegramFile } from '../types'
 import { formatFileSize, formatDate } from '../utils/format'
+import CircularProgress from './CircularProgress'
+import styles from './PreviewModal.module.css'
 
 interface PreviewModalProps {
   file: TelegramFile
   onClose: () => void
   onDownload: (file: TelegramFile) => void
+  onSaveToDisk?: (file: TelegramFile, onProgress: (p: number) => void) => Promise<void>
   onDelete: (file: TelegramFile) => void
   onForward?: (file: TelegramFile) => void
   readonly?: boolean
   localPath?: string
 }
 
-export default function PreviewModal({ file, onClose, onDownload, onDelete, onForward, readonly, localPath }: PreviewModalProps) {
+export default function PreviewModal({ file, onClose, onDownload, onSaveToDisk, onDelete, onForward, readonly, localPath }: PreviewModalProps) {
   const isVideo = file.mimeType.startsWith('video/')
   const isImage = file.mimeType.startsWith('image/')
+  const [saving, setSaving] = useState(false)
+  const [saveProgress, setSaveProgress] = useState(0)
+
+  const handleSave = async () => {
+    if (!onSaveToDisk) {
+      onDownload(file)
+      return
+    }
+    setSaving(true)
+    setSaveProgress(0)
+    try {
+      await onSaveToDisk(file, setSaveProgress)
+      alert('Archivo guardado en la carpeta de descargas')
+    } catch {
+      alert('Error al guardar el archivo')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
-    <div
-      style={{
-        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'rgba(0,0,0,0.85)', zIndex: 1000,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', padding: 24
-      }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 8, zIndex: 1 }}>
+    <div className={styles.overlay} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className={styles.toolbar}>
         {onForward && (
-          <button onClick={() => onForward(file)} title="Reenviar"
-            style={btnStyle}>↗️</button>
+          <button onClick={() => onForward(file)} title="Reenviar" className={styles.toolbarBtn}>↗️</button>
         )}
         {!readonly && (
-          <button onClick={() => onDelete(file)} title="Eliminar"
-            style={btnStyle}>🗑️</button>
+          <button onClick={() => onDelete(file)} title="Eliminar" className={styles.toolbarBtn}>🗑️</button>
         )}
-        <button onClick={() => onDownload(file)} title="Descargar"
-          style={btnStyle}>⬇️</button>
-        <button onClick={onClose} title="Cerrar"
-          style={{ ...btnStyle, fontSize: 20 }}>✕</button>
+        <button onClick={handleSave} title="Guardar en disco" className={styles.toolbarBtn}>
+          {saving ? `${Math.round(saveProgress * 100)}%` : '⬇️'}
+        </button>
+        <button onClick={onClose} title="Cerrar" className={`${styles.toolbarBtn} ${styles.toolbarBtnClose}`}>✕</button>
       </div>
 
-      <div style={{
-        background: '#1a1a2e', borderRadius: 12, padding: 24,
-        maxWidth: '70vw', maxHeight: '60vh', minWidth: 300,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
-      }}>
+      <div className={styles.content}>
         {localPath && isImage ? (
-          <img
-            src={localPath}
-            alt={file.name}
-            style={{
-              maxWidth: '100%', maxHeight: '100%',
-              borderRadius: 8, objectFit: 'contain'
-            }}
-          />
+          <img src={localPath} alt={file.name} className={styles.media} />
         ) : localPath && isVideo ? (
-          <video
-            src={localPath}
-            controls
-            style={{
-              maxWidth: '100%', maxHeight: '100%',
-              borderRadius: 8
-            }}
-          />
+          <video src={localPath} controls className={styles.mediaVideo} />
         ) : (
           <>
-            <div style={{ fontSize: 72, marginBottom: 16 }}>
-              {isVideo ? '🎬' : '🖼️'}
-            </div>
-            <div style={{ color: 'white', fontSize: 16, fontWeight: 600, marginBottom: 8, textAlign: 'center', wordBreak: 'break-all' }}>
-              {file.name}
-            </div>
-            <div style={{ color: '#aaa', fontSize: 13, textAlign: 'center' }}>
+            <div className={styles.emoji}>{isVideo ? '🎬' : '🖼️'}</div>
+            <div className={styles.fileName}>{file.name}</div>
+            <div className={styles.fileMeta}>
               {formatFileSize(file.size)} · {file.mimeType} · {formatDate(new Date(file.date))}
             </div>
           </>
         )}
       </div>
 
-      <div style={{ marginTop: 16, display: 'flex', gap: 16, color: '#888', fontSize: 13 }}>
-        <span style={{ cursor: 'pointer' }}>‹ Anterior</span>
+      {saving && (
+        <div className={styles.progressBar}>
+          <CircularProgress size={40} progress={saveProgress} />
+          <span className={styles.progressText}>Guardando...</span>
+        </div>
+      )}
+
+      <div className={styles.navBar}>
+        <span className={styles.navItem}>‹ Anterior</span>
         <span>|</span>
-        <span style={{ cursor: 'pointer' }}>Siguiente ›</span>
+        <span className={styles.navItem}>Siguiente ›</span>
         <span>|</span>
-        <span style={{ cursor: 'pointer' }}>🔍 Zoom</span>
+        <span className={styles.navItem}>🔍 Zoom</span>
         <span>|</span>
-        <span style={{ cursor: 'pointer' }}>↕ Ajustar</span>
+        <span className={styles.navItem}>↕ Ajustar</span>
       </div>
     </div>
   )
-}
-
-const btnStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none',
-  borderRadius: 6, padding: '8px 12px', cursor: 'pointer', fontSize: 16,
-  backdropFilter: 'blur(4px)'
 }

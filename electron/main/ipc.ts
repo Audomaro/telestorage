@@ -1,8 +1,10 @@
-import { ipcMain } from 'electron'
+import { ipcMain, dialog, app } from 'electron'
+import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
-import { getGroups, getArchivedGroups, createGroup } from './telegram/groups'
+import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
 import { listFiles, uploadFile, downloadFile, downloadFileWithProgress, deleteFile, forwardFile } from './telegram/files'
+import { getSettings, setSettings, AppSettings } from './telegram/settings'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('auth:init', async () => {
@@ -59,6 +61,10 @@ export function registerIpcHandlers(): void {
     return createGroup(title)
   })
 
+  ipcMain.handle('groups:delete', async (_event, groupId: number) => {
+    return deleteGroup(groupId)
+  })
+
   ipcMain.handle('files:list', async (_event, groupId: number) => {
     return listFiles(groupId)
   })
@@ -83,5 +89,29 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('files:forward', async (_event, fromGroupId: number, toGroupId: number, messageId: number) => {
     return forwardFile(fromGroupId, toGroupId, messageId)
+  })
+
+  ipcMain.handle('files:downloadPreview', async (event, { downloadId, groupId, messageId, ext = '' }) => {
+    const tmpDir = app.getPath('temp')
+    const destPath = join(tmpDir, 'teledrive', `${messageId}_preview${ext}`)
+    return downloadFileWithProgress(groupId, messageId, destPath, (progress) => {
+      event.sender.send('files:download:progress', { downloadId, progress })
+    })
+  })
+
+  ipcMain.handle('settings:get', async () => {
+    return getSettings()
+  })
+
+  ipcMain.handle('settings:set', async (_event, partial: Partial<AppSettings>) => {
+    return setSettings(partial)
+  })
+
+  ipcMain.handle('dialog:selectFolder', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
   })
 }

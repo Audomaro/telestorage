@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { TelegramFile } from '../types'
 import { isMedia } from '../utils/fileTypes'
 import CircularProgress from './CircularProgress'
+import styles from './FileGrid.module.css'
 
 interface DownloadState {
   status: 'idle' | 'downloading' | 'done'
@@ -54,19 +55,16 @@ export default function FileGrid({ files, onDownload, onPreview }: FileGridProps
     } catch {
       downloadStatesRef.current[file.id] = { status: 'idle', progress: 0 }
       setDownloadStates({ ...downloadStatesRef.current })
+      alert('Error al descargar previsualización')
     }
   }
 
   if (mediaFiles.length === 0) {
-    return <div style={{ padding: 60, textAlign: 'center', color: '#888', fontSize: 14 }}>Sin archivos multimedia</div>
+    return <div className={styles.empty}>Sin archivos multimedia</div>
   }
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-      gap: 8, padding: 12
-    }}>
+    <div className={styles.grid}>
       {mediaFiles.map(f => {
         const state = downloadStates[f.id]
         const isDownloading = state?.status === 'downloading'
@@ -75,53 +73,25 @@ export default function FileGrid({ files, onDownload, onPreview }: FileGridProps
           <div
             key={f.id}
             onClick={() => handleClick(f)}
+            className={styles.card}
             style={{
-              aspectRatio: '1', borderRadius: 8, cursor: 'pointer',
               background: f.thumbnail
                 ? '#1a1a2e'
-                : `linear-gradient(135deg, ${getGradient(f.mimeType, 0)}, ${getGradient(f.mimeType, 1)})`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'white', padding: 8, position: 'relative',
-              overflow: 'hidden', transition: 'transform 0.15s, box-shadow 0.15s',
+                : `linear-gradient(135deg, ${getGradient(f.mimeType, 0)}, ${getGradient(f.mimeType, 1)})`
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
           >
             {f.thumbnail && (
-              <img
-                src={f.thumbnail}
-                alt=""
-                style={{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%',
-                  objectFit: 'cover'
-                }}
-              />
+              <img src={f.thumbnail} alt="" className={styles.thumb} />
             )}
             {f.mimeType.startsWith('video/') && !isDownloading && (
-              <div style={{
-                position: 'absolute', bottom: 6, right: 6,
-                background: 'rgba(0,0,0,0.6)', color: 'white',
-                fontSize: 11, padding: '2px 6px', borderRadius: 4
-              }}>
-                ▶️
-              </div>
+              <div className={styles.videoBadge}>▶️</div>
             )}
             {isDownloading && (
-              <div style={{
-                position: 'absolute', inset: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(0,0,0,0.5)', zIndex: 2
-              }}>
+              <div className={styles.progressOverlay}>
                 <CircularProgress size={60} progress={state!.progress} />
               </div>
             )}
-            <div style={{
-              fontSize: 12, fontWeight: 500, textAlign: 'center',
-              wordBreak: 'break-all', textShadow: '0 1px 3px rgba(0,0,0,0.3)',
-              position: 'relative', zIndex: 1
-            }}>
-              {f.name}
-            </div>
+            <div className={styles.name}>{f.name}</div>
           </div>
         )
       })}
