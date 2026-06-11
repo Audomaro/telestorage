@@ -11,6 +11,7 @@ export interface TelegramGroup {
   title: string
   isArchived: boolean
   isOwner: boolean
+  isAppCreated?: boolean
   fileCount?: number
   totalSize?: number
 }
