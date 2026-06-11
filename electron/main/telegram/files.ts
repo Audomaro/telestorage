@@ -237,9 +237,41 @@ export async function downloadThumbnail(groupId: number, messageId: number, dest
 
   await mkdir(dirname(destPath), { recursive: true })
 
+  let thumbIndex = 0
+
+  // For photos: pick a medium/large size for clearer thumbnails
+  const sizes = (msg.media as any)?.photo?.sizes
+  if (Array.isArray(sizes) && sizes.length > 0) {
+    // Find the largest size with width <= 800 (good balance of quality/speed)
+    let bestIdx = 0
+    for (let i = 0; i < sizes.length; i++) {
+      const s = sizes[i]
+      if (typeof s?.w === 'number' && s.w <= 800 && s.w >= 200) {
+        bestIdx = i
+      }
+    }
+    // If no size in 200-800 range, pick the largest one under 800
+    if (bestIdx === 0) {
+      for (let i = 0; i < sizes.length; i++) {
+        const s = sizes[i]
+        if (typeof s?.w === 'number' && s.w < 800 && s.w > (sizes[bestIdx]?.w || 0)) {
+          bestIdx = i
+        }
+      }
+    }
+    thumbIndex = bestIdx
+  }
+
+  // For documents/videos: try larger thumb indices
+  const thumbs = (msg.media as any)?.document?.thumbs
+  if (Array.isArray(thumbs) && thumbs.length > 0) {
+    // Pick the last (largest) thumb
+    thumbIndex = thumbs.length - 1
+  }
+
   await client.downloadMedia(msg.media, {
     outputFile: destPath,
-    thumb: 0
+    thumb: thumbIndex
   })
 
   return destPath
