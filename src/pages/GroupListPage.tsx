@@ -104,14 +104,12 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
             <button onClick={() => handleTabChange(true)}
               className={`${styles.tab} ${showArchived ? styles.tabActive : ''}`}>Archivados</button>
           </div>
-          {!showArchived && (
-            <div style={{ display: 'flex', gap: 4 }}>
-              <button onClick={() => setAppFilter('created')}
-                className={`${styles.filterTab} ${appFilter === 'created' ? styles.filterTabActive : ''}`}>Creados</button>
-              <button onClick={() => setAppFilter('all')}
-                className={`${styles.filterTab} ${appFilter === 'all' ? styles.filterTabActive : ''}`}>Todos</button>
-            </div>
-          )}
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button onClick={() => setAppFilter('created')}
+              className={`${styles.filterTab} ${appFilter === 'created' ? styles.filterTabActive : ''}`}>Creados</button>
+            <button onClick={() => setAppFilter('all')}
+              className={`${styles.filterTab} ${appFilter === 'all' ? styles.filterTabActive : ''}`}>Todos</button>
+          </div>
           <button onClick={handleCreateGroup} className={styles.createBtn}>+ Nuevo grupo</button>
         </div>
       </div>
@@ -129,11 +127,13 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
 
       {visibleGroups.length === 0 && !archivedLoading && (
         <div className={styles.empty}>
-          {showArchived
+          {showArchived && appFilter === 'all'
             ? 'No hay grupos archivados'
-            : appFilter === 'created'
-              ? 'No hay grupos creados con TeleDrive'
-              : 'No hay grupos. Crea uno nuevo con "+ Nuevo grupo".'
+            : showArchived
+              ? 'No hay grupos archivados creados con TeleDrive'
+              : appFilter === 'created'
+                ? 'No hay grupos creados con TeleDrive'
+                : 'No hay grupos. Crea uno nuevo con "+ Nuevo grupo".'
           }
         </div>
       )}
