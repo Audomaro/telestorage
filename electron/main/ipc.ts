@@ -3,7 +3,7 @@ import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
-import { listFiles, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, deleteFile, forwardFile } from './telegram/files'
+import { listFiles, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
 import { getSettings, setSettings, AppSettings } from './telegram/settings'
 
 export function registerIpcHandlers(): void {
@@ -101,6 +101,12 @@ export function registerIpcHandlers(): void {
     return downloadFileWithProgress(groupId, messageId, destPath, (progress) => {
       event.sender.send('files:download:progress', { downloadId, progress })
     })
+  })
+
+  ipcMain.handle('files:downloadThumb', async (_event, groupId: number, messageId: number) => {
+    const tmpDir = app.getPath('temp')
+    const destPath = join(tmpDir, 'teledrive_thumbs', `${messageId}.jpg`)
+    return downloadThumbnail(groupId, messageId, destPath)
   })
 
   ipcMain.handle('settings:get', async () => {

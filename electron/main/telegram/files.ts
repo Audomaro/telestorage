@@ -28,8 +28,25 @@ function isStrippedSize(s: any): boolean {
   return name === 'PhotoStrippedSize' || name === 'photoStrippedSize'
 }
 
-function reconstructedToDataUrl(buf: Buffer): string {
-  return `data:image/jpeg;base64,${buf.toString('base64')}`
+const IMAGE_MAGIC: [number[], string][] = [
+  [[0xFF, 0xD8, 0xFF], 'image/jpeg'],
+  [[0x89, 0x50, 0x4E, 0x47], 'image/png'],
+  [[0x47, 0x49, 0x46], 'image/gif'],
+  [[0x52, 0x49, 0x46, 0x46], 'image/webp'],
+]
+
+function detectImageFormat(buf: Buffer): string | null {
+  for (const [magic, mime] of IMAGE_MAGIC) {
+    if (buf.length >= magic.length && magic.every((b, i) => buf[i] === b)) return mime
+  }
+  if (buf.length >= 2 && buf[0] === 0xFF && buf[1] >= 0xE0 && buf[1] <= 0xEF) return 'image/jpeg'
+  return null
+}
+
+function bufferToDataUrl(buf: Buffer): string | null {
+  const mime = detectImageFormat(buf)
+  if (!mime) return null
+  return `data:${mime};base64,${buf.toString('base64')}`
 }
 
 function toBuffer(data: any): Buffer | null {
@@ -62,9 +79,13 @@ export function extractThumbnail(media: any): string | null {
 
         if (isStrippedSize(s)) {
           const reconstructed = reconstructStrippedThumb(buf)
-          if (reconstructed) return reconstructedToDataUrl(reconstructed)
+          if (reconstructed) {
+            const url = bufferToDataUrl(reconstructed)
+            if (url) return url
+          }
         } else {
-          return reconstructedToDataUrl(buf)
+          const url = bufferToDataUrl(buf)
+          if (url) return url
         }
       }
     }
@@ -79,9 +100,10 @@ export function extractThumbnail(media: any): string | null {
 
         if (isStrippedSize(t)) {
           const reconstructed = reconstructStrippedThumb(buf)
-          if (reconstructed) return reconstructedToDataUrl(reconstructed)
-        } else {
-          return reconstructedToDataUrl(buf)
+          if (reconstructed) {
+            const url = bufferToDataUrl(reconstructed)
+            if (url) return url
+          }
         }
       }
     }
@@ -201,6 +223,26 @@ export async function deleteFile(groupId: number, messageId: number): Promise<vo
   if (!client) throw new Error('Not authenticated')
 
   await client.deleteMessages(groupId, [messageId], { revoke: true })
+}
+
+export async function downloadThumbnail(groupId: number, messageId: number, destPath: string): Promise<string> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+
+  const messages = await client.getMessages(groupId, { ids: messageId })
+  if (messages.length === 0) throw new Error('Message not found')
+
+  const msg = messages[0]
+  if (!msg.media) throw new Error('No media in message')
+
+  await mkdir(dirname(destPath), { recursive: true })
+
+  await client.downloadMedia(msg.media, {
+    outputFile: destPath,
+    thumb: 0
+  })
+
+  return destPath
 }
 
 export async function forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void> {

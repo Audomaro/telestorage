@@ -138,7 +138,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} onDownload={handleDownload} onDelete={handleDelete} readonly={!group.isOwner} />
         ) : (
-          <FileGrid files={filteredFiles} onDownload={handleGridPreview} onPreview={handlePreviewOpen} />
+          <FileGrid files={filteredFiles} groupId={group.id} onPreview={handlePreviewOpen} />
         )}
       </div>
 

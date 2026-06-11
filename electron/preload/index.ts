@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   uploadMultipleFiles: (groupId: number, filePaths: string[]) => ipcRenderer.invoke('files:uploadMultiple', groupId, filePaths),
   downloadFile: (groupId: number, messageId: number, filePath: string) =>
     ipcRenderer.invoke('files:download', groupId, messageId, filePath),
+  downloadThumbnail: (groupId: number, messageId: number) => ipcRenderer.invoke('files:downloadThumb', groupId, messageId),
   downloadFileWithProgress: (groupId: number, messageId: number, destPath: string, onProgress: (p: number) => void) => {
     const downloadId = `${messageId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
     const handler = (_event: any, data: any) => {

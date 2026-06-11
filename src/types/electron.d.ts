@@ -19,6 +19,7 @@ interface TelegramAPI {
   uploadMultipleFiles(groupId: number, filePaths: string[]): Promise<{ messageId: number; name: string; error?: string }[]>
   downloadFile(groupId: number, messageId: number, filePath: string): Promise<void>
   downloadFileWithProgress(groupId: number, messageId: number, destPath: string, onProgress: (p: number) => void): Promise<string>
+  downloadThumbnail(groupId: number, messageId: number): Promise<string>
   downloadPreview(groupId: number, messageId: number, ext: string, onProgress: (p: number) => void): Promise<string>
   deleteFile(groupId: number, messageId: number): Promise<void>
   forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void>
