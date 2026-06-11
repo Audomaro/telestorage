@@ -116,8 +116,10 @@ export async function listFiles(groupId: number): Promise<FileResult[]> {
         name = `photo_${m.id}.jpg`
         mimeType = 'image/jpeg'
         const sizes = media.photo.sizes || []
-        const lastSize = sizes[sizes.length - 1]
-        size = lastSize?.size || 0
+        size = sizes.reduce((max: number, s: any) => {
+          const sSize = typeof s.size === 'number' ? s.size : 0
+          return sSize > max ? sSize : max
+        }, 0)
       }
 
       return {
@@ -132,8 +134,24 @@ export async function uploadFile(groupId: number, filePath: string): Promise<{ m
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
 
-  const result = await client.sendFile(groupId, { file: filePath })
+  if (!filePath) throw new Error('No file path specified')
+
+  const result = await client.sendFile(groupId, { file: filePath, forceDocument: true })
   return { messageId: result.id }
+}
+
+export async function uploadMultipleFiles(groupId: number, filePaths: string[]): Promise<{ messageId: number; name: string; error?: string }[]> {
+  const results: { messageId: number; name: string; error?: string }[] = []
+  for (const fp of filePaths) {
+    const name = fp.split('\\').pop()?.split('/').pop() || fp
+    try {
+      const r = await uploadFile(groupId, fp)
+      results.push({ messageId: r.messageId, name })
+    } catch (err: any) {
+      results.push({ messageId: 0, name, error: err.message })
+    }
+  }
+  return results
 }
 
 export async function downloadFile(groupId: number, messageId: number, destPath: string): Promise<void> {

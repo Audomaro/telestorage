@@ -13,9 +13,13 @@ interface PreviewModalProps {
   onForward?: (file: TelegramFile) => void
   readonly?: boolean
   localPath?: string
+  hasPrevious?: boolean
+  hasNext?: boolean
+  onPrevious?: () => void
+  onNext?: () => void
 }
 
-export default function PreviewModal({ file, onClose, onDownload, onSaveToDisk, onDelete, onForward, readonly, localPath }: PreviewModalProps) {
+export default function PreviewModal({ file, onClose, onDownload, onSaveToDisk, onDelete, onForward, readonly, localPath, hasPrevious, hasNext, onPrevious, onNext }: PreviewModalProps) {
   const isVideo = file.mimeType.startsWith('video/')
   const isImage = file.mimeType.startsWith('image/')
   const [saving, setSaving] = useState(false)
@@ -54,6 +58,12 @@ export default function PreviewModal({ file, onClose, onDownload, onSaveToDisk, 
       </div>
 
       <div className={styles.content}>
+        {hasPrevious && (
+          <button onClick={onPrevious} className={styles.navArrow} style={{ left: 8 }}>‹</button>
+        )}
+        {hasNext && (
+          <button onClick={onNext} className={styles.navArrow} style={{ right: 8 }}>›</button>
+        )}
         {localPath && isImage ? (
           <img src={localPath} alt={file.name} className={styles.media} />
         ) : localPath && isVideo ? (
@@ -75,16 +85,6 @@ export default function PreviewModal({ file, onClose, onDownload, onSaveToDisk, 
           <span className={styles.progressText}>Guardando...</span>
         </div>
       )}
-
-      <div className={styles.navBar}>
-        <span className={styles.navItem}>‹ Anterior</span>
-        <span>|</span>
-        <span className={styles.navItem}>Siguiente ›</span>
-        <span>|</span>
-        <span className={styles.navItem}>🔍 Zoom</span>
-        <span>|</span>
-        <span className={styles.navItem}>↕ Ajustar</span>
-      </div>
     </div>
   )
 }

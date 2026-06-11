@@ -56,13 +56,6 @@ describe('Auth functions module exports', () => {
     expect(mod.verify2FAPassword).toBeDefined()
   })
 
-  it('should keep backward compatibility aliases', async () => {
-    const mod = await import('../../../../electron/main/telegram/auth')
-    expect(mod.sendPhoneCode).toBeDefined()
-    expect(mod.verifyCode).toBeDefined()
-    expect(mod.check2FA).toBeDefined()
-  })
-
   it('should export getAuthState', async () => {
     const mod = await import('../../../../electron/main/telegram/auth')
     expect(mod.getAuthState).toBeDefined()

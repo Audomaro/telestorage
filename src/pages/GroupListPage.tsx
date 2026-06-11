@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { TelegramGroup } from '../types'
 import GroupListItem from '../components/GroupListItem'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -19,6 +19,10 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   const [error, setError] = useState('')
   const [deletingGroup, setDeletingGroup] = useState<TelegramGroup | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [newGroupName, setNewGroupName] = useState('')
+  const [creating, setCreating] = useState(false)
+  const createInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     loadGroups()
@@ -56,13 +60,23 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   }
 
   const handleCreateGroup = async () => {
-    const title = prompt('Nombre del nuevo grupo:')
-    if (!title || !title.trim()) return
+    setNewGroupName('')
+    setShowCreateDialog(true)
+    setTimeout(() => createInputRef.current?.focus(), 50)
+  }
+
+  const handleConfirmCreate = async () => {
+    if (!newGroupName.trim() || creating) return
+    setCreating(true)
     try {
-      await window.telegramAPI.createGroup(title.trim())
+      await window.telegramAPI.createGroup(newGroupName.trim())
+      setShowCreateDialog(false)
+      setNewGroupName('')
       loadGroups()
     } catch (err: any) {
       alert(err.message || 'Error al crear grupo')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -140,6 +154,28 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
 
       {showArchived && archivedLoading && (
         <div className={styles.loading}>Cargando grupos archivados...</div>
+      )}
+
+      {showCreateDialog && (
+        <div className={styles.overlay} onClick={() => setShowCreateDialog(false)}>
+          <div className={styles.createDialog} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.createTitle}>Nuevo grupo</h3>
+            <input
+              ref={createInputRef}
+              className={styles.createInput}
+              placeholder="Nombre del grupo"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleConfirmCreate() }}
+            />
+            <div className={styles.createActions}>
+              <button className={styles.cancelBtn} onClick={() => setShowCreateDialog(false)}>Cancelar</button>
+              <button className={styles.confirmBtn} onClick={handleConfirmCreate} disabled={creating || !newGroupName.trim()}>
+                {creating ? 'Creando...' : 'Crear'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {deletingGroup && (

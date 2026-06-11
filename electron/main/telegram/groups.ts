@@ -69,15 +69,19 @@ export async function createGroup(title: string): Promise<GroupResult> {
 
   const updates = result as any
   const channel = updates.chats?.[0] || result
-  addCreatedGroupId(Number(channel.id))
-  return { id: Number(channel.id), title, isArchived: false, isOwner: true, fileCount: 0, totalSize: 0, isAppCreated: true }
+  const dialogId = Number(`-${100}${BigInt(channel.id)}`)
+  addCreatedGroupId(dialogId)
+  return { id: dialogId, title, isArchived: false, isOwner: true, fileCount: 0, totalSize: 0, isAppCreated: true }
 }
 
 export async function deleteGroup(groupId: number): Promise<void> {
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
 
+  const str = String(groupId)
+  const channelId = str.startsWith('-100') ? BigInt(str.slice(4)) : BigInt(str.slice(1))
+
   await client.invoke(
-    new (await import('telegram')).Api.channels.DeleteChannel({ channel: groupId })
+    new (await import('telegram')).Api.channels.DeleteChannel({ channel: channelId })
   )
 }

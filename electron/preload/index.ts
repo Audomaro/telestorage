@@ -3,8 +3,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 contextBridge.exposeInMainWorld('telegramAPI', {
   init: () => ipcRenderer.invoke('auth:init'),
   sendCode: (phone: string) => ipcRenderer.invoke('auth:sendCode', phone),
-  verifyCode: (phone: string, code: string, codeHash: string) =>
-    ipcRenderer.invoke('auth:verifyCode', phone, code, codeHash),
+  verifyCode: (_phone: string, code: string, _codeHash: string) =>
+    ipcRenderer.invoke('auth:verifyCode', code),
   check2FA: (password: string) => ipcRenderer.invoke('auth:check2FA', password),
   getAuthState: () => ipcRenderer.invoke('auth:getState'),
   logout: () => ipcRenderer.invoke('auth:logout'),
@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   deleteGroup: (groupId: number) => ipcRenderer.invoke('groups:delete', groupId),
   listFiles: (groupId: number) => ipcRenderer.invoke('files:list', groupId),
   uploadFile: (groupId: number, filePath: string) => ipcRenderer.invoke('files:upload', groupId, filePath),
+  uploadMultipleFiles: (groupId: number, filePaths: string[]) => ipcRenderer.invoke('files:uploadMultiple', groupId, filePaths),
   downloadFile: (groupId: number, messageId: number, filePath: string) =>
     ipcRenderer.invoke('files:download', groupId, messageId, filePath),
   downloadFileWithProgress: (groupId: number, messageId: number, destPath: string, onProgress: (p: number) => void) => {
@@ -48,4 +49,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   getSettings: () => ipcRenderer.invoke('settings:get'),
   setSettings: (s: Record<string, unknown>) => ipcRenderer.invoke('settings:set', s),
   selectFolder: () => ipcRenderer.invoke('dialog:selectFolder'),
+  pickFiles: () => ipcRenderer.invoke('dialog:pickFiles'),
+  uploadTempFile: (groupId: number, fileName: string, data: number[]) =>
+    ipcRenderer.invoke('files:uploadTempFile', groupId, fileName, data),
 })

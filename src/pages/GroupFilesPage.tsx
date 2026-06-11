@@ -26,14 +26,16 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [showUpload, setShowUpload] = useState(false)
   const [confirmDeleteFile, setConfirmDeleteFile] = useState<TelegramFile | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const loadFiles = async () => {
     setLoading(true)
+    setError(null)
     try {
       const result = await window.telegramAPI.listFiles(group.id)
       setFiles(result)
-    } catch {
-      // Error handled silently
+    } catch (err: any) {
+      setError(err.message || 'Error al cargar archivos')
     } finally {
       setLoading(false)
     }
@@ -46,16 +48,6 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     if (filter === 'documents') return isDocument(f.mimeType)
     return true
   })
-
-  const handleUpload = async (filePath: string) => {
-    try {
-      await window.telegramAPI.uploadFile(group.id, filePath)
-      setShowUpload(false)
-      loadFiles()
-    } catch (err: any) {
-      alert(err.message || 'Error al subir archivo')
-    }
-  }
 
   const handleDownload = async (file: TelegramFile, onProgress?: (p: number) => void) => {
     try {
@@ -144,6 +136,8 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       <div className={styles.body}>
         {loading ? (
           <div className={styles.loading}>Cargando archivos...</div>
+        ) : error ? (
+          <div className={styles.error}>{error}</div>
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} onDownload={handleDownload} onDelete={handleDelete} readonly={!group.isOwner} />
         ) : (
@@ -151,22 +145,43 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         )}
       </div>
 
-      {previewFile && (
-        <PreviewModal
-          file={previewFile}
-          localPath={previewLocalPath}
-          onClose={() => { setPreviewFile(null); setPreviewLocalPath(undefined) }}
-          onDownload={(f) => handleDownload(f)}
-          onSaveToDisk={handleSaveToDisk}
-          onDelete={handleDelete}
-          onForward={handleForward}
-          readonly={!group.isOwner}
-        />
-      )}
+      {previewFile && (() => {
+        const previewIndex = filteredFiles.findIndex(f => f.id === previewFile.id)
+        const hasPrev = previewIndex > 0
+        const hasNext = previewIndex < filteredFiles.length - 1
+        const navigateTo = (index: number) => {
+          if (index < 0 || index >= filteredFiles.length) return
+          const target = filteredFiles[index]
+          setPreviewFile(target)
+          setPreviewLocalPath(undefined)
+          if (viewMode === 'grid') {
+            handleGridPreview(target, () => {}).then(url => {
+              setPreviewLocalPath(url)
+            }).catch(() => {})
+          }
+        }
+        return (
+          <PreviewModal
+            file={previewFile}
+            localPath={previewLocalPath}
+            onClose={() => { setPreviewFile(null); setPreviewLocalPath(undefined) }}
+            onDownload={(f) => handleDownload(f)}
+            onSaveToDisk={handleSaveToDisk}
+            onDelete={handleDelete}
+            onForward={handleForward}
+            readonly={!group.isOwner}
+            hasPrevious={hasPrev}
+            hasNext={hasNext}
+            onPrevious={() => navigateTo(previewIndex - 1)}
+            onNext={() => navigateTo(previewIndex + 1)}
+          />
+        )
+      })()}
 
       {showUpload && (
         <UploadDialog
-          onUpload={handleUpload}
+          groupId={group.id}
+          onUpload={() => { setShowUpload(false); loadFiles() }}
           onClose={() => setShowUpload(false)}
         />
       )}

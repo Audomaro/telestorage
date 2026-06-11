@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { TelegramFile } from '../types'
 import { isMedia } from '../utils/fileTypes'
 import CircularProgress from './CircularProgress'
@@ -35,29 +35,48 @@ export default function FileGrid({ files, onDownload, onPreview }: FileGridProps
   const mediaFiles = files.filter(f => isMedia(f.mimeType))
   const [downloadStates, setDownloadStates] = useState<Record<number, DownloadState>>({})
   const downloadStatesRef = useRef<Record<number, DownloadState>>({})
+  const autoStartedRef = useRef<Set<number>>(new Set())
 
-  const handleClick = async (file: TelegramFile) => {
-    if (downloadStatesRef.current[file.id]?.status === 'downloading') return
+  const downloadPreview = async (file: TelegramFile): Promise<string | undefined> => {
+    const current = downloadStatesRef.current[file.id]
+    if (current?.status === 'downloading') return undefined
+    if (current?.status === 'done') return current.localPath
 
     downloadStatesRef.current[file.id] = { status: 'downloading', progress: 0 }
     setDownloadStates({ ...downloadStatesRef.current })
 
-    try {
-      const localPath = await onDownload(file, (progress) => {
-        downloadStatesRef.current[file.id] = { status: 'downloading', progress }
-        setDownloadStates({ ...downloadStatesRef.current })
-      })
-
-      downloadStatesRef.current[file.id] = { status: 'done', progress: 1, localPath }
+    const localPath = await onDownload(file, (progress) => {
+      downloadStatesRef.current[file.id] = { status: 'downloading', progress }
       setDownloadStates({ ...downloadStatesRef.current })
+    })
 
-      if (onPreview) onPreview(file, localPath)
-    } catch {
+    downloadStatesRef.current[file.id] = { status: 'done', progress: 1, localPath }
+    setDownloadStates({ ...downloadStatesRef.current })
+    return localPath
+  }
+
+  const handleClick = async (file: TelegramFile) => {
+    try {
+      const localPath = await downloadPreview(file)
+      if (localPath && onPreview) onPreview(file, localPath)
+    } catch (err: any) {
       downloadStatesRef.current[file.id] = { status: 'idle', progress: 0 }
       setDownloadStates({ ...downloadStatesRef.current })
-      alert('Error al descargar previsualización')
+      alert(`Error al descargar previsualización: ${err.message || 'Error desconocido'}`)
     }
   }
+
+  useEffect(() => {
+    for (const file of mediaFiles) {
+      if (!autoStartedRef.current.has(file.id)) {
+        autoStartedRef.current.add(file.id)
+        downloadPreview(file).catch(() => {
+          downloadStatesRef.current[file.id] = { status: 'idle', progress: 0 }
+          setDownloadStates({ ...downloadStatesRef.current })
+        })
+      }
+    }
+  }, [mediaFiles.length])
 
   if (mediaFiles.length === 0) {
     return <div className={styles.empty}>Sin archivos multimedia</div>
@@ -68,6 +87,8 @@ export default function FileGrid({ files, onDownload, onPreview }: FileGridProps
       {mediaFiles.map(f => {
         const state = downloadStates[f.id]
         const isDownloading = state?.status === 'downloading'
+        const isDone = state?.status === 'done' && state.localPath
+        const localUrl = state?.localPath || null
 
         return (
           <div
@@ -75,15 +96,21 @@ export default function FileGrid({ files, onDownload, onPreview }: FileGridProps
             onClick={() => handleClick(f)}
             className={styles.card}
             style={{
-              background: f.thumbnail
+              background: (f.thumbnail || isDone)
                 ? '#1a1a2e'
                 : `linear-gradient(135deg, ${getGradient(f.mimeType, 0)}, ${getGradient(f.mimeType, 1)})`
             }}
           >
-            {f.thumbnail && (
+            {isDone && localUrl ? (
+              f.mimeType.startsWith('video/') ? (
+                <video src={localUrl} className={styles.thumb} muted autoPlay loop playsInline />
+              ) : (
+                <img src={localUrl} alt="" className={styles.thumb} />
+              )
+            ) : f.thumbnail ? (
               <img src={f.thumbnail} alt="" className={styles.thumb} />
-            )}
-            {f.mimeType.startsWith('video/') && !isDownloading && (
+            ) : null}
+            {f.mimeType.startsWith('video/') && (
               <div className={styles.videoBadge}>▶️</div>
             )}
             {isDownloading && (
@@ -91,7 +118,6 @@ export default function FileGrid({ files, onDownload, onPreview }: FileGridProps
                 <CircularProgress size={60} progress={state!.progress} />
               </div>
             )}
-            <div className={styles.name}>{f.name}</div>
           </div>
         )
       })}

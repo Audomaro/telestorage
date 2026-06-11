@@ -46,6 +46,8 @@ export async function startClient(): Promise<void> {
     })
   } catch (err: any) {
     if (err.errorMessage === 'AUTH_KEY_UNREGISTERED' || err.code === 401) {
+      client = null
+      stringSession = new StringSession('')
       return
     }
     throw err
@@ -111,10 +113,6 @@ export async function verify2FAPassword(password: string): Promise<void> {
     throw err
   }
 }
-
-export const sendPhoneCode = startPhoneAuth
-export const verifyCode = verifyPhoneCode
-export const check2FA = verify2FAPassword
 
 export function setLoggedIn(value: boolean): void {
   authState.isLoggedIn = value

@@ -1,9 +1,9 @@
 import { ipcMain, dialog, app } from 'electron'
 import { join } from 'path'
-import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn } from './telegram/auth'
+import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
-import { listFiles, uploadFile, downloadFile, downloadFileWithProgress, deleteFile, forwardFile } from './telegram/files'
+import { listFiles, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, deleteFile, forwardFile } from './telegram/files'
 import { getSettings, setSettings, AppSettings } from './telegram/settings'
 
 export function registerIpcHandlers(): void {
@@ -12,7 +12,7 @@ export function registerIpcHandlers(): void {
     try {
       await initClient(session || undefined)
       await startClient()
-      if (session) {
+      if (session && getClient()) {
         setLoggedIn(true)
         return { initialized: true }
       }
@@ -27,7 +27,7 @@ export function registerIpcHandlers(): void {
     return startPhoneAuth(phone)
   })
 
-  ipcMain.handle('auth:verifyCode', async (_event, phone: string, code: string, codeHash: string) => {
+  ipcMain.handle('auth:verifyCode', async (_event, code: string) => {
     const result = await verifyPhoneCode(code)
     if (!result.needs2FA) {
       saveSession(getSession())
@@ -73,6 +73,10 @@ export function registerIpcHandlers(): void {
     return uploadFile(groupId, filePath)
   })
 
+  ipcMain.handle('files:uploadMultiple', async (_event, groupId: number, filePaths: string[]) => {
+    return uploadMultipleFiles(groupId, filePaths)
+  })
+
   ipcMain.handle('files:download', async (_event, groupId: number, messageId: number, filePath: string) => {
     return downloadFile(groupId, messageId, filePath)
   })
@@ -113,5 +117,35 @@ export function registerIpcHandlers(): void {
     })
     if (result.canceled || result.filePaths.length === 0) return null
     return result.filePaths[0]
+  })
+
+  ipcMain.handle('dialog:pickFiles', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile', 'multiSelections'],
+      title: 'Seleccionar archivos para subir'
+    })
+    if (result.canceled || result.filePaths.length === 0) return []
+    return result.filePaths
+  })
+
+  ipcMain.handle('files:uploadTempFile', async (_event, groupId: number, fileName: string, data: number[]) => {
+    const client = getClient()
+    if (!client) throw new Error('Not authenticated')
+
+    const tempDir = join(app.getPath('temp'), 'teledrive_uploads')
+    const { mkdir, writeFile, unlink } = await import('fs/promises')
+    await mkdir(tempDir, { recursive: true })
+
+    const destPath = join(tempDir, `${Date.now()}_${fileName}`)
+    await writeFile(destPath, Buffer.from(data))
+
+    try {
+      const r = await uploadFile(groupId, destPath)
+      await unlink(destPath)
+      return r
+    } catch (err) {
+      await unlink(destPath).catch(() => {})
+      throw err
+    }
   })
 }
