@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TelegramFile } from '../types'
 import { formatFileSize, formatDate } from '../utils/format'
 import CircularProgress from './CircularProgress'
@@ -6,24 +6,53 @@ import styles from './PreviewModal.module.css'
 
 interface PreviewModalProps {
   file: TelegramFile
+  groupId: number
   onClose: () => void
   onDownload: (file: TelegramFile) => void
   onSaveToDisk?: (file: TelegramFile, onProgress: (p: number) => void) => Promise<void>
   onDelete: (file: TelegramFile) => void
   onForward?: (file: TelegramFile) => void
   readonly?: boolean
-  localPath?: string
   hasPrevious?: boolean
   hasNext?: boolean
   onPrevious?: () => void
   onNext?: () => void
+  onLoadOriginal: (file: TelegramFile, onProgress: (p: number) => void) => Promise<string>
 }
 
-export default function PreviewModal({ file, onClose, onDownload, onSaveToDisk, onDelete, onForward, readonly, localPath, hasPrevious, hasNext, onPrevious, onNext }: PreviewModalProps) {
+export default function PreviewModal({ file, groupId, onClose, onDownload, onSaveToDisk, onDelete, onForward, readonly, hasPrevious, hasNext, onPrevious, onNext, onLoadOriginal }: PreviewModalProps) {
   const isVideo = file.mimeType.startsWith('video/')
   const isImage = file.mimeType.startsWith('image/')
   const [saving, setSaving] = useState(false)
   const [saveProgress, setSaveProgress] = useState(0)
+  const [localPath, setLocalPath] = useState<string | undefined>(undefined)
+  const [loading, setLoading] = useState(false)
+  const [loadProgress, setLoadProgress] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLocalPath(undefined)
+    setLoading(true)
+    setLoadProgress(0)
+    setError(null)
+
+    onLoadOriginal(file, (p) => {
+      if (!cancelled) setLoadProgress(p)
+    }).then((path) => {
+      if (!cancelled) {
+        setLocalPath(path)
+        setLoading(false)
+      }
+    }).catch((err: any) => {
+      if (!cancelled) {
+        setError(err.message || 'Error al cargar original')
+        setLoading(false)
+      }
+    })
+
+    return () => { cancelled = true }
+  }, [file.id, groupId])
 
   const handleSave = async () => {
     if (!onSaveToDisk) {
@@ -64,10 +93,17 @@ export default function PreviewModal({ file, onClose, onDownload, onSaveToDisk, 
         {hasNext && (
           <button onClick={onNext} className={styles.navArrow} style={{ right: 8 }}>›</button>
         )}
-        {localPath && isImage ? (
+        {loading ? (
+          <div className={styles.loadingOverlay}>
+            <CircularProgress size={60} progress={loadProgress} />
+            <span className={styles.loadingText}>Cargando... {Math.round(loadProgress * 100)}%</span>
+          </div>
+        ) : error ? (
+          <div className={styles.errorText}>{error}</div>
+        ) : localPath && isImage ? (
           <img src={localPath} alt={file.name} className={styles.media} />
         ) : localPath && isVideo ? (
-          <video src={localPath} controls className={styles.mediaVideo} />
+          <video src={localPath} controls autoPlay className={styles.mediaVideo} />
         ) : (
           <>
             <div className={styles.emoji}>{isVideo ? '🎬' : '🖼️'}</div>

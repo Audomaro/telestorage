@@ -122,3 +122,24 @@
 .navArrow:hover {
   background: rgba(255,255,255,0.3);
 }
+
+.loadingOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  gap: 12px;
+}
+
+.loadingText {
+  font-size: 13px;
+  color: #aaa;
+}
+
+.errorText {
+  color: #ff6b6b;
+  font-size: 14px;
+  text-align: center;
+  padding: 24px;
+}
