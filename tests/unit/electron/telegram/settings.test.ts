@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { unlinkSync, existsSync as realExistsSync } from 'fs'
 
 vi.mock('electron', () => ({
   app: { getPath: () => '/tmp' },
@@ -6,27 +7,28 @@ vi.mock('electron', () => ({
   ipcMain: { handle: vi.fn() }
 }))
 
-vi.mock('fs', async (importOriginal) => {
-  const actual = await importOriginal()
-  return { ...actual, readFileSync: vi.fn(), writeFileSync: vi.fn(), existsSync: vi.fn() }
-})
-
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+const SETTINGS_PATH = '/tmp/settings.json'
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  if (realExistsSync(SETTINGS_PATH)) {
+    unlinkSync(SETTINGS_PATH)
+  }
+})
+
+afterEach(() => {
+  if (realExistsSync(SETTINGS_PATH)) {
+    unlinkSync(SETTINGS_PATH)
+  }
 })
 
 describe('createdGroupIds', () => {
   it('should default to empty array', async () => {
-    vi.mocked(existsSync).mockReturnValue(false)
     const { getSettings } = await import('../../../../electron/main/telegram/settings')
     const settings = getSettings()
     expect(settings.createdGroupIds).toEqual([])
   })
 
   it('should add a group id and persist', async () => {
-    vi.mocked(existsSync).mockReturnValue(false)
     const { addCreatedGroupId, getSettings } = await import('../../../../electron/main/telegram/settings')
     addCreatedGroupId(123)
     const settings = getSettings()
@@ -35,7 +37,6 @@ describe('createdGroupIds', () => {
   })
 
   it('should not duplicate group ids', async () => {
-    vi.mocked(existsSync).mockReturnValue(false)
     const { addCreatedGroupId, getSettings } = await import('../../../../electron/main/telegram/settings')
     addCreatedGroupId(123)
     addCreatedGroupId(123)
