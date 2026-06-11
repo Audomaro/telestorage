@@ -22,7 +22,6 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [filter, setFilter] = useState<FileFilter>('all')
   const [previewFile, setPreviewFile] = useState<TelegramFile | null>(null)
-  const [previewLocalPath, setPreviewLocalPath] = useState<string | undefined>(undefined)
   const [showUpload, setShowUpload] = useState(false)
   const [confirmDeleteFile, setConfirmDeleteFile] = useState<TelegramFile | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -75,9 +74,8 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     await window.telegramAPI.downloadFileWithProgress(group.id, file.messageId, destPath, onProgress)
   }, [group.id])
 
-  const handlePreviewOpen = (file: TelegramFile, localPath?: string) => {
+  const handlePreviewOpen = (file: TelegramFile) => {
     setPreviewFile(file)
-    setPreviewLocalPath(localPath)
   }
 
   const handleDelete = async (file: TelegramFile) => {
@@ -90,7 +88,6 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     try {
       await window.telegramAPI.deleteFile(group.id, confirmDeleteFile.messageId)
       setPreviewFile(null)
-      setPreviewLocalPath(undefined)
       setConfirmDeleteFile(null)
       loadFiles()
     } catch (err: any) {
@@ -151,20 +148,13 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         const hasNext = previewIndex < filteredFiles.length - 1
         const navigateTo = (index: number) => {
           if (index < 0 || index >= filteredFiles.length) return
-          const target = filteredFiles[index]
-          setPreviewFile(target)
-          setPreviewLocalPath(undefined)
-          if (viewMode === 'grid') {
-            handleGridPreview(target, () => {}).then(url => {
-              setPreviewLocalPath(url)
-            }).catch(() => {})
-          }
+          setPreviewFile(filteredFiles[index])
         }
         return (
           <PreviewModal
             file={previewFile}
-            localPath={previewLocalPath}
-            onClose={() => { setPreviewFile(null); setPreviewLocalPath(undefined) }}
+            groupId={group.id}
+            onClose={() => setPreviewFile(null)}
             onDownload={(f) => handleDownload(f)}
             onSaveToDisk={handleSaveToDisk}
             onDelete={handleDelete}
@@ -174,6 +164,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
             hasNext={hasNext}
             onPrevious={() => navigateTo(previewIndex - 1)}
             onNext={() => navigateTo(previewIndex + 1)}
+            onLoadOriginal={handleGridPreview}
           />
         )
       })()}
