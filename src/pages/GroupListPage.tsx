@@ -13,6 +13,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   const [groups, setGroups] = useState<TelegramGroup[]>([])
   const [archived, setArchived] = useState<TelegramGroup[]>([])
   const [showArchived, setShowArchived] = useState(false)
+  const [appFilter, setAppFilter] = useState<'all' | 'created'>('created')
   const [loading, setLoading] = useState(true)
   const [archivedLoading, setArchivedLoading] = useState(false)
   const [error, setError] = useState('')
@@ -81,6 +82,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   }
 
   const displayGroups = showArchived ? archived : groups
+  const visibleGroups = displayGroups.filter(g => appFilter === 'all' || g.isAppCreated)
 
   if (loading) {
     return (
@@ -102,13 +104,21 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
             <button onClick={() => handleTabChange(true)}
               className={`${styles.tab} ${showArchived ? styles.tabActive : ''}`}>Archivados</button>
           </div>
+          {!showArchived && (
+            <div style={{ display: 'flex', gap: 4 }}>
+              <button onClick={() => setAppFilter('created')}
+                className={`${styles.filterTab} ${appFilter === 'created' ? styles.filterTabActive : ''}`}>Creados</button>
+              <button onClick={() => setAppFilter('all')}
+                className={`${styles.filterTab} ${appFilter === 'all' ? styles.filterTabActive : ''}`}>Todos</button>
+            </div>
+          )}
           <button onClick={handleCreateGroup} className={styles.createBtn}>+ Nuevo grupo</button>
         </div>
       </div>
 
       {error && <div className={styles.errorBox}>{error}</div>}
 
-      {displayGroups.map(g => (
+      {visibleGroups.map(g => (
         <GroupListItem
           key={g.id}
           group={g}
@@ -117,9 +127,14 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         />
       ))}
 
-      {displayGroups.length === 0 && !archivedLoading && (
+      {visibleGroups.length === 0 && !archivedLoading && (
         <div className={styles.empty}>
-          {showArchived ? 'No hay grupos archivados' : 'No hay grupos. Crea uno nuevo con "+ Nuevo grupo".'}
+          {showArchived
+            ? 'No hay grupos archivados'
+            : appFilter === 'created'
+              ? 'No hay grupos creados con TeleDrive'
+              : 'No hay grupos. Crea uno nuevo con "+ Nuevo grupo".'
+          }
         </div>
       )}
 
