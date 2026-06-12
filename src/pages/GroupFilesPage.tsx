@@ -8,12 +8,17 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogActions from '@mui/material/DialogActions'
 import CircularProgress from '@mui/material/CircularProgress'
+import Skeleton from '@mui/material/Skeleton'
+import Alert from '@mui/material/Alert'
+import InsertDriveFileOutlined from '@mui/icons-material/InsertDriveFileOutlined'
+import ImageOutlined from '@mui/icons-material/ImageOutlined'
 import { TelegramGroup, TelegramFile, ViewMode, FileFilter } from '../types'
 import Toolbar from '../components/Toolbar'
 import FileList from '../components/FileList'
 import FileGrid from '../components/FileGrid'
 import PreviewModal from '../components/PreviewModal'
 import UploadDialog from '../components/UploadDialog'
+import EmptyState from '../components/EmptyState'
 import { isMedia, isDocument, isExcludedFromMedia } from '../utils/fileTypes'
 import { useSnackbar } from '../theme/SnackbarContext'
 
@@ -219,9 +224,29 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
 
       <Box component="main" sx={{ flex: 1 }}>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4, color: 'text.secondary' }}>Cargando archivos...</Box>
+          viewMode === 'list' ? (
+            <Box sx={{ px: 2 }}>
+              {[1, 2, 3, 4, 5].map(i => (
+                <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1 }}>
+                  <Skeleton variant="circular" width={24} height={24} />
+                  <Skeleton variant="text" sx={{ flex: 1 }} />
+                  <Skeleton variant="text" width={60} />
+                  <Skeleton variant="text" width={80} />
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 1, p: 1 }}>
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <Skeleton key={i} variant="rounded" sx={{ aspectRatio: '1' }} />
+              ))}
+            </Box>
+          )
         ) : error ? (
-          <Typography color="error" sx={{ p: 2 }}>{error}</Typography>
+          <Alert severity="error" onClose={() => setError(null)} sx={{ mx: 2, mt: 1 }}>
+            {error}
+            <Button size="small" onClick={loadInitialFiles} sx={{ ml: 1 }}>Reintentar</Button>
+          </Alert>
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} isReadOnly={!group.isOwner}
             selectMode={selectMode} selectedIds={selectedIds}
@@ -229,6 +254,12 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : (
           <FileGrid files={filteredFiles} selectMode={selectMode} selectedIds={selectedIds}
             onPreview={handlePreviewOpen} onToggleSelect={handleToggleSelect} />
+        )}
+        {filteredFiles.length === 0 && !loading && !error && (
+          <EmptyState
+            icon={filter === 'media' ? <ImageOutlined /> : <InsertDriveFileOutlined />}
+            title={filter === 'media' ? 'Sin archivos multimedia' : 'Sin archivos'}
+          />
         )}
         {hasMore && !loading && (
           <div ref={sentinelRef}>
