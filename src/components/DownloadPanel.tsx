@@ -29,25 +29,31 @@ export default function DownloadPanel() {
 
   if (collapsed) {
     return (
-      <Paper
-        elevation={4}
+      <Box
         sx={{
           height: '100%',
-          overflow: 'hidden',
-          transition: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 1,
+          px: 0.5,
+          borderLeft: 1,
+          borderColor: 'divider',
+          cursor: 'pointer',
+          overflow: 'visible',
         }}
+        onClick={() => setCollapsed(false)}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, px: 0.5 }}>
-          <Tooltip title="Expandir panel">
-            <IconButton size="small" onClick={() => setCollapsed(false)} aria-label="Expandir panel">
-              <ChevronLeftIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Badge badgeContent={activeCount} color="primary">
-            <DownloadIcon fontSize="small" color="action" />
-          </Badge>
-        </Box>
-      </Paper>
+        <Tooltip title="Expandir panel">
+          <IconButton size="small" aria-label="Expandir panel">
+            <ChevronLeftIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Badge badgeContent={activeCount} color="primary">
+          <DownloadIcon fontSize="small" color="action" />
+        </Badge>
+      </Box>
     )
   }
 
