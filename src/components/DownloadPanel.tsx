@@ -36,10 +36,7 @@ export default function DownloadPanel() {
       <Paper
         elevation={4}
         sx={{
-          position: 'fixed',
-          right: 0,
-          top: 72,
-          zIndex: 1300,
+          height: '100%',
           overflow: 'hidden',
         }}
       >
@@ -61,14 +58,10 @@ export default function DownloadPanel() {
     <Paper
       elevation={4}
       sx={{
-        position: 'fixed',
-        right: 16,
-        top: 72,
+        height: '100%',
         width: 320,
-        maxHeight: '80vh',
         display: 'flex',
         flexDirection: 'column',
-        zIndex: 1300,
         overflow: 'hidden',
       }}
     >

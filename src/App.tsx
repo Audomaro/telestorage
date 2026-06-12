@@ -69,18 +69,20 @@ function AppContent() {
           </Toolbar>
         </AppBar>
       )}
-      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-        {!isLoggedIn
-          ? <LoginPage onLogin={() => setIsLoggedIn(true)} />
-          : showSettings
-            ? <SettingsPage onBack={() => setShowSettings(false)} />
-            : selectedGroup
-              ? <GroupFilesPage group={selectedGroup} onBack={() => setSelectedGroup(null)}
-                  onSettings={() => setShowSettings(true)} />
-              : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
-        }
+      <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
+        <Box sx={{ flex: 1, overflow: 'auto' }}>
+          {!isLoggedIn
+            ? <LoginPage onLogin={() => setIsLoggedIn(true)} />
+            : showSettings
+              ? <SettingsPage onBack={() => setShowSettings(false)} />
+              : selectedGroup
+                ? <GroupFilesPage group={selectedGroup} onBack={() => setSelectedGroup(null)}
+                    onSettings={() => setShowSettings(true)} />
+                : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
+          }
+        </Box>
+        <DownloadPanel />
       </Box>
-      <DownloadPanel />
     </Box>
   )
 }
