@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
@@ -24,12 +24,15 @@ export default function DownloadItem({ task, onRemove, onOpenFolder, onRetry }: 
   const isError = task.status === 'error'
   const isDownloading = task.status === 'downloading'
 
+  const onRemoveRef = useRef(onRemove)
+  onRemoveRef.current = onRemove
+
   useEffect(() => {
     if (isCompleted) {
-      const timer = setTimeout(onRemove, 10000)
+      const timer = setTimeout(() => onRemoveRef.current(), 10000)
       return () => clearTimeout(timer)
     }
-  }, [isCompleted, onRemove])
+  }, [isCompleted])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1, borderBottom: 1, borderColor: 'divider' }}>
