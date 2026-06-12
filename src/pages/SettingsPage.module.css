@@ -119,3 +119,14 @@
   font-size: 13px;
   color: #333;
 }
+
+.selectInput {
+  width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+}

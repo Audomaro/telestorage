@@ -6,6 +6,7 @@ export interface AppSettings {
   downloadPath: string
   createdGroupIds: number[]
   batchSize: number
+  defaultTab: 'created' | 'active' | 'archived'
 }
 
 const SETTINGS_FILE = join(app.getPath('userData'), 'settings.json')
@@ -13,7 +14,8 @@ const SETTINGS_FILE = join(app.getPath('userData'), 'settings.json')
 const DEFAULTS: AppSettings = {
   downloadPath: app.getPath('downloads'),
   createdGroupIds: [],
-  batchSize: 50
+  batchSize: 50,
+  defaultTab: 'created'
 }
 
 export function getSettings(): AppSettings {

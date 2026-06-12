@@ -2,6 +2,7 @@ interface AppSettings {
   downloadPath: string
   createdGroupIds: number[]
   batchSize: number
+  defaultTab: 'created' | 'active' | 'archived'
 }
 
 interface TelegramAPI {

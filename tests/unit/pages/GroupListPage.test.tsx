@@ -11,6 +11,7 @@ beforeEach(() => {
     getArchivedGroups: vi.fn().mockResolvedValue([]),
     createGroup: vi.fn().mockResolvedValue({}),
     deleteGroup: vi.fn().mockResolvedValue(undefined),
+    getSettings: vi.fn().mockResolvedValue({ defaultTab: 'created' }),
   }
 })
 
@@ -27,6 +28,7 @@ describe('GroupListPage app filter', () => {
       getArchivedGroups: vi.fn().mockResolvedValue([]),
       createGroup: vi.fn(),
       deleteGroup: vi.fn(),
+      getSettings: vi.fn().mockResolvedValue({ defaultTab: 'created' }),
     } as any
   })
 
@@ -57,7 +59,7 @@ describe('GroupListPage app filter', () => {
     ])
     render(<GroupListPage />)
     await waitFor(() => {
-      expect(screen.getByText(/No hay grupos creados/i)).toBeDefined()
+      expect(screen.getByText(/No hay grupos en TeleStorage/i)).toBeDefined()
     })
   })
 })

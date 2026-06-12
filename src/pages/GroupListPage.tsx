@@ -45,6 +45,17 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     if (tab === 'archived') loadArchived()
   }, [])
 
+  useEffect(() => {
+    if (!localStorage.getItem(TAB_KEY)) {
+      window.telegramAPI.getSettings().then(s => {
+        const dt = s.defaultTab ?? 'created'
+        if (!localStorage.getItem(TAB_KEY)) {
+          setTab(dt)
+        }
+      })
+    }
+  }, [])
+
   const loadGroups = async () => {
     setLoading(true)
     setError('')

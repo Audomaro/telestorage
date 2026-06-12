@@ -8,6 +8,7 @@ interface SettingsPageProps {
 export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [downloadPath, setDownloadPath] = useState('')
   const [batchSize, setBatchSize] = useState(50)
+  const [defaultTab, setDefaultTab] = useState<'created' | 'active' | 'archived'>('created')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -15,6 +16,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     window.telegramAPI.getSettings().then(s => {
       setDownloadPath(s.downloadPath)
       setBatchSize(s.batchSize ?? 50)
+      setDefaultTab(s.defaultTab ?? 'created')
     })
   }, [])
 
@@ -26,7 +28,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await window.telegramAPI.setSettings({ downloadPath, batchSize })
+      await window.telegramAPI.setSettings({ downloadPath, batchSize, defaultTab })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch {
@@ -61,6 +63,19 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             onChange={e => setBatchSize(Math.max(1, parseInt(e.target.value) || 1))}
             className={styles.numInput}
           />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>Pestaña por defecto al iniciar</label>
+          <select
+            value={defaultTab}
+            onChange={e => setDefaultTab(e.target.value as 'created' | 'active' | 'archived')}
+            className={styles.selectInput}
+          >
+            <option value="created">TeleStorage</option>
+            <option value="active">Activos</option>
+            <option value="archived">Archivados</option>
+          </select>
         </div>
 
         <button onClick={handleSave} disabled={saving} className={styles.saveBtn}
