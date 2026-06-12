@@ -33,7 +33,7 @@ export default function DownloadItem({ task, onRemove, onOpenFolder }: DownloadI
   }, [isCompleted])
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1, borderBottom: 1, borderColor: 'divider' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1, borderBottom: 1, borderColor: 'divider' }} data-testid="download-item">
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {isCompleted ? <CheckCircleIcon fontSize="small" color="success" /> : isError ? <ErrorIcon fontSize="small" color="error" /> : <InsertDriveFileIcon fontSize="small" color="action" />}
         <Typography variant="body2" noWrap sx={{ flex: 1 }}>{task.fileName}</Typography>

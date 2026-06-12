@@ -64,10 +64,10 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   }
 
   return (
-    <Box sx={{ p: 3, maxWidth: 500 }}>
+    <Box sx={{ p: 3, maxWidth: 500 }} data-testid="settings-page">
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {!loaded ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }} data-testid="settings-skeleton">
             {[1, 2, 3].map(i => (
               <Box key={i}>
                 <Skeleton variant="text" width={120} />
@@ -80,8 +80,8 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>Apariencia</Typography>
         <Box>
           <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Tema</InputLabel>
-            <Select value={themeMode} label="Tema"
+            <InputLabel id="theme-label">Tema</InputLabel>
+            <Select value={themeMode} label="Tema" labelId="theme-label" id="theme-select"
               onChange={e => setThemeMode(e.target.value as 'light' | 'dark')}>
               <MenuItem value="light">Claro</MenuItem>
               <MenuItem value="dark">Oscuro</MenuItem>
@@ -94,8 +94,8 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>Navegación</Typography>
         <Box>
           <FormControl size="small" sx={{ minWidth: 220 }}>
-            <InputLabel>Pestaña por defecto al iniciar</InputLabel>
-            <Select value={defaultTab} label="Pestaña por defecto al iniciar"
+            <InputLabel id="default-tab-label">Pestaña por defecto al iniciar</InputLabel>
+            <Select value={defaultTab} label="Pestaña por defecto al iniciar" labelId="default-tab-label" id="default-tab-select"
               onChange={e => setDefaultTab(e.target.value as 'created' | 'active' | 'archived')}>
               <MenuItem value="created">TeleStorage</MenuItem>
               <MenuItem value="active">Activos</MenuItem>
@@ -109,7 +109,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>Descargas</Typography>
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }} gutterBottom>Carpeta de descargas</Typography>
-          <TextField fullWidth size="small" value={downloadPath} slotProps={{
+          <TextField data-testid="download-path-field" fullWidth size="small" value={downloadPath} slotProps={{
             input: {
               readOnly: true,
               endAdornment: <Button size="small" onClick={handleSelectFolder} startIcon={<FolderIcon />}>Cambiar</Button>
@@ -118,7 +118,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         </Box>
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }} gutterBottom>Archivos por carga (batch size)</Typography>
-          <TextField type="number" size="small" sx={{ width: 120 }}
+          <TextField data-testid="batch-size-input" type="number" size="small" sx={{ width: 120 }}
             value={batchSize} onChange={e => setBatchSize(Math.max(1, parseInt(e.target.value) || 1))} />
         </Box>
 
@@ -128,6 +128,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }} gutterBottom>Extensiones ignoradas en galería y multimedia</Typography>
           <Autocomplete
+            data-testid="excluded-extensions-input"
             multiple
             freeSolo
             options={[]}

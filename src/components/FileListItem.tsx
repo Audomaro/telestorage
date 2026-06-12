@@ -33,7 +33,7 @@ export default function FileListItem({ file, isReadOnly, selectMode, selected, o
   const isPreviewable = file.mimeType.startsWith('image/') || file.mimeType.startsWith('video/')
 
   return (
-    <TableRow hover selected={selected}>
+    <TableRow hover selected={selected} data-testid="file-list-item">
       {selectMode && (
         <TableCell sx={{ width: 36, p: 0.5 }}>
           <Checkbox size="small" checked={selected} onChange={() => onToggleSelect(file)} />

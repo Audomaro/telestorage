@@ -69,6 +69,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
               disabled={loading}
             />
             <TextField label="Número de teléfono" placeholder="555 123 4567" fullWidth
+              slotProps={{ htmlInput: { 'data-testid': 'phone-input' } }}
               value={phone} onChange={e => {
                 const v = e.target.value.replace(/[^0-9]/g, '')
                 setPhone(v)
@@ -85,6 +86,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
               Enviamos un código a {phone}
             </Typography>
             <TextField label="Código de verificación" placeholder="Código" fullWidth
+              slotProps={{ htmlInput: { 'data-testid': 'code-input' } }}
               value={code} onChange={e => setCode(e.target.value)} disabled={loading} autoFocus />
           </>
         )}
@@ -94,11 +96,12 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
               Tu cuenta tiene verificación en dos pasos
             </Typography>
             <TextField label="Contraseña 2FA" type="password" placeholder="Contraseña" fullWidth
+              slotProps={{ htmlInput: { 'data-testid': 'password-input' } }}
               value={password} onChange={e => setPassword(e.target.value)} disabled={loading} autoFocus />
           </>
         )}
         {error && <Alert severity="error" sx={{ width: '100%' }}>{error}</Alert>}
-        <Button variant="contained" fullWidth type="submit" disabled={loading} sx={{ mt: 1 }}>
+        <Button variant="contained" fullWidth type="submit" disabled={loading} sx={{ mt: 1 }} data-testid="submit-button">
           {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
           {loading ? 'Procesando...' : needs2FA ? 'Iniciar sesión' : codeHash ? 'Verificar código' : 'Enviar código'}
         </Button>

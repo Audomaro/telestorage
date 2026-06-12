@@ -16,7 +16,11 @@ export async function registerIpcHandlers(): Promise<void> {
     const session = loadSession()
     try {
       await initClient(session || undefined)
-      await startClient()
+      // Add timeout to prevent hanging in test environments or when network is unavailable
+      await Promise.race([
+        startClient(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 3000))
+      ])
       if (session && getClient()) {
         setLoggedIn(true)
         return { initialized: true }

@@ -49,7 +49,8 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
         slotProps={{
           input: {
             startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
-          }
+          },
+          htmlInput: { 'data-testid': 'file-search-input' }
         }}
         sx={{ minWidth: 200, '& .MuiInputBase-root': { fontSize: '0.875rem' } }}
       />

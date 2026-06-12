@@ -182,7 +182,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     return (
       <Box sx={{ px: 2 }}>
         {[1, 2, 3].map(i => (
-          <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
+          <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
             <Skeleton variant="circular" width={40} height={40} />
             <Box sx={{ flex: 1 }}>
               <Skeleton variant="text" width="60%" />
@@ -198,17 +198,17 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     <Box component="main">
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1 }}>
         <Tabs value={tabIndex} onChange={handleTabChange}>
-          <Tab label="TeleStorage" />
-          <Tab label="Activos" />
-          <Tab label="Archivados" />
+          <Tab label="TeleStorage" data-testid="tab-telestorage" />
+          <Tab label="Activos" data-testid="tab-activos" />
+          <Tab label="Archivados" data-testid="tab-archivados" />
         </Tabs>
       </Box>
       {tab === 'created' && (
         <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-          <Button size="small" variant="outlined" startIcon={<LinkIcon />} onClick={() => setShowAddExistingDialog(true)}>
+          <Button data-testid="btn-vincular" size="small" variant="outlined" startIcon={<LinkIcon />} onClick={() => setShowAddExistingDialog(true)}>
             Vincular propio
           </Button>
-          <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={() => { setShowCreateDialog(true); setTimeout(() => createInputRef.current?.focus(), 50) }}>
+          <Button data-testid="btn-nuevo-grupo" size="small" variant="contained" startIcon={<AddIcon />} onClick={() => { setShowCreateDialog(true); setTimeout(() => createInputRef.current?.focus(), 50) }}>
             Nuevo grupo
           </Button>
         </Box>
@@ -258,6 +258,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
             Selecciona un grupo propio para agregarlo a TeleStorage
           </DialogContentText>
           <TextField
+            data-testid="vincular-search-input"
             size="small"
             placeholder="Buscar grupo..."
             fullWidth

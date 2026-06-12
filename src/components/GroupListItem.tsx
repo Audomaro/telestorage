@@ -22,7 +22,7 @@ function getInitials(title: string): string {
 
 export default function GroupListItem({ group, onClick, onDelete }: GroupListItemProps) {
   return (
-    <Card sx={{ mb: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => onClick(group)}>
+    <Card data-testid="group-list-item" sx={{ mb: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => onClick(group)}>
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, '&:last-child': { pb: 1.5 } }}>
         <Avatar sx={{ bgcolor: group.isOwner ? 'primary.main' : '#FF9800', width: 40, height: 40, fontSize: 16 }}>
           {getInitials(group.title)}

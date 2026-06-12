@@ -14,6 +14,7 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     globals: true,
     passWithNoTests: true,
+    exclude: ['node_modules', 'e2e'],
     server: {
       deps: {
         inline: ['@mui/material', '@emotion/react', '@emotion/styled', 'react-transition-group']

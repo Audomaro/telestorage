@@ -22,6 +22,7 @@ export default function DownloadPanel() {
   return (
     <Paper
       elevation={4}
+      data-testid="download-panel"
       sx={{
         height: '100%',
         width: 320,

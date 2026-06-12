@@ -81,7 +81,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete }: Upl
   }
 
   return (
-    <Dialog open onClose={uploading ? undefined : onClose} maxWidth="sm" fullWidth>
+    <Dialog open onClose={uploading ? undefined : onClose} maxWidth="sm" fullWidth data-testid="upload-dialog">
       <DialogTitle>{uploading ? 'Subiendo archivos...' : 'Subir archivos'}</DialogTitle>
       <DialogContent>
         <Box
@@ -89,6 +89,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete }: Upl
           onDragOver={e => e.preventDefault()}
           sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 2, p: 4, textAlign: 'center', mb: 2, cursor: 'pointer' }}
           onClick={handlePick}
+          data-testid="upload-dropzone"
         >
           <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
           <Typography color="text.secondary">Arrastra archivos aquí o haz clic para seleccionar</Typography>

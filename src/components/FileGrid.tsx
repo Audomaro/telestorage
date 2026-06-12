@@ -69,6 +69,7 @@ function GridCard({ file, selectMode, selected, onClick }: { file: TelegramFile;
       role="button"
       tabIndex={0}
       aria-label={file.name}
+      data-testid="file-grid-item"
       sx={{
         position: 'relative', aspectRatio: '1', borderRadius: 2, overflow: 'hidden', cursor: 'pointer',
         background: thumbnail ? 'none' : gradientForMime(file.mimeType), backgroundSize: 'cover',

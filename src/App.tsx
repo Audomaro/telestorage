@@ -4,11 +4,18 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SettingsIcon from '@mui/icons-material/Settings'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 import DownloadIcon from '@mui/icons-material/Download'
+import LogoutIcon from '@mui/icons-material/Logout'
 import LoginPage from './pages/LoginPage'
 import GroupListPage from './pages/GroupListPage'
 import GroupFilesPage from './pages/GroupFilesPage'
@@ -25,6 +32,7 @@ function AppContent() {
   const [selectedGroup, setSelectedGroup] = useState<TelegramGroup | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showDownloads, setShowDownloads] = useState(false)
+  const [confirmLogout, setConfirmLogout] = useState(false)
   const { mode, toggleColorMode } = useColorMode()
 
   useEffect(() => {
@@ -47,6 +55,15 @@ function AppContent() {
   }
 
   const showBack = showSettings || !!selectedGroup
+
+  const handleLogout = async () => {
+    setConfirmLogout(false)
+    await window.telegramAPI.logout()
+    setIsLoggedIn(false)
+    setSelectedGroup(null)
+    setShowSettings(false)
+    setShowDownloads(false)
+  }
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -71,6 +88,9 @@ function AppContent() {
             <IconButton color="inherit" onClick={() => setShowSettings(true)} aria-label="Configuración">
               <SettingsIcon />
             </IconButton>
+            <IconButton color="inherit" onClick={() => setConfirmLogout(true)} aria-label="Cerrar sesión">
+              <LogoutIcon />
+            </IconButton>
           </Toolbar>
         </AppBar>
       )}
@@ -86,12 +106,27 @@ function AppContent() {
                 : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
           }
         </Box>
-        {showDownloads && (
-          <Box sx={{ flexShrink: 0 }}>
-            <DownloadPanel />
-          </Box>
-        )}
+      {showDownloads && (
+        <Box sx={{ flexShrink: 0 }}>
+          <DownloadPanel />
+        </Box>
+      )}
       </Box>
+
+      <Dialog open={confirmLogout} onClose={() => setConfirmLogout(false)}>
+        <DialogTitle>Cerrar sesión</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que quieres cerrar sesión? Se eliminará la sesión actual y tendrás que iniciar sesión de nuevo.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmLogout(false)}>Cancelar</Button>
+          <Button onClick={handleLogout} color="error" variant="contained">
+            Cerrar sesión
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
