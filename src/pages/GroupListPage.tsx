@@ -51,6 +51,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         const dt = s.defaultTab ?? 'created'
         if (!localStorage.getItem(TAB_KEY)) {
           setTab(dt)
+          if (dt === 'archived') loadArchived()
         }
       })
     }
@@ -153,7 +154,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     ? allGroups.filter(g => g.isAppCreated && !g.isArchived)
     : tab === 'active'
       ? allGroups.filter(g => !g.isArchived)
-      : archived
+      : allGroups.filter(g => g.isArchived)
 
   if (loading) {
     return (
