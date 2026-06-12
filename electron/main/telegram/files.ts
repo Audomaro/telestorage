@@ -164,6 +164,21 @@ export async function listFilesBatch(groupId: number, limit: number, offsetId?: 
   return { files, hasMore: messages.length === limit, nextOffsetId }
 }
 
+export async function listFilesByTopic(groupId: number, topicId: number, limit: number, offsetId?: number, search?: string): Promise<ListFilesBatchResult> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+
+  const messages = await client.getMessages(groupId, { limit, offsetId, search })
+
+  const files: FileResult[] = messages
+    .filter(m => m.media && (m as any).replyTo?.topId === topicId)
+    .map(m => messageToFileResult(m, groupId))
+
+  const nextOffsetId = messages.length > 0 ? messages[messages.length - 1].id : undefined
+
+  return { files, hasMore: messages.length === limit, nextOffsetId }
+}
+
 export async function listFiles(groupId: number): Promise<FileResult[]> {
   const client = getClient()
   if (!client) throw new Error('Not authenticated')

@@ -8,6 +8,15 @@ export interface GroupResult {
   isOwner: boolean
   totalSize: number
   isAppCreated: boolean
+  isForum?: boolean
+}
+
+export interface ForumTopicResult {
+  id: number
+  title: string
+  iconColor: number
+  iconEmojiId?: string
+  totalSize: number
 }
 
 export function isGroupAppCreated(groupId: number, createdIds: number[]): boolean {
@@ -22,7 +31,8 @@ function dialogToGroupResult(d: any, createdIds: number[]): GroupResult {
     isArchived,
     isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
     totalSize: 0,
-    isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
+    isAppCreated: isGroupAppCreated(Number(d.id), createdIds),
+    isForum: (d as any).entity?.forum || false
   }
 }
 
@@ -67,6 +77,30 @@ export async function createGroup(title: string): Promise<GroupResult> {
   const dialogId = Number(`-${100}${BigInt(channel.id)}`)
   addCreatedGroupId(dialogId)
   return { id: dialogId, title, isArchived: false, isOwner: true, totalSize: 0, isAppCreated: true }
+}
+
+export async function getForumTopics(groupId: number): Promise<ForumTopicResult[]> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+
+  const str = String(groupId)
+  const channelId = str.startsWith('-100') ? BigInt(str.slice(4)) : BigInt(str.slice(1))
+
+  const result = await client.invoke(
+    new (await import('telegram')).Api.channels.GetForumTopics({
+      channel: channelId,
+      limit: 100,
+    })
+  ) as any
+
+  const topics = result.topics || []
+  return topics.map((t: any) => ({
+    id: t.id,
+    title: t.title || 'Unnamed',
+    iconColor: t.iconColor || 0,
+    iconEmojiId: t.iconEmojiId?.toString(),
+    totalSize: 0,
+  }))
 }
 
 export async function deleteGroup(groupId: number): Promise<void> {

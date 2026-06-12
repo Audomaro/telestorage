@@ -6,12 +6,22 @@ export interface TelegramUser {
   lastName?: string
 }
 
+export interface ForumTopic {
+  id: number
+  groupId: number
+  title: string
+  iconColor: number
+  iconEmojiId?: string
+  totalSize?: number
+}
+
 export interface TelegramGroup {
   id: number
   title: string
   isArchived: boolean
   isOwner: boolean
   isAppCreated?: boolean
+  isForum?: boolean
   totalSize?: number
 }
 
