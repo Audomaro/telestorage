@@ -8,7 +8,6 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import CloseIcon from '@mui/icons-material/Close'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ErrorIcon from '@mui/icons-material/Error'
-import RefreshIcon from '@mui/icons-material/Refresh'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import { DownloadTask } from '../theme/DownloadContext'
 
@@ -16,10 +15,9 @@ interface DownloadItemProps {
   task: DownloadTask
   onRemove: () => void
   onOpenFolder: () => void
-  onRetry: () => void
 }
 
-export default function DownloadItem({ task, onRemove, onOpenFolder, onRetry }: DownloadItemProps) {
+export default function DownloadItem({ task, onRemove, onOpenFolder }: DownloadItemProps) {
   const isCompleted = task.status === 'completed'
   const isError = task.status === 'error'
   const isDownloading = task.status === 'downloading'
@@ -44,11 +42,7 @@ export default function DownloadItem({ task, onRemove, onOpenFolder, onRetry }: 
             <IconButton size="small" onClick={onOpenFolder} aria-label="Abrir carpeta"><FolderOpenIcon fontSize="small" /></IconButton>
           </Tooltip>
         )}
-        {isError && (
-          <Tooltip title="Reintentar">
-            <IconButton size="small" onClick={onRetry} aria-label="Reintentar"><RefreshIcon fontSize="small" /></IconButton>
-          </Tooltip>
-        )}
+
         <Tooltip title="Eliminar">
           <IconButton size="small" onClick={onRemove} aria-label="Eliminar"><CloseIcon fontSize="small" /></IconButton>
         </Tooltip>

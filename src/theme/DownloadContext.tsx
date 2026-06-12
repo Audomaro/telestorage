@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 
-export type DownloadStatus = 'pending' | 'downloading' | 'completed' | 'error'
+export type DownloadStatus = 'downloading' | 'completed' | 'error'
 
 export interface DownloadTask {
   id: string
@@ -19,7 +19,6 @@ export interface DownloadContextValue {
   completeDownload: (id: string, destPath: string) => void
   failDownload: (id: string, error: string) => void
   removeDownload: (id: string) => void
-  retryDownload: (id: string) => void
 }
 
 const DownloadContext = createContext<DownloadContextValue>({
@@ -29,7 +28,6 @@ const DownloadContext = createContext<DownloadContextValue>({
   completeDownload: () => {},
   failDownload: () => {},
   removeDownload: () => {},
-  retryDownload: () => {},
 })
 
 export const useDownload = () => useContext(DownloadContext)
@@ -57,12 +55,8 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
     setDownloads(prev => prev.filter(d => d.id !== id))
   }, [])
 
-  const retryDownload = useCallback((id: string) => {
-    setDownloads(prev => prev.map(d => d.id === id ? { ...d, status: 'downloading', error: undefined, progress: 0 } : d))
-  }, [])
-
   return (
-    <DownloadContext.Provider value={{ downloads, addDownload, updateProgress, completeDownload, failDownload, removeDownload, retryDownload }}>
+    <DownloadContext.Provider value={{ downloads, addDownload, updateProgress, completeDownload, failDownload, removeDownload }}>
       {children}
     </DownloadContext.Provider>
   )

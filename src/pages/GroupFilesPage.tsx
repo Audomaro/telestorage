@@ -139,10 +139,10 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     return result
   }, [allFiles, filter, viewMode, excludedFromMedia])
 
-  const handleDownload = async (file: TelegramFile) => {
+  const downloadWithTracking = async (file: TelegramFile, errorLabel: string) => {
     const settings = await window.telegramAPI.getSettings()
     const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
-    const downloadId = `${file.messageId}_${Date.now()}`
+    const downloadId = `${file.messageId}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`
     addDownload(downloadId, file.name)
     try {
       await window.telegramAPI.downloadFileWithProgress(
@@ -151,24 +151,16 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       )
       completeDownload(downloadId, destPath)
     } catch (err: any) {
-      failDownload(downloadId, err.message || 'Error al descargar')
+      failDownload(downloadId, err.message || errorLabel)
     }
   }
 
+  const handleDownload = async (file: TelegramFile) => {
+    await downloadWithTracking(file, 'Error al descargar')
+  }
+
   const handleSaveToDisk = async (file: TelegramFile) => {
-    const settings = await window.telegramAPI.getSettings()
-    const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
-    const downloadId = `${file.messageId}_${Date.now()}`
-    addDownload(downloadId, file.name)
-    try {
-      await window.telegramAPI.downloadFileWithProgress(
-        group.id, file.messageId, destPath,
-        (progress) => updateProgress(downloadId, progress)
-      )
-      completeDownload(downloadId, destPath)
-    } catch (err: any) {
-      failDownload(downloadId, err.message || 'Error al guardar')
-    }
+    await downloadWithTracking(file, 'Error al guardar')
   }
 
   const handlePreviewOpen = (file: TelegramFile) => {

@@ -10,7 +10,7 @@ import { useDownload } from '../theme/DownloadContext'
 import DownloadItem from './DownloadItem'
 
 export default function DownloadPanel() {
-  const { downloads, removeDownload, retryDownload } = useDownload()
+  const { downloads, removeDownload } = useDownload()
 
   const completedDownloads = useMemo(() => downloads.filter(d => d.status === 'completed'), [downloads])
 
@@ -60,7 +60,6 @@ export default function DownloadPanel() {
             task={task}
             onRemove={() => removeDownload(task.id)}
             onOpenFolder={() => task.destPath && handleOpenFolder(task.destPath)}
-            onRetry={() => retryDownload(task.id)}
           />
         ))}
       </Box>
