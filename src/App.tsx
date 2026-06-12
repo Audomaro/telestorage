@@ -19,8 +19,9 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import LoginPage from './pages/LoginPage'
 import GroupListPage from './pages/GroupListPage'
 import GroupFilesPage from './pages/GroupFilesPage'
+import ForumTopicsPage from './pages/ForumTopicsPage'
 import SettingsPage from './pages/SettingsPage'
-import { TelegramGroup } from './types'
+import { TelegramGroup, ForumTopic } from './types'
 import { ColorModeProvider, useColorMode } from './theme/ColorModeContext'
 import { SnackbarProvider } from './theme/SnackbarContext'
 import { DownloadProvider } from './theme/DownloadContext'
@@ -30,6 +31,7 @@ function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [checking, setChecking] = useState(true)
   const [selectedGroup, setSelectedGroup] = useState<TelegramGroup | null>(null)
+  const [selectedTopic, setSelectedTopic] = useState<ForumTopic | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showDownloads, setShowDownloads] = useState(false)
   const [confirmLogout, setConfirmLogout] = useState(false)
@@ -51,16 +53,18 @@ function AppContent() {
 
   const handleBack = () => {
     if (showSettings) setShowSettings(false)
+    else if (selectedTopic) setSelectedTopic(null)
     else if (selectedGroup) setSelectedGroup(null)
   }
 
-  const showBack = showSettings || !!selectedGroup
+  const showBack = showSettings || !!selectedTopic || !!selectedGroup
 
   const handleLogout = async () => {
     setConfirmLogout(false)
     await window.telegramAPI.logout()
     setIsLoggedIn(false)
     setSelectedGroup(null)
+    setSelectedTopic(null)
     setShowSettings(false)
     setShowDownloads(false)
   }
@@ -76,7 +80,7 @@ function AppContent() {
               </IconButton>
             )}
             <Typography variant="h6" sx={{ flexGrow: 0, mr: 2 }} noWrap>
-              {selectedGroup ? selectedGroup.title : 'TeleStorage'}
+              {selectedTopic ? selectedTopic.title : selectedGroup ? selectedGroup.title : 'TeleStorage'}
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
             <IconButton color="inherit" onClick={toggleColorMode} aria-label={mode === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}>
@@ -100,10 +104,12 @@ function AppContent() {
             ? <LoginPage onLogin={() => setIsLoggedIn(true)} />
             : showSettings
               ? <SettingsPage onBack={() => setShowSettings(false)} />
-              : selectedGroup
-                ? <GroupFilesPage group={selectedGroup} onBack={() => setSelectedGroup(null)}
-                    onSettings={() => setShowSettings(true)} />
-                : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
+              : selectedGroup?.isForum && !selectedTopic
+                ? <ForumTopicsPage group={selectedGroup} onSelectTopic={setSelectedTopic} onBack={() => setSelectedGroup(null)} />
+                : selectedGroup
+                  ? <GroupFilesPage group={selectedGroup} topic={selectedTopic || undefined} onBack={() => selectedTopic ? setSelectedTopic(null) : setSelectedGroup(null)}
+                      onSettings={() => setShowSettings(true)} />
+                  : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
           }
         </Box>
       {showDownloads && (
