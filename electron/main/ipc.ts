@@ -3,10 +3,14 @@ import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
-import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadStream, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
+import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
+import { startStreamServer, registerStream, getStreamServerPort } from './streamServer'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
 
-export function registerIpcHandlers(): void {
+export async function registerIpcHandlers(): Promise<void> {
+  // Start video stream server
+  await startStreamServer()
+
   ipcMain.handle('auth:init', async () => {
     const session = loadSession()
     try {
@@ -112,12 +116,11 @@ export function registerIpcHandlers(): void {
     })
   })
 
-  ipcMain.handle('files:downloadStream', async (event, { downloadId, groupId, messageId, ext = '' }) => {
-    const tmpDir = app.getPath('temp')
-    const destPath = join(tmpDir, 'telestorage', `${messageId}_stream${ext}`)
-    return downloadStream(groupId, messageId, destPath, (progress) => {
-      event.sender.send('files:download:progress', { downloadId, progress })
-    })
+  ipcMain.handle('video:startStream', async (_event, { groupId, messageId, mimeType, fileSize }: { groupId: number; messageId: number; mimeType: string; fileSize: number }) => {
+    const streamId = `${groupId}_${messageId}_${Date.now()}`
+    const port = getStreamServerPort()
+    registerStream(streamId, { groupId, messageId, mimeType, fileSize })
+    return { streamId, url: `http://127.0.0.1:${port}/stream/${streamId}` }
   })
 
   ipcMain.handle('files:downloadThumb', async (_event, groupId: number, messageId: number) => {

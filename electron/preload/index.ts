@@ -45,19 +45,8 @@ contextBridge.exposeInMainWorld('telegramAPI', {
         ipcRenderer.removeListener('files:download:progress', handler)
       })
   },
-  downloadStream: (groupId: number, messageId: number, ext: string, onProgress: (p: number) => void) => {
-    const downloadId = `${messageId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    const handler = (_event: any, data: any) => {
-      if (data.downloadId === downloadId) {
-        onProgress(data.progress)
-      }
-    }
-    ipcRenderer.on('files:download:progress', handler)
-    return ipcRenderer.invoke('files:downloadStream', { downloadId, groupId, messageId, ext })
-      .finally(() => {
-        ipcRenderer.removeListener('files:download:progress', handler)
-      })
-  },
+  startVideoStream: (groupId: number, messageId: number, mimeType: string, fileSize: number) =>
+    ipcRenderer.invoke('video:startStream', { groupId, messageId, mimeType, fileSize }),
   loadMoreFiles: (groupId: number, offsetId?: number, search?: string) => ipcRenderer.invoke('files:listMore', { groupId, offsetId, search }),
   deleteFile: (groupId: number, messageId: number) => ipcRenderer.invoke('files:delete', groupId, messageId),
   forwardFile: (fromGroupId: number, toGroupId: number, messageId: number) =>
