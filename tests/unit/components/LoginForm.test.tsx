@@ -10,15 +10,15 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 describe('LoginForm', () => {
   it('should show phone input initially', () => {
     render(<LoginForm onSendCode={() => {}} onVerifyCode={() => {}} onCheck2FA={() => {}} />, { wrapper: Wrapper })
-    expect(screen.getByPlaceholderText('+52 555 123 4567')).toBeDefined()
+    expect(screen.getByPlaceholderText('555 123 4567')).toBeDefined()
   })
 
   it('should call onSendCode when submitting phone', () => {
     const onSendCode = vi.fn()
     render(<LoginForm onSendCode={onSendCode} onVerifyCode={() => {}} onCheck2FA={() => {}} />, { wrapper: Wrapper })
-    fireEvent.change(screen.getByPlaceholderText('+52 555 123 4567'), { target: { value: '+525551234567' } })
+    fireEvent.change(screen.getByPlaceholderText('555 123 4567'), { target: { value: '525551234567' } })
     fireEvent.click(screen.getByText(/enviar código/i))
-    expect(onSendCode).toHaveBeenCalledWith('+525551234567')
+    expect(onSendCode).toHaveBeenCalledWith('+52525551234567')
   })
 
   it('should show code input after phone is submitted', () => {

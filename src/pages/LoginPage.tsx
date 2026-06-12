@@ -56,11 +56,21 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
   }
 
+  const handleBack = () => {
+    if (needs2FA) {
+      setNeeds2FA(false)
+    } else if (codeHash) {
+      setCodeHash(undefined)
+      setError('')
+    }
+  }
+
   return (
     <LoginForm
       onSendCode={handleSendCode}
       onVerifyCode={handleVerifyCode}
       onCheck2FA={handleCheck2FA}
+      onBack={handleBack}
       codeHash={codeHash}
       needs2FA={needs2FA}
       error={error}
