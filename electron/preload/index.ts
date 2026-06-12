@@ -47,6 +47,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   },
   startVideoStream: (groupId: number, messageId: number, mimeType: string, fileSize: number) =>
     ipcRenderer.invoke('video:startStream', { groupId, messageId, mimeType, fileSize }),
+  stopVideoStream: (streamId: string) => ipcRenderer.invoke('video:stopStream', streamId),
   loadMoreFiles: (groupId: number, offsetId?: number, search?: string) => ipcRenderer.invoke('files:listMore', { groupId, offsetId, search }),
   deleteFile: (groupId: number, messageId: number) => ipcRenderer.invoke('files:delete', groupId, messageId),
   forwardFile: (fromGroupId: number, toGroupId: number, messageId: number) =>

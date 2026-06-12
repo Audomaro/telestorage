@@ -31,6 +31,7 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const cancelledRef = useRef(false)
+  const streamIdRef = useRef<string | null>(null)
 
   const index = file ? files.findIndex(f => f.messageId === file.messageId) : -1
   const prevFile = index > 0 ? files[index - 1] : null
@@ -49,7 +50,8 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
     // For images, wait for full download
     if (fileIsVideo) {
       window.telegramAPI.startVideoStream(groupId, file.messageId, file.mimeType, file.size)
-        .then(({ url }) => {
+        .then(({ url, streamId }) => {
+          streamIdRef.current = streamId
           if (!cancelledRef.current) { setLocalPath(url); setLoading(false) }
         }).catch(() => {
           if (!cancelledRef.current) setLoading(false)
@@ -63,7 +65,13 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
         if (!cancelledRef.current) setLoading(false)
       })
     }
-    return () => { cancelledRef.current = true }
+    return () => {
+      cancelledRef.current = true
+      if (streamIdRef.current) {
+        window.telegramAPI.stopVideoStream(streamIdRef.current)
+        streamIdRef.current = null
+      }
+    }
   }, [file, groupId])
 
   useEffect(() => {

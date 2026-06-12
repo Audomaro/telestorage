@@ -27,6 +27,7 @@ interface TelegramAPI {
   downloadThumbnail(groupId: number, messageId: number): Promise<string>
   downloadPreview(groupId: number, messageId: number, ext: string, onProgress: (p: number) => void): Promise<string>
   startVideoStream(groupId: number, messageId: number, mimeType: string, fileSize: number): Promise<{ streamId: string; url: string }>
+  stopVideoStream(streamId: string): Promise<void>
   loadMoreFiles(groupId: number, offsetId?: number, search?: string): Promise<{ files: FileResult[]; hasMore: boolean; nextOffsetId?: number }>
   deleteFile(groupId: number, messageId: number): Promise<void>
   forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void>

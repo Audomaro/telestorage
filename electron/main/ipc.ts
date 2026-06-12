@@ -5,7 +5,7 @@ import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPass
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
 import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
-import { startStreamServer, registerStream, getStreamServerPort } from './streamServer'
+import { startStreamServer, registerStream, unregisterStream, getStreamServerPort } from './streamServer'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
 
 export async function registerIpcHandlers(): Promise<void> {
@@ -122,6 +122,10 @@ export async function registerIpcHandlers(): Promise<void> {
     const port = getStreamServerPort()
     registerStream(streamId, { groupId, messageId, mimeType, fileSize })
     return { streamId, url: `http://127.0.0.1:${port}/stream/${streamId}` }
+  })
+
+  ipcMain.handle('video:stopStream', async (_event, streamId: string) => {
+    unregisterStream(streamId)
   })
 
   ipcMain.handle('files:downloadThumb', async (_event, groupId: number, messageId: number) => {
