@@ -275,7 +275,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : error ? (
           <Alert severity="error" onClose={() => setError(null)} sx={{ mx: 2, mt: 1 }}>
             {error}
-            <Button size="small" onClick={loadInitialFiles} sx={{ ml: 1 }}>Reintentar</Button>
+            <Button size="small" onClick={() => loadInitialFiles()} sx={{ ml: 1 }}>Reintentar</Button>
           </Alert>
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} isReadOnly={!group.isOwner}
