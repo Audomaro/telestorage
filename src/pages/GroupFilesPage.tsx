@@ -14,7 +14,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 import Alert from '@mui/material/Alert'
 import InsertDriveFileOutlined from '@mui/icons-material/InsertDriveFileOutlined'
 import ImageOutlined from '@mui/icons-material/ImageOutlined'
-import { TelegramGroup, TelegramFile, ViewMode, FileFilter } from '../types'
+import { TelegramGroup, TelegramFile, ViewMode, FileFilter, ForumTopic } from '../types'
 import Toolbar from '../components/Toolbar'
 import FileList from '../components/FileList'
 import FileGrid from '../components/FileGrid'
@@ -29,9 +29,10 @@ interface GroupFilesPageProps {
   group: TelegramGroup
   onBack: () => void
   onSettings?: () => void
+  topic?: ForumTopic
 }
 
-export default function GroupFilesPage({ group, onBack, onSettings }: GroupFilesPageProps) {
+export default function GroupFilesPage({ group, onBack, onSettings, topic }: GroupFilesPageProps) {
   const [allFiles, setAllFiles] = useState<TelegramFile[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
@@ -70,7 +71,9 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     setLoading(true)
     setError(null)
     try {
-      const result = await window.telegramAPI.loadMoreFiles(group.id, undefined, query)
+      const result = topic
+        ? await window.telegramAPI.listFilesByTopic(group.id, topic.id, 50, undefined, query)
+        : await window.telegramAPI.loadMoreFiles(group.id, undefined, query)
       setAllFiles(result.files)
       setHasMore(result.hasMore)
       hasMoreRef.current = result.hasMore
@@ -80,9 +83,9 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     } finally {
       setLoading(false)
     }
-  }, [group.id])
+  }, [group.id, topic])
 
-  useEffect(() => { loadInitialFiles() }, [loadInitialFiles])
+  useEffect(() => { loadInitialFiles() }, [loadInitialFiles, topic?.id])
 
   useEffect(() => {
     window.telegramAPI.getSettings().then(s => {
@@ -104,7 +107,9 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     loadingMoreRef.current = true
     setLoadingMore(true)
     try {
-      const result = await window.telegramAPI.loadMoreFiles(group.id, offsetRef.current, searchQuery || undefined)
+      const result = topic
+        ? await window.telegramAPI.listFilesByTopic(group.id, topic.id, 50, offsetRef.current, searchQuery || undefined)
+        : await window.telegramAPI.loadMoreFiles(group.id, offsetRef.current, searchQuery || undefined)
       offsetRef.current = result.nextOffsetId
       setAllFiles(prev => [...prev, ...result.files])
       setHasMore(result.hasMore)
@@ -115,7 +120,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       loadingMoreRef.current = false
       setLoadingMore(false)
     }
-  }, [group.id, searchQuery])
+  }, [group.id, searchQuery, topic])
 
   useEffect(() => {
     const el = sentinelRef.current
