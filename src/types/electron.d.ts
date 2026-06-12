@@ -15,6 +15,7 @@ interface TelegramAPI {
   getArchivedGroups(): Promise<any[]>
   createGroup(title: string): Promise<any>
   deleteGroup(groupId: number): Promise<void>
+  addToCreatedGroup(groupId: number): Promise<void>
   listFiles(groupId: number): Promise<any[]>
   uploadFile(groupId: number, filePath: string): Promise<any>
   uploadMultipleFiles(groupId: number, filePaths: string[]): Promise<{ messageId: number; name: string; error?: string }[]>

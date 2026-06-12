@@ -36,6 +36,9 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   const [newGroupName, setNewGroupName] = useState('')
   const [creating, setCreating] = useState(false)
   const createInputRef = useRef<HTMLInputElement>(null)
+  const [showAddExistingDialog, setShowAddExistingDialog] = useState(false)
+  const [selectedAddGroup, setSelectedAddGroup] = useState<TelegramGroup | null>(null)
+  const [addingGroup, setAddingGroup] = useState(false)
 
   useEffect(() => {
     loadGroups()
@@ -75,6 +78,26 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
       loadArchived()
     } else {
       loadGroups()
+    }
+  }
+
+  const handleAddExistingClick = () => {
+    setSelectedAddGroup(null)
+    setShowAddExistingDialog(true)
+  }
+
+  const handleConfirmAddExisting = async () => {
+    if (!selectedAddGroup || addingGroup) return
+    setAddingGroup(true)
+    try {
+      await window.telegramAPI.addToCreatedGroup(selectedAddGroup.id)
+      setShowAddExistingDialog(false)
+      setSelectedAddGroup(null)
+      loadGroups()
+    } catch (err: any) {
+      alert(err.message || 'Error al vincular grupo')
+    } finally {
+      setAddingGroup(false)
     }
   }
 
@@ -119,7 +142,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     ? allGroups.filter(g => g.isAppCreated && !g.isArchived)
     : tab === 'active'
       ? allGroups.filter(g => !g.isArchived)
-      : allGroups.filter(g => g.isArchived)
+      : archived
 
   if (loading) {
     return (
@@ -137,13 +160,18 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
           )}
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => handleTabChange('created')}
-              className={`${styles.tab} ${tab === 'created' ? styles.tabActive : ''}`}>Creados</button>
+              className={`${styles.tab} ${tab === 'created' ? styles.tabActive : ''}`}>TeleStorage</button>
             <button onClick={() => handleTabChange('active')}
               className={`${styles.tab} ${tab === 'active' ? styles.tabActive : ''}`}>Activos</button>
             <button onClick={() => handleTabChange('archived')}
               className={`${styles.tab} ${tab === 'archived' ? styles.tabActive : ''}`}>Archivados</button>
           </div>
-          <button onClick={handleCreateGroup} className={styles.createBtn}>+ Nuevo grupo</button>
+          {tab === 'created' && (
+            <>
+              <button onClick={handleAddExistingClick} className={styles.createBtn}>+ Vincular propio</button>
+              <button onClick={handleCreateGroup} className={styles.createBtn}>+ Nuevo grupo</button>
+            </>
+          )}
         </div>
       </div>
 
@@ -160,7 +188,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
 
       {visibleGroups.length === 0 && !archivedLoading && (
         <div className={styles.empty}>
-          {tab === 'created' && 'No hay grupos creados con TeleStorage'}
+          {tab === 'created' && 'No hay grupos en TeleStorage'}
           {tab === 'active' && 'No hay grupos. Crea uno nuevo con "+ Nuevo grupo".'}
           {tab === 'archived' && 'No hay grupos archivados'}
         </div>
@@ -186,6 +214,43 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
               <button className={styles.cancelBtn} onClick={() => setShowCreateDialog(false)}>Cancelar</button>
               <button className={styles.confirmBtn} onClick={handleConfirmCreate} disabled={creating || !newGroupName.trim()}>
                 {creating ? 'Creando...' : 'Crear'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddExistingDialog && (
+        <div className={styles.overlay} onClick={() => setShowAddExistingDialog(false)}>
+          <div className={styles.createDialog} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.createTitle}>Vincular grupo propio</h3>
+            <p style={{ margin: '0 0 12px', color: '#888', fontSize: 13 }}>
+              Selecciona un grupo propio para agregarlo a TeleStorage
+            </p>
+            <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+              {allGroups.filter(g => g.isOwner && !g.isAppCreated && !g.isArchived).map(g => (
+                <div key={g.id}
+                  onClick={() => setSelectedAddGroup(g)}
+                  style={{
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    borderRadius: 6,
+                    background: selectedAddGroup?.id === g.id ? '#E8F5E9' : 'transparent',
+                    marginBottom: 4,
+                  }}
+                >
+                  {g.title}
+                </div>
+              ))}
+              {allGroups.filter(g => g.isOwner && !g.isAppCreated && !g.isArchived).length === 0 && (
+                <div style={{ padding: 20, textAlign: 'center', color: '#888' }}>No hay grupos propios sin vincular</div>
+              )}
+            </div>
+            <div className={styles.createActions}>
+              <button className={styles.cancelBtn} onClick={() => setShowAddExistingDialog(false)}>Cancelar</button>
+              <button className={styles.confirmBtn} onClick={handleConfirmAddExisting}
+                disabled={!selectedAddGroup || addingGroup}>
+                {addingGroup ? 'Vinculando...' : 'Vincular'}
               </button>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPass
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
 import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
-import { getSettings, setSettings, AppSettings } from './telegram/settings'
+import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('auth:init', async () => {
@@ -63,6 +63,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('groups:delete', async (_event, groupId: number) => {
     return deleteGroup(groupId)
+  })
+
+  ipcMain.handle('groups:addToCreated', async (_event, groupId: number) => {
+    return addCreatedGroupId(groupId)
   })
 
   ipcMain.handle('files:list', async (_event, groupId: number) => {
