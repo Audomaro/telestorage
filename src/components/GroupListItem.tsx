@@ -36,6 +36,9 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
               size="small"
               icon={group.isOwner ? <CheckCircleIcon /> : <GroupIcon />}
             />
+            {group.isForum && (
+              <Chip label="Forum" variant="outlined" size="small" color="info" data-testid="forum-badge" />
+            )}
             {!group.isOwner && (
               <Chip label="Solo lectura" variant="outlined" size="small" />
             )}
