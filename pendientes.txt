@@ -1,0 +1,8 @@
+Mejora las siguientes puntos para crear un buen prom y abordar los problemas que encontré:Ana 
+
+- Está pendiente En modo galería Cargar las imágenes De 50 más Otros 50 cada que sega scroll.
+- También quiero que en el caso de los vídeos esto se reproduzcan de forma streaming, en lugar de esperarse a descargar todo el vídeo para poderse reproducir. .
+- También quiero que modo galería cuando se la tecla siguiente o atrás Haga la función como si se diga clic en los botones siguiente y atrás.
+- También quiero que haya una especie de botón para hacer preview cuando esté en modo de lista, ya sea para ver una imagen o un video.
+- Sin importar si es galería o modo lista quiero que los videos se reproduzcan automáticamente.
+- En modo galería al darle click en siguiente o atrás, no está funcionando los botones.
