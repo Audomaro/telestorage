@@ -45,7 +45,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
         ipcRenderer.removeListener('files:download:progress', handler)
       })
   },
-  loadMoreFiles: (groupId: number, offsetId?: number) => ipcRenderer.invoke('files:listMore', { groupId, offsetId }),
+  loadMoreFiles: (groupId: number, offsetId?: number, search?: string) => ipcRenderer.invoke('files:listMore', { groupId, offsetId, search }),
   deleteFile: (groupId: number, messageId: number) => ipcRenderer.invoke('files:delete', groupId, messageId),
   forwardFile: (fromGroupId: number, toGroupId: number, messageId: number) =>
     ipcRenderer.invoke('files:forward', fromGroupId, toGroupId, messageId),
