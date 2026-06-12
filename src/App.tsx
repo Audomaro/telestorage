@@ -24,7 +24,7 @@ function AppContent() {
   const [checking, setChecking] = useState(true)
   const [selectedGroup, setSelectedGroup] = useState<TelegramGroup | null>(null)
   const [showSettings, setShowSettings] = useState(false)
-  const [showDownloads, setShowDownloads] = useState(true)
+  const [showDownloads, setShowDownloads] = useState(false)
   const { mode, toggleColorMode } = useColorMode()
 
   useEffect(() => {
@@ -86,7 +86,11 @@ function AppContent() {
                 : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
           }
         </Box>
-        {/* DownloadPanel hidden - download tracking still active */}
+        {showDownloads && (
+          <Box sx={{ flexShrink: 0 }}>
+            <DownloadPanel />
+          </Box>
+        )}
       </Box>
     </Box>
   )
