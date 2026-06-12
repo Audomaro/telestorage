@@ -3,8 +3,8 @@ import log from 'electron-log/main'
 import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
-import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
-import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
+import { getGroups, getArchivedGroups, createGroup, deleteGroup, getForumTopics } from './telegram/groups'
+import { listFiles, listFilesBatch, listFilesByTopic, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
 import { startStreamServer, registerStream, unregisterStream, getStreamServerPort } from './streamServer'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
 
@@ -78,8 +78,16 @@ export async function registerIpcHandlers(): Promise<void> {
     return addCreatedGroupId(groupId)
   })
 
+  ipcMain.handle('groups:getTopics', async (_event, groupId: number) => {
+    return getForumTopics(groupId)
+  })
+
   ipcMain.handle('files:list', async (_event, groupId: number) => {
     return listFiles(groupId)
+  })
+
+  ipcMain.handle('files:listByTopic', async (_event, { groupId, topicId, limit, offsetId, search }: { groupId: number; topicId: number; limit: number; offsetId?: number; search?: string }) => {
+    return listFilesByTopic(groupId, topicId, limit, offsetId, search)
   })
 
   ipcMain.handle('files:upload', async (_event, groupId: number, filePath: string) => {

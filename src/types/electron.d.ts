@@ -19,7 +19,9 @@ interface TelegramAPI {
   createGroup(title: string): Promise<any>
   deleteGroup(groupId: number): Promise<void>
   addToCreatedGroup(groupId: number): Promise<void>
+  getForumTopics(groupId: number): Promise<ForumTopic[]>
   listFiles(groupId: number): Promise<any[]>
+  listFilesByTopic(groupId: number, topicId: number, limit: number, offsetId?: number, search?: string): Promise<{ files: TelegramFile[]; hasMore: boolean; nextOffsetId?: number }>
   uploadFile(groupId: number, filePath: string): Promise<any>
   uploadMultipleFiles(groupId: number, filePaths: string[]): Promise<{ messageId: number; name: string; error?: string }[]>
   downloadFile(groupId: number, messageId: number, filePath: string): Promise<void>

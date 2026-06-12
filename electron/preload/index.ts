@@ -13,7 +13,9 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   createGroup: (title: string) => ipcRenderer.invoke('groups:create', title),
   deleteGroup: (groupId: number) => ipcRenderer.invoke('groups:delete', groupId),
   addToCreatedGroup: (groupId: number) => ipcRenderer.invoke('groups:addToCreated', groupId),
+  getForumTopics: (groupId: number) => ipcRenderer.invoke('groups:getTopics', groupId),
   listFiles: (groupId: number) => ipcRenderer.invoke('files:list', groupId),
+  listFilesByTopic: (groupId: number, topicId: number, limit: number, offsetId?: number, search?: string) => ipcRenderer.invoke('files:listByTopic', { groupId, topicId, limit, offsetId, search }),
   uploadFile: (groupId: number, filePath: string) => ipcRenderer.invoke('files:upload', groupId, filePath),
   uploadMultipleFiles: (groupId: number, filePaths: string[]) => ipcRenderer.invoke('files:uploadMultiple', groupId, filePaths),
   downloadFile: (groupId: number, messageId: number, filePath: string) =>
