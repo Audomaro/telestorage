@@ -71,8 +71,8 @@ describe('GroupListPage app filter', () => {
 
 describe('GroupListPage', () => {
   it('should show loading state initially', () => {
-    render(<GroupListPage />, { wrapper: Wrapper })
-    expect(screen.getByText('Cargando grupos...')).toBeDefined()
+    const { container } = render(<GroupListPage />, { wrapper: Wrapper })
+    expect(container.querySelectorAll('.MuiSkeleton-root').length).toBeGreaterThan(0)
   })
 
   it('should not load archived groups on initial load', async () => {
@@ -86,7 +86,7 @@ describe('GroupListPage', () => {
   it('should load archived groups when tab is clicked', async () => {
     render(<GroupListPage />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.queryByText('Cargando grupos...')).toBeNull()
+      expect(window.telegramAPI.getGroups).toHaveBeenCalled()
     })
     fireEvent.click(screen.getByText('Archivados'))
     expect(window.telegramAPI.getArchivedGroups).toHaveBeenCalled()

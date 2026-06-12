@@ -11,10 +11,14 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
+import Skeleton from '@mui/material/Skeleton'
+import Alert from '@mui/material/Alert'
 import AddIcon from '@mui/icons-material/Add'
 import LinkIcon from '@mui/icons-material/Link'
+import FolderOffIcon from '@mui/icons-material/FolderOff'
 import { TelegramGroup } from '../types'
 import GroupListItem from '../components/GroupListItem'
+import EmptyState from '../components/EmptyState'
 import { useSnackbar } from '../theme/SnackbarContext'
 
 const TAB_KEY = 'telestorage:groupTab'
@@ -162,7 +166,19 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   const tabIndex = tab === 'created' ? 0 : tab === 'active' ? 1 : 2
 
   if (loading) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4, color: 'text.secondary' }}>Cargando grupos...</Box>
+    return (
+      <Box sx={{ px: 2 }}>
+        {[1, 2, 3].map(i => (
+          <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
+            <Skeleton variant="circular" width={40} height={40} />
+            <Box sx={{ flex: 1 }}>
+              <Skeleton variant="text" width="60%" />
+              <Skeleton variant="text" width="30%" />
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    )
   }
 
   return (
@@ -184,17 +200,21 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
           </Button>
         </Box>
       )}
-      {error && <Typography color="error" variant="body2" sx={{ px: 2 }}>{error}</Typography>}
+      {error && (
+        <Alert severity="error" onClose={() => setError('')} sx={{ mx: 2, mt: 1 }}>
+          {error}
+        </Alert>
+      )}
       <Box component="nav" aria-label="Grupos" sx={{ px: 2 }}>
         {visibleGroups.map(g => (
           <GroupListItem key={g.id} group={g} onClick={(grp) => onSelectGroup?.(grp)} onDelete={(grp) => setDeletingGroup(grp)} />
         ))}
         {visibleGroups.length === 0 && !archivedLoading && (
-          <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-            {tab === 'created' && 'No hay grupos en TeleStorage'}
-            {tab === 'active' && 'No hay grupos. Crea uno nuevo.'}
-            {tab === 'archived' && 'No hay grupos archivados'}
-          </Typography>
+          tab === 'created'
+            ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos en TeleStorage" />
+            : tab === 'active'
+              ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos" subtitle="Crea uno nuevo en TeleStorage" />
+              : <EmptyState icon={<FolderOffIcon />} title="No hay grupos archivados" />
         )}
         {tab === 'archived' && archivedLoading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
