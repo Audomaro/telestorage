@@ -10,6 +10,7 @@ import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
+import LinearProgress from '@mui/material/LinearProgress'
 import Alert from '@mui/material/Alert'
 import InsertDriveFileOutlined from '@mui/icons-material/InsertDriveFileOutlined'
 import ImageOutlined from '@mui/icons-material/ImageOutlined'
@@ -277,9 +278,12 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
             title={filter === 'media' ? 'Sin archivos multimedia' : 'Sin archivos'}
           />
         )}
+        {loadingMore && viewMode === 'list' && (
+          <LinearProgress sx={{ mx: 2, mb: 1 }} />
+        )}
         {hasMore && !loading && (
           <div ref={sentinelRef}>
-            {loadingMore && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>}
+            {loadingMore && viewMode === 'gallery' && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>}
           </div>
         )}
       </Box>

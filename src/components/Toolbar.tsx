@@ -27,11 +27,13 @@ interface ToolbarProps {
 export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete }: ToolbarProps) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 10 }}>
-      <ToggleButtonGroup size="small" value={filter} exclusive onChange={(_, v) => v && onFilterChange(v)}>
-        <ToggleButton value="all" aria-label="Filtrar Todos">Todos</ToggleButton>
-        <ToggleButton value="media" aria-label="Filtrar Multimedia">Multimedia</ToggleButton>
-        <ToggleButton value="documents" aria-label="Filtrar Documentos">Documentos</ToggleButton>
-      </ToggleButtonGroup>
+      {viewMode === 'list' && (
+        <ToggleButtonGroup size="small" value={filter} exclusive onChange={(_, v) => v && onFilterChange(v)}>
+          <ToggleButton value="all" aria-label="Filtrar Todos">Todos</ToggleButton>
+          <ToggleButton value="media" aria-label="Filtrar Multimedia">Multimedia</ToggleButton>
+          <ToggleButton value="documents" aria-label="Filtrar Documentos">Documentos</ToggleButton>
+        </ToggleButtonGroup>
+      )}
       <Box sx={{ flex: 1 }} />
       <ToggleButtonGroup size="small" value={viewMode} exclusive onChange={(_, v) => v && onViewModeChange(v)}>
         <ToggleButton value="list" aria-label="Vista de lista"><ViewListIcon /></ToggleButton>
