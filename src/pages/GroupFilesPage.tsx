@@ -7,6 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogActions from '@mui/material/DialogActions'
+import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
 import Alert from '@mui/material/Alert'
@@ -48,6 +49,10 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [confirmBatchDelete, setConfirmBatchDelete] = useState(false)
+  const [forwardFile, setForwardFile] = useState<TelegramFile | null>(null)
+  const [forwardTargetId, setForwardTargetId] = useState('')
+  const [forwarding, setForwarding] = useState(false)
+  const [forwardError, setForwardError] = useState('')
   const { showSnackbar } = useSnackbar()
 
   useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
@@ -163,14 +168,25 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     }
   }
 
-  const handleForward = async (file: TelegramFile) => {
-    const targetId = prompt('ID del grupo destino:')
-    if (!targetId) return
+  const handleForward = (file: TelegramFile) => {
+    setForwardFile(file)
+    setForwardTargetId('')
+    setForwardError('')
+  }
+
+  const handleConfirmForward = async () => {
+    if (!forwardFile || !forwardTargetId) return
+    setForwarding(true)
+    setForwardError('')
     try {
-      await window.telegramAPI.forwardFile(group.id, Number(targetId), file.messageId)
+      await window.telegramAPI.forwardFile(group.id, Number(forwardTargetId), forwardFile.messageId)
+      setForwardFile(null)
+      setForwardTargetId('')
       showSnackbar('Archivo reenviado', 'success')
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al reenviar', 'error')
+      setForwardError(err.message || 'Error al reenviar')
+    } finally {
+      setForwarding(false)
     }
   }
 
@@ -300,6 +316,32 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
           <Button onClick={() => setConfirmDeleteFile(null)}>Cancelar</Button>
           <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={deleting}>
             {deleting ? 'Eliminando...' : 'Eliminar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={!!forwardFile} onClose={() => setForwardFile(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Reenviar archivo</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Reenviar "{forwardFile?.name}" a otro grupo
+          </DialogContentText>
+          <TextField
+            label="ID del grupo destino"
+            type="number"
+            fullWidth
+            size="small"
+            value={forwardTargetId}
+            onChange={e => setForwardTargetId(e.target.value)}
+            error={!!forwardError}
+            helperText={forwardError}
+            autoFocus
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setForwardFile(null)}>Cancelar</Button>
+          <Button onClick={handleConfirmForward} variant="contained" disabled={forwarding || !forwardTargetId}>
+            {forwarding ? 'Reenviando...' : 'Reenviar'}
           </Button>
         </DialogActions>
       </Dialog>
