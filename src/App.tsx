@@ -86,11 +86,7 @@ function AppContent() {
                 : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
           }
         </Box>
-        {showDownloads && (
-          <Box sx={{ flexShrink: 0 }}>
-            <DownloadPanel />
-          </Box>
-        )}
+        {/* DownloadPanel hidden - download tracking still active */}
       </Box>
     </Box>
   )
