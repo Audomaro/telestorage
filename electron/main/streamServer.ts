@@ -8,6 +8,7 @@ interface StreamInfo {
   messageId: number
   mimeType: string
   fileSize: number
+  location?: any
 }
 
 const streams = new Map<string, StreamInfo>()
@@ -38,16 +39,19 @@ export async function startStreamServer(): Promise<number> {
     }
 
     try {
-      const messages = await client.getMessages(stream.groupId, { ids: stream.messageId })
-      if (!messages.length || !messages[0].media) {
-        res.writeHead(404).end()
-        return
-      }
-
-      const location = getFileLocation(messages[0].media)
-      if (!location) {
-        res.writeHead(404).end()
-        return
+      // Cache file location to avoid fetching message on every range request
+      if (!stream.location) {
+        const messages = await client.getMessages(stream.groupId, { ids: stream.messageId })
+        if (!messages.length || !messages[0].media) {
+          res.writeHead(404).end()
+          return
+        }
+        const location = getFileLocation(messages[0].media)
+        if (!location) {
+          res.writeHead(404).end()
+          return
+        }
+        stream.location = location
       }
 
       const range = req.headers.range
@@ -64,19 +68,47 @@ export async function startStreamServer(): Promise<number> {
           'Content-Type': stream.mimeType,
         })
 
-        const chunk = await downloadChunk(client, location, start, chunksize)
-        res.end(chunk)
+        // Stream chunks directly to response as they arrive from Telegram
+        let totalWritten = 0
+        for await (const chunk of client.iterDownload({
+          file: stream.location,
+          offset: bigInt(start),
+          requestSize: 64 * 1024,
+        })) {
+          const toWrite = Math.min(chunk.length, chunksize - totalWritten)
+          if (toWrite > 0) {
+            res.write(chunk.subarray(0, toWrite))
+            totalWritten += toWrite
+          }
+          if (totalWritten >= chunksize) break
+        }
+        res.end()
       } else {
         res.writeHead(200, {
           'Content-Length': stream.fileSize,
           'Content-Type': stream.mimeType,
         })
-        const chunk = await downloadChunk(client, location, 0, stream.fileSize)
-        res.end(chunk)
+
+        // Stream entire file directly
+        let totalWritten = 0
+        for await (const chunk of client.iterDownload({
+          file: stream.location,
+          offset: bigInt(0),
+          requestSize: 64 * 1024,
+        })) {
+          res.write(chunk)
+          totalWritten += chunk.length
+          if (totalWritten >= stream.fileSize) break
+        }
+        res.end()
       }
     } catch (err: any) {
       console.error('Stream error:', err.message)
-      res.writeHead(500).end()
+      if (!res.headersSent) {
+        res.writeHead(500).end()
+      } else {
+        res.end()
+      }
     }
   })
 
@@ -88,21 +120,6 @@ export async function startStreamServer(): Promise<number> {
       resolve(serverPort)
     })
   })
-}
-
-async function downloadChunk(client: any, location: any, offset: number, limit: number): Promise<Buffer> {
-  const chunks: Buffer[] = []
-  for await (const chunk of client.iterDownload({
-    file: location,
-    offset: bigInt(offset),
-    limit: bigInt(limit),
-    requestSize: 64 * 1024,
-  })) {
-    chunks.push(chunk)
-    const total = chunks.reduce((sum, c) => sum + c.length, 0)
-    if (total >= limit) break
-  }
-  return Buffer.concat(chunks).subarray(0, limit)
 }
 
 function getFileLocation(media: any): any {
