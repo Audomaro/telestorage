@@ -204,7 +204,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         </Tabs>
       </Box>
       {tab === 'created' && (
-        <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 1 }}>
+        <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
           <Button size="small" variant="outlined" startIcon={<LinkIcon />} onClick={() => setShowAddExistingDialog(true)}>
             Vincular propio
           </Button>
