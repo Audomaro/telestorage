@@ -166,7 +166,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   }
 
   return (
-    <Box>
+    <Box component="main">
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1 }}>
         <Tabs value={tabIndex} onChange={handleTabChange}>
           <Tab label="TeleStorage" />
@@ -185,7 +185,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         </Box>
       )}
       {error && <Typography color="error" variant="body2" sx={{ px: 2 }}>{error}</Typography>}
-      <Box sx={{ px: 2 }}>
+      <Box component="nav" aria-label="Grupos" sx={{ px: 2 }}>
         {visibleGroups.map(g => (
           <GroupListItem key={g.id} group={g} onClick={(grp) => onSelectGroup?.(grp)} onDelete={(grp) => setDeletingGroup(grp)} />
         ))}

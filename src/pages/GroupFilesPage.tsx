@@ -217,7 +217,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         onBatchDelete={() => setConfirmBatchDelete(true)}
       />
 
-      <Box sx={{ flex: 1 }}>
+      <Box component="main" sx={{ flex: 1 }}>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4, color: 'text.secondary' }}>Cargando archivos...</Box>
         ) : error ? (
