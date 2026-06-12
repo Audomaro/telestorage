@@ -23,9 +23,10 @@ interface PreviewModalProps {
   onDelete: (file: TelegramFile) => void
   onForward: (file: TelegramFile) => void
   onSaveToDisk?: (file: TelegramFile) => void
+  onNavigate?: (file: TelegramFile) => void
 }
 
-export default function PreviewModal({ file, files, groupId, isReadOnly, onClose, onDelete, onForward, onSaveToDisk }: PreviewModalProps) {
+export default function PreviewModal({ file, files, groupId, isReadOnly, onClose, onDelete, onForward, onSaveToDisk, onNavigate }: PreviewModalProps) {
   const [localPath, setLocalPath] = useState('')
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -52,11 +53,25 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
     return () => { cancelledRef.current = true }
   }, [file, groupId])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && prevFile) {
+        onNavigate?.(prevFile)
+      } else if (e.key === 'ArrowRight' && nextFile) {
+        onNavigate?.(nextFile)
+      } else if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [prevFile, nextFile, onNavigate, onClose])
+
   const isPreviewable = file?.mimeType.startsWith('image/') || file?.mimeType.startsWith('video/')
   const isVideo = file?.mimeType.startsWith('video/')
 
-  const handlePrev = () => { if (prevFile && onSaveToDisk) onSaveToDisk(prevFile) }
-  const handleNext = () => { if (nextFile && onSaveToDisk) onSaveToDisk(nextFile) }
+  const handlePrev = () => { if (prevFile) onNavigate?.(prevFile) }
+  const handleNext = () => { if (nextFile) onNavigate?.(nextFile) }
 
   if (!file) return null
 
@@ -84,7 +99,7 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
           <Box component="img" src={localPath} data-testid="preview-image" sx={{ maxWidth: '90%', maxHeight: '80vh', objectFit: 'contain' }} />
         )}
         {!loading && localPath && isVideo && (
-          <Box component="video" src={localPath} controls sx={{ maxWidth: '90%', maxHeight: '80vh' }} />
+          <Box component="video" src={localPath} controls autoPlay sx={{ maxWidth: '90%', maxHeight: '80vh' }} />
         )}
         {!loading && !localPath && (
           <Typography color="text.secondary">{file.name}</Typography>

@@ -5,6 +5,7 @@ import IconButton from '@mui/material/IconButton'
 import Checkbox from '@mui/material/Checkbox'
 import DownloadIcon from '@mui/icons-material/Download'
 import DeleteIcon from '@mui/icons-material/Delete'
+import PreviewIcon from '@mui/icons-material/Preview'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import ImageIcon from '@mui/icons-material/Image'
 import MovieIcon from '@mui/icons-material/Movie'
@@ -19,6 +20,7 @@ interface FileListItemProps {
   onDownload: (file: TelegramFile) => void
   onDelete: (file: TelegramFile) => void
   onToggleSelect: (file: TelegramFile) => void
+  onPreview?: (file: TelegramFile) => void
 }
 
 function fileIcon(mimeType: string) {
@@ -27,7 +29,9 @@ function fileIcon(mimeType: string) {
   return <InsertDriveFileIcon fontSize="small" />
 }
 
-export default function FileListItem({ file, isReadOnly, selectMode, selected, onDownload, onDelete, onToggleSelect }: FileListItemProps) {
+export default function FileListItem({ file, isReadOnly, selectMode, selected, onDownload, onDelete, onToggleSelect, onPreview }: FileListItemProps) {
+  const isPreviewable = file.mimeType.startsWith('image/') || file.mimeType.startsWith('video/')
+
   return (
     <TableRow hover selected={selected}>
       {selectMode && (
@@ -47,6 +51,9 @@ export default function FileListItem({ file, isReadOnly, selectMode, selected, o
       </TableCell>
       <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
         <IconButton size="small" onClick={() => onDownload(file)} aria-label="Descargar"><DownloadIcon fontSize="small" /></IconButton>
+        {isPreviewable && onPreview && (
+          <IconButton size="small" onClick={() => onPreview(file)} aria-label="Vista previa"><PreviewIcon fontSize="small" /></IconButton>
+        )}
         {!isReadOnly && !selectMode && (
           <IconButton size="small" onClick={() => onDelete(file)} aria-label="Eliminar"><DeleteIcon fontSize="small" /></IconButton>
         )}

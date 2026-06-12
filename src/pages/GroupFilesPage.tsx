@@ -225,6 +225,14 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     })
   }
 
+  const handleBatchDownload = async () => {
+    const files = allFiles.filter(f => selectedIds.has(f.messageId))
+    await Promise.all(files.map(file => downloadWithTracking(file, 'Error al descargar')))
+    setSelectedIds(new Set())
+    setSelectMode(false)
+    showSnackbar(`${files.length} archivo(s) agregado(s) a descargas`, 'success')
+  }
+
   const handleBatchDelete = async () => {
     setDeleting(true)
     try {
@@ -255,6 +263,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         selectedCount={selectedIds.size}
         onToggleSelectMode={handleToggleSelectMode}
         onBatchDelete={() => setConfirmBatchDelete(true)}
+        onBatchDownload={handleBatchDownload}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
@@ -287,7 +296,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} isReadOnly={!group.isOwner}
             selectMode={selectMode} selectedIds={selectedIds}
-            onDownload={handleDownload} onDelete={handleDelete} onToggleSelect={handleToggleSelect} />
+            onDownload={handleDownload} onDelete={handleDelete} onToggleSelect={handleToggleSelect} onPreview={handlePreviewOpen} />
         ) : (
           <FileGrid files={filteredFiles} selectMode={selectMode} selectedIds={selectedIds}
             onPreview={handlePreviewOpen} onToggleSelect={handleToggleSelect} />
@@ -318,6 +327,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
           onDelete={handleDelete}
           onForward={handleForward}
           onSaveToDisk={handleSaveToDisk}
+          onNavigate={(f) => setPreviewFile(f)}
         />
       )}
 

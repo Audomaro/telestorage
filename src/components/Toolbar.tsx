@@ -11,6 +11,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
+import DownloadIcon from '@mui/icons-material/Download'
 import SearchIcon from '@mui/icons-material/Search'
 import { ViewMode, FileFilter } from '../types'
 
@@ -25,11 +26,12 @@ interface ToolbarProps {
   onUpload: () => void
   onToggleSelectMode: () => void
   onBatchDelete: () => void
+  onBatchDownload?: () => void
   searchQuery?: string
   onSearchChange?: (query: string) => void
 }
 
-export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete, searchQuery, onSearchChange }: ToolbarProps) {
+export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete, onBatchDownload, searchQuery, onSearchChange }: ToolbarProps) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 10 }}>
       {viewMode === 'list' && (
@@ -74,6 +76,11 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
       >
         {selectMode ? 'Cancelar' : 'Seleccionar'}
       </Button>
+      {selectMode && selectedCount > 0 && (
+        <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={onBatchDownload} aria-label="Descargar seleccionados">
+          Descargar
+        </Button>
+      )}
       {selectMode && selectedCount > 0 && (
         <Button size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={onBatchDelete} aria-label="Eliminar seleccionados">
           Eliminar

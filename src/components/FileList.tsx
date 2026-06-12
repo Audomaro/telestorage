@@ -15,9 +15,10 @@ interface FileListProps {
   onDownload: (file: TelegramFile) => void
   onDelete: (file: TelegramFile) => void
   onToggleSelect: (file: TelegramFile) => void
+  onPreview?: (file: TelegramFile) => void
 }
 
-export default function FileList({ files, isReadOnly, selectMode, selectedIds, onDownload, onDelete, onToggleSelect }: FileListProps) {
+export default function FileList({ files, isReadOnly, selectMode, selectedIds, onDownload, onDelete, onToggleSelect, onPreview }: FileListProps) {
   if (files.length === 0) {
     return <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin archivos</Typography>
   }
@@ -38,7 +39,7 @@ export default function FileList({ files, isReadOnly, selectMode, selectedIds, o
         {files.map(f => (
           <FileListItem key={f.messageId} file={f} isReadOnly={isReadOnly}
             selectMode={selectMode} selected={selectedIds.has(f.messageId)}
-            onDownload={onDownload} onDelete={onDelete} onToggleSelect={onToggleSelect} />
+            onDownload={onDownload} onDelete={onDelete} onToggleSelect={onToggleSelect} onPreview={onPreview} />
         ))}
       </TableBody>
     </Table>
