@@ -30,16 +30,25 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadingMoreRef = useRef(false)
+  const hasMoreRef = useRef(true)
+  const offsetRef = useRef<number | undefined>(undefined)
+
+  useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
+  useEffect(() => { hasMoreRef.current = hasMore }, [hasMore])
 
   const loadInitialFiles = useCallback(async () => {
     setAllFiles([])
     setHasMore(true)
+    hasMoreRef.current = true
     setLoading(true)
     setError(null)
     try {
       const result = await window.telegramAPI.loadMoreFiles(group.id)
       setAllFiles(result.files)
       setHasMore(result.hasMore)
+      hasMoreRef.current = result.hasMore
+      offsetRef.current = result.files[result.files.length - 1]?.messageId
     } catch (err: any) {
       setError(err.message || 'Error al cargar archivos')
     } finally {
@@ -50,19 +59,22 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   useEffect(() => { loadInitialFiles() }, [loadInitialFiles])
 
   const handleLoadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return
+    if (loadingMoreRef.current || !hasMoreRef.current) return
+    loadingMoreRef.current = true
     setLoadingMore(true)
     try {
-      const lastFile = allFiles[allFiles.length - 1]
-      const result = await window.telegramAPI.loadMoreFiles(group.id, lastFile?.messageId)
+      const result = await window.telegramAPI.loadMoreFiles(group.id, offsetRef.current)
+      offsetRef.current = result.files[result.files.length - 1]?.messageId
       setAllFiles(prev => [...prev, ...result.files])
       setHasMore(result.hasMore)
+      hasMoreRef.current = result.hasMore
     } catch (err: any) {
       setError(err.message || 'Error al cargar más archivos')
     } finally {
+      loadingMoreRef.current = false
       setLoadingMore(false)
     }
-  }, [group.id, loadingMore, hasMore, allFiles])
+  }, [group.id])
 
   useEffect(() => {
     const el = sentinelRef.current
