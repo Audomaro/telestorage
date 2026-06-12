@@ -22,8 +22,8 @@ interface TelegramAPI {
   getForumTopics(groupId: number): Promise<ForumTopic[]>
   listFiles(groupId: number): Promise<any[]>
   listFilesByTopic(groupId: number, topicId: number, limit: number, offsetId?: number, search?: string): Promise<{ files: TelegramFile[]; hasMore: boolean; nextOffsetId?: number }>
-  uploadFile(groupId: number, filePath: string): Promise<any>
-  uploadMultipleFiles(groupId: number, filePaths: string[]): Promise<{ messageId: number; name: string; error?: string }[]>
+  uploadFile(groupId: number, filePath: string, topicId?: number): Promise<any>
+  uploadMultipleFiles(groupId: number, filePaths: string[], topicId?: number): Promise<{ messageId: number; name: string; error?: string }[]>
   downloadFile(groupId: number, messageId: number, filePath: string): Promise<void>
   downloadFileWithProgress(groupId: number, messageId: number, destPath: string, onProgress: (p: number) => void): Promise<string>
   downloadThumbnail(groupId: number, messageId: number): Promise<string>
@@ -37,7 +37,7 @@ interface TelegramAPI {
   setSettings(s: Partial<AppSettings>): Promise<AppSettings>
   selectFolder(): Promise<string | null>
   pickFiles(): Promise<string[]>
-  uploadTempFile(groupId: number, fileName: string, data: number[]): Promise<any>
+  uploadTempFile(groupId: number, fileName: string, data: number[], topicId?: number): Promise<any>
   showInFolder(filePath: string): Promise<void>
   getLogPath(): Promise<string>
   openLogFolder(): Promise<void>

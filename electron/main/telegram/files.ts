@@ -193,22 +193,26 @@ export async function listFiles(groupId: number): Promise<FileResult[]> {
     .map(m => messageToFileResult(m, groupId))
 }
 
-export async function uploadFile(groupId: number, filePath: string): Promise<{ messageId: number }> {
+export async function uploadFile(groupId: number, filePath: string, topicId?: number): Promise<{ messageId: number }> {
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
 
   if (!filePath) throw new Error('No file path specified')
 
-  const result = await client.sendFile(groupId, { file: filePath, forceDocument: true })
+  const result = await client.sendFile(groupId, { 
+    file: filePath, 
+    forceDocument: true,
+    ...(topicId ? { replyTo: topicId } : {})
+  })
   return { messageId: result.id }
 }
 
-export async function uploadMultipleFiles(groupId: number, filePaths: string[]): Promise<{ messageId: number; name: string; error?: string }[]> {
+export async function uploadMultipleFiles(groupId: number, filePaths: string[], topicId?: number): Promise<{ messageId: number; name: string; error?: string }[]> {
   const results: { messageId: number; name: string; error?: string }[] = []
   for (const fp of filePaths) {
     const name = fp.split('\\').pop()?.split('/').pop() || fp
     try {
-      const r = await uploadFile(groupId, fp)
+      const r = await uploadFile(groupId, fp, topicId)
       results.push({ messageId: r.messageId, name })
     } catch (err: any) {
       results.push({ messageId: 0, name, error: err.message })

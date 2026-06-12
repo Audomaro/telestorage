@@ -339,6 +339,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
       {showUpload && (
         <UploadDialog
           groupId={group.id}
+          topicId={topic?.id}
           onUploadComplete={() => { setShowUpload(false); loadInitialFiles(searchQuery || undefined) }}
           onClose={() => setShowUpload(false)}
         />

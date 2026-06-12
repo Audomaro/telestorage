@@ -18,6 +18,7 @@ interface UploadDialogProps {
   groupId: number
   onClose: () => void
   onUploadComplete: () => void
+  topicId?: number
 }
 
 function processDroppedFiles(dropped: FileList): Promise<{ name: string; path?: string; data?: number[] }[]> {
@@ -28,7 +29,7 @@ function processDroppedFiles(dropped: FileList): Promise<{ name: string; path?: 
   }))
 }
 
-export default function UploadDialog({ groupId, onClose, onUploadComplete }: UploadDialogProps) {
+export default function UploadDialog({ groupId, onClose, onUploadComplete, topicId }: UploadDialogProps) {
   const [files, setFiles] = useState<{ name: string; path?: string; data?: number[] }[]>([])
   const [uploading, setUploading] = useState(false)
   const { showSnackbar } = useSnackbar()
@@ -65,9 +66,9 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete }: Upl
     for (const f of files) {
       try {
         if (f.path) {
-          await window.telegramAPI.uploadFile(groupId, f.path)
+          await window.telegramAPI.uploadFile(groupId, f.path, topicId)
         } else if (f.data) {
-          await window.telegramAPI.uploadTempFile(groupId, f.name, f.data)
+          await window.telegramAPI.uploadTempFile(groupId, f.name, f.data, topicId)
         }
       } catch {
         errors.push(f.name)

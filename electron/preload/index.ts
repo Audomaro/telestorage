@@ -16,8 +16,8 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   getForumTopics: (groupId: number) => ipcRenderer.invoke('groups:getTopics', groupId),
   listFiles: (groupId: number) => ipcRenderer.invoke('files:list', groupId),
   listFilesByTopic: (groupId: number, topicId: number, limit: number, offsetId?: number, search?: string) => ipcRenderer.invoke('files:listByTopic', { groupId, topicId, limit, offsetId, search }),
-  uploadFile: (groupId: number, filePath: string) => ipcRenderer.invoke('files:upload', groupId, filePath),
-  uploadMultipleFiles: (groupId: number, filePaths: string[]) => ipcRenderer.invoke('files:uploadMultiple', groupId, filePaths),
+  uploadFile: (groupId: number, filePath: string, topicId?: number) => ipcRenderer.invoke('files:upload', groupId, filePath, topicId),
+  uploadMultipleFiles: (groupId: number, filePaths: string[], topicId?: number) => ipcRenderer.invoke('files:uploadMultiple', groupId, filePaths, topicId),
   downloadFile: (groupId: number, messageId: number, filePath: string) =>
     ipcRenderer.invoke('files:download', groupId, messageId, filePath),
   downloadThumbnail: (groupId: number, messageId: number) => ipcRenderer.invoke('files:downloadThumb', groupId, messageId),
@@ -58,8 +58,8 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   setSettings: (s: Record<string, unknown>) => ipcRenderer.invoke('settings:set', s),
   selectFolder: () => ipcRenderer.invoke('dialog:selectFolder'),
   pickFiles: () => ipcRenderer.invoke('dialog:pickFiles'),
-  uploadTempFile: (groupId: number, fileName: string, data: number[]) =>
-    ipcRenderer.invoke('files:uploadTempFile', groupId, fileName, data),
+  uploadTempFile: (groupId: number, fileName: string, data: number[], topicId?: number) =>
+    ipcRenderer.invoke('files:uploadTempFile', groupId, fileName, data, topicId),
   showInFolder: (filePath: string) => ipcRenderer.invoke('shell:showInFolder', filePath),
   getLogPath: () => ipcRenderer.invoke('log:getPath'),
   openLogFolder: () => ipcRenderer.invoke('log:open'),

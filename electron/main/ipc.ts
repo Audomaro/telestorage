@@ -90,12 +90,12 @@ export async function registerIpcHandlers(): Promise<void> {
     return listFilesByTopic(groupId, topicId, limit, offsetId, search)
   })
 
-  ipcMain.handle('files:upload', async (_event, groupId: number, filePath: string) => {
-    return uploadFile(groupId, filePath)
+  ipcMain.handle('files:upload', async (_event, groupId: number, filePath: string, topicId?: number) => {
+    return uploadFile(groupId, filePath, topicId)
   })
 
-  ipcMain.handle('files:uploadMultiple', async (_event, groupId: number, filePaths: string[]) => {
-    return uploadMultipleFiles(groupId, filePaths)
+  ipcMain.handle('files:uploadMultiple', async (_event, groupId: number, filePaths: string[], topicId?: number) => {
+    return uploadMultipleFiles(groupId, filePaths, topicId)
   })
 
   ipcMain.handle('files:download', async (_event, groupId: number, messageId: number, filePath: string) => {
@@ -175,7 +175,7 @@ export async function registerIpcHandlers(): Promise<void> {
     return result.filePaths
   })
 
-  ipcMain.handle('files:uploadTempFile', async (_event, groupId: number, fileName: string, data: number[]) => {
+  ipcMain.handle('files:uploadTempFile', async (_event, groupId: number, fileName: string, data: number[], topicId?: number) => {
     const client = getClient()
     if (!client) throw new Error('Not authenticated')
 
@@ -187,7 +187,7 @@ export async function registerIpcHandlers(): Promise<void> {
     await writeFile(destPath, Buffer.from(data))
 
     try {
-      const r = await uploadFile(groupId, destPath)
+      const r = await uploadFile(groupId, destPath, topicId)
       await unlink(destPath)
       return r
     } catch (err) {
