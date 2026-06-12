@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isMedia, isDocument, fileTypeLabel } from '../../../src/utils/fileTypes'
+import { isMedia, isDocument, isExcludedFromMedia, fileTypeLabel } from '../../../src/utils/fileTypes'
 
 describe('isMedia', () => {
   it('should return true for image/jpeg', () => {
@@ -22,6 +22,28 @@ describe('isDocument', () => {
 
   it('should return false for image/jpeg', () => {
     expect(isDocument('image/jpeg')).toBe(false)
+  })
+})
+
+describe('isExcludedFromMedia', () => {
+  it('should return false when excluded list is empty', () => {
+    expect(isExcludedFromMedia('file.svg', [])).toBe(false)
+  })
+
+  it('should return false when fileName is undefined', () => {
+    expect(isExcludedFromMedia(undefined, ['svg'])).toBe(false)
+  })
+
+  it('should return true when extension is in excluded list', () => {
+    expect(isExcludedFromMedia('file.svg', ['svg'])).toBe(true)
+  })
+
+  it('should match case-insensitively', () => {
+    expect(isExcludedFromMedia('file.SVG', ['svg'])).toBe(true)
+  })
+
+  it('should return false when extension is not in excluded list', () => {
+    expect(isExcludedFromMedia('file.png', ['svg'])).toBe(false)
   })
 })
 

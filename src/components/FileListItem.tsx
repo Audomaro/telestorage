@@ -2,6 +2,7 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
+import Checkbox from '@mui/material/Checkbox'
 import DownloadIcon from '@mui/icons-material/Download'
 import DeleteIcon from '@mui/icons-material/Delete'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
@@ -13,8 +14,11 @@ import { formatFileSize, formatDate } from '../utils/format'
 interface FileListItemProps {
   file: TelegramFile
   isReadOnly: boolean
+  selectMode: boolean
+  selected: boolean
   onDownload: (file: TelegramFile) => void
   onDelete: (file: TelegramFile) => void
+  onToggleSelect: (file: TelegramFile) => void
 }
 
 function fileIcon(mimeType: string) {
@@ -23,9 +27,14 @@ function fileIcon(mimeType: string) {
   return <InsertDriveFileIcon fontSize="small" />
 }
 
-export default function FileListItem({ file, isReadOnly, onDownload, onDelete }: FileListItemProps) {
+export default function FileListItem({ file, isReadOnly, selectMode, selected, onDownload, onDelete, onToggleSelect }: FileListItemProps) {
   return (
-    <TableRow hover>
+    <TableRow hover selected={selected}>
+      {selectMode && (
+        <TableCell sx={{ width: 36, p: 0.5 }}>
+          <Checkbox size="small" checked={selected} onChange={() => onToggleSelect(file)} />
+        </TableCell>
+      )}
       <TableCell sx={{ width: 36, p: 1 }}>{fileIcon(file.mimeType)}</TableCell>
       <TableCell sx={{ p: 1 }}>
         <Typography variant="body2" noWrap>{file.name}</Typography>
@@ -38,7 +47,7 @@ export default function FileListItem({ file, isReadOnly, onDownload, onDelete }:
       </TableCell>
       <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
         <IconButton size="small" onClick={() => onDownload(file)} title="Descargar"><DownloadIcon fontSize="small" /></IconButton>
-        {!isReadOnly && (
+        {!isReadOnly && !selectMode && (
           <IconButton size="small" onClick={() => onDelete(file)} title="Eliminar"><DeleteIcon fontSize="small" /></IconButton>
         )}
       </TableCell>

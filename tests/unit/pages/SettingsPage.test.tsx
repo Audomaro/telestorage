@@ -12,6 +12,8 @@ const mockSettings = {
   createdGroupIds: [],
   batchSize: 50,
   defaultTab: 'created' as const,
+  excludedFromMedia: [],
+  themeMode: 'light' as const,
 }
 
 beforeEach(() => {
@@ -22,6 +24,19 @@ beforeEach(() => {
     setSettings: vi.fn().mockResolvedValue(mockSettings),
     selectFolder: vi.fn().mockResolvedValue('/tmp/new'),
   }
+})
+
+describe('SettingsPage', () => {
+  it('should save excludedFromMedia as empty array by default', async () => {
+    render(<SettingsPage onBack={vi.fn()} />, { wrapper: Wrapper })
+    await waitFor(() => expect(screen.getByDisplayValue('50')).toBeDefined())
+    fireEvent.click(screen.getByText('Guardar'))
+    await waitFor(() => {
+      expect(window.telegramAPI.setSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ excludedFromMedia: [] })
+      )
+    })
+  })
 })
 
 describe('SettingsPage batchSize', () => {

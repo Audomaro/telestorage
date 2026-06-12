@@ -3,6 +3,8 @@ interface AppSettings {
   createdGroupIds: number[]
   batchSize: number
   defaultTab: 'created' | 'active' | 'archived'
+  excludedFromMedia: string[]
+  themeMode: 'light' | 'dark'
 }
 
 interface TelegramAPI {

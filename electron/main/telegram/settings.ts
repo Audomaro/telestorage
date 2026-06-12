@@ -7,6 +7,8 @@ export interface AppSettings {
   createdGroupIds: number[]
   batchSize: number
   defaultTab: 'created' | 'active' | 'archived'
+  excludedFromMedia: string[]
+  themeMode: 'light' | 'dark'
 }
 
 const SETTINGS_FILE = join(app.getPath('userData'), 'settings.json')
@@ -15,7 +17,9 @@ const DEFAULTS: AppSettings = {
   downloadPath: app.getPath('downloads'),
   createdGroupIds: [],
   batchSize: 50,
-  defaultTab: 'created'
+  defaultTab: 'created',
+  excludedFromMedia: [],
+  themeMode: 'light'
 }
 
 export function getSettings(): AppSettings {

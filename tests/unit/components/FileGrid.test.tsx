@@ -30,13 +30,13 @@ const mockFiles: TelegramFile[] = [
 
 describe('FileGrid', () => {
   it('should render grid cards for each file', () => {
-    const { container } = render(<FileGrid files={mockFiles} onPreview={vi.fn()} />, { wrapper: Wrapper })
+    const { container } = render(<FileGrid files={mockFiles} onPreview={vi.fn()} selectMode={false} selectedIds={new Set()} onToggleSelect={vi.fn()} />, { wrapper: Wrapper })
     const gridItems = container.querySelectorAll('[class*="MuiBox-root"]')
     expect(gridItems.length).toBeGreaterThan(0)
   })
 
   it('should show empty state when no files', () => {
-    render(<FileGrid files={[]} onPreview={vi.fn()} />, { wrapper: Wrapper })
+    render(<FileGrid files={[]} onPreview={vi.fn()} selectMode={false} selectedIds={new Set()} onToggleSelect={vi.fn()} />, { wrapper: Wrapper })
     expect(screen.getByText(/sin archivos multimedia/i)).toBeDefined()
   })
 })

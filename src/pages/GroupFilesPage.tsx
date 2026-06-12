@@ -14,7 +14,7 @@ import FileList from '../components/FileList'
 import FileGrid from '../components/FileGrid'
 import PreviewModal from '../components/PreviewModal'
 import UploadDialog from '../components/UploadDialog'
-import { isMedia, isDocument } from '../utils/fileTypes'
+import { isMedia, isDocument, isExcludedFromMedia } from '../utils/fileTypes'
 import { useSnackbar } from '../theme/SnackbarContext'
 
 interface GroupFilesPageProps {
@@ -39,6 +39,10 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const loadingMoreRef = useRef(false)
   const hasMoreRef = useRef(true)
   const offsetRef = useRef<number | undefined>(undefined)
+  const [excludedFromMedia, setExcludedFromMedia] = useState<string[]>([])
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [confirmBatchDelete, setConfirmBatchDelete] = useState(false)
   const { showSnackbar } = useSnackbar()
 
   useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
@@ -64,6 +68,12 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   }, [group.id])
 
   useEffect(() => { loadInitialFiles() }, [loadInitialFiles])
+
+  useEffect(() => {
+    window.telegramAPI.getSettings().then(s => {
+      if (s.excludedFromMedia) setExcludedFromMedia(s.excludedFromMedia)
+    })
+  }, [])
 
   const handleLoadMore = useCallback(async () => {
     if (loadingMoreRef.current || !hasMoreRef.current) return
@@ -99,10 +109,11 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
 
   const filteredFiles = useMemo(() => {
     let result = allFiles
-    if (filter === 'media') return result.filter(f => isMedia(f.mimeType))
-    if (filter === 'documents') return result.filter(f => isDocument(f.mimeType))
+    if (filter === 'media') return result.filter(f => isMedia(f.mimeType) && !isExcludedFromMedia(f.name, excludedFromMedia))
+    if (filter === 'documents') return result.filter(f => isDocument(f.mimeType) || isExcludedFromMedia(f.name, excludedFromMedia))
+    if (viewMode === 'gallery') return result.filter(f => isMedia(f.mimeType) && !isExcludedFromMedia(f.name, excludedFromMedia))
     return result
-  }, [allFiles, filter])
+  }, [allFiles, filter, viewMode, excludedFromMedia])
 
   const handleDownload = async (file: TelegramFile) => {
     try {
@@ -158,6 +169,39 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     }
   }
 
+  const handleToggleSelect = (file: TelegramFile) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(file.messageId)) next.delete(file.messageId)
+      else next.add(file.messageId)
+      return next
+    })
+  }
+
+  const handleToggleSelectMode = () => {
+    setSelectMode(prev => {
+      if (prev) setSelectedIds(new Set())
+      return !prev
+    })
+  }
+
+  const handleBatchDelete = async () => {
+    setDeleting(true)
+    try {
+      const ids = Array.from(selectedIds)
+      await Promise.all(ids.map(id => window.telegramAPI.deleteFile(group.id, id)))
+      setSelectedIds(new Set())
+      setSelectMode(false)
+      setConfirmBatchDelete(false)
+      loadInitialFiles()
+      showSnackbar(`${ids.length} archivo(s) eliminado(s)`, 'success')
+    } catch (err: any) {
+      showSnackbar(err.message || 'Error al eliminar archivos', 'error')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Toolbar
@@ -167,6 +211,10 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         onFilterChange={setFilter}
         onUpload={() => setShowUpload(true)}
         showUpload={group.isOwner}
+        selectMode={selectMode}
+        selectedCount={selectedIds.size}
+        onToggleSelectMode={handleToggleSelectMode}
+        onBatchDelete={() => setConfirmBatchDelete(true)}
       />
 
       <Box sx={{ flex: 1 }}>
@@ -175,9 +223,12 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : error ? (
           <Typography color="error" sx={{ p: 2 }}>{error}</Typography>
         ) : viewMode === 'list' ? (
-          <FileList files={filteredFiles} isReadOnly={!group.isOwner} onDownload={handleDownload} onDelete={handleDelete} />
+          <FileList files={filteredFiles} isReadOnly={!group.isOwner}
+            selectMode={selectMode} selectedIds={selectedIds}
+            onDownload={handleDownload} onDelete={handleDelete} onToggleSelect={handleToggleSelect} />
         ) : (
-          <FileGrid files={filteredFiles} onPreview={handlePreviewOpen} />
+          <FileGrid files={filteredFiles} selectMode={selectMode} selectedIds={selectedIds}
+            onPreview={handlePreviewOpen} onToggleSelect={handleToggleSelect} />
         )}
         {hasMore && !loading && (
           <div ref={sentinelRef}>
@@ -217,6 +268,21 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         <DialogActions>
           <Button onClick={() => setConfirmDeleteFile(null)}>Cancelar</Button>
           <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={deleting}>
+            {deleting ? 'Eliminando...' : 'Eliminar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={confirmBatchDelete} onClose={() => setConfirmBatchDelete(false)}>
+        <DialogTitle>Eliminar archivos</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de eliminar {selectedIds.size} archivo(s)? Esta acción no se puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmBatchDelete(false)}>Cancelar</Button>
+          <Button onClick={handleBatchDelete} color="error" variant="contained" disabled={deleting}>
             {deleting ? 'Eliminando...' : 'Eliminar'}
           </Button>
         </DialogActions>

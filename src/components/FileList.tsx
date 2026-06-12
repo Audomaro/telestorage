@@ -10,11 +10,14 @@ import FileListItem from './FileListItem'
 interface FileListProps {
   files: TelegramFile[]
   isReadOnly: boolean
+  selectMode: boolean
+  selectedIds: Set<number>
   onDownload: (file: TelegramFile) => void
   onDelete: (file: TelegramFile) => void
+  onToggleSelect: (file: TelegramFile) => void
 }
 
-export default function FileList({ files, isReadOnly, onDownload, onDelete }: FileListProps) {
+export default function FileList({ files, isReadOnly, selectMode, selectedIds, onDownload, onDelete, onToggleSelect }: FileListProps) {
   if (files.length === 0) {
     return <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin archivos</Typography>
   }
@@ -23,6 +26,7 @@ export default function FileList({ files, isReadOnly, onDownload, onDelete }: Fi
     <Table size="small">
       <TableHead>
         <TableRow>
+          {selectMode && <TableCell sx={{ width: 36, p: 0.5 }} />}
           <TableCell sx={{ width: 36, p: 1 }} />
           <TableCell sx={{ p: 1 }}>Nombre</TableCell>
           <TableCell sx={{ p: 1 }}>Tamaño</TableCell>
@@ -32,7 +36,9 @@ export default function FileList({ files, isReadOnly, onDownload, onDelete }: Fi
       </TableHead>
       <TableBody>
         {files.map(f => (
-          <FileListItem key={f.messageId} file={f} isReadOnly={isReadOnly} onDownload={onDownload} onDelete={onDelete} />
+          <FileListItem key={f.messageId} file={f} isReadOnly={isReadOnly}
+            selectMode={selectMode} selected={selectedIds.has(f.messageId)}
+            onDownload={onDownload} onDelete={onDelete} onToggleSelect={onToggleSelect} />
         ))}
       </TableBody>
     </Table>
