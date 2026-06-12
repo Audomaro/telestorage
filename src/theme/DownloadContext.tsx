@@ -12,7 +12,7 @@ export interface DownloadTask {
   completedAt?: number
 }
 
-interface DownloadContextValue {
+export interface DownloadContextValue {
   downloads: DownloadTask[]
   addDownload: (id: string, fileName: string) => void
   updateProgress: (id: string, progress: number) => void
