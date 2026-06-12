@@ -1,5 +1,5 @@
 import { getClient } from './auth'
-import { mkdir } from 'fs/promises'
+import { mkdir, writeFile } from 'fs/promises'
 import { dirname } from 'path'
 
 const JPEG_HEADER = Buffer.from([
@@ -236,6 +236,40 @@ export async function downloadFileWithProgress(
         if (totalNum > 0) progressCb(downloaded.toJSNumber() / totalNum)
       }
     }
+  })
+
+  return destPath
+}
+
+export async function downloadStream(
+  groupId: number, messageId: number, destPath: string,
+  progressCb?: (progress: number) => void
+): Promise<string> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+
+  const messages = await client.getMessages(groupId, { ids: messageId })
+  if (messages.length === 0) throw new Error('Message not found')
+
+  const media = messages[0].media
+  if (!media) throw new Error('No media in message')
+
+  await mkdir(dirname(destPath), { recursive: true })
+  
+  // Create empty file so the path exists immediately for streaming
+  await writeFile(destPath, Buffer.alloc(0))
+
+  // Start download in background and return path immediately
+  client.downloadMedia(media, {
+    outputFile: destPath,
+    progressCallback: (downloaded: any, total: any) => {
+      if (progressCb && total?.toJSNumber) {
+        const totalNum = total.toJSNumber()
+        if (totalNum > 0) progressCb(downloaded.toJSNumber() / totalNum)
+      }
+    }
+  }).catch((err: any) => {
+    console.error('Download stream error:', err.message)
   })
 
   return destPath

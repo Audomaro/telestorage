@@ -43,13 +43,27 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
     setProgress(0)
     cancelledRef.current = false
     const ext = file.name.split('.').pop() || 'jpg'
-    window.telegramAPI.downloadPreview(groupId, file.messageId, ext, (p: number) => {
-      if (!cancelledRef.current) setProgress(Math.round(p * 100))
-    }).then(path => {
-      if (!cancelledRef.current) { setLocalPath(path); setLoading(false) }
-    }).catch(() => {
-      if (!cancelledRef.current) setLoading(false)
-    })
+    const fileIsVideo = file.mimeType.startsWith('video/')
+    
+    // For videos, use streaming - return path immediately and start playing
+    // For images, wait for full download
+    if (fileIsVideo) {
+      window.telegramAPI.downloadStream(groupId, file.messageId, `.${ext}`, (p: number) => {
+        if (!cancelledRef.current) setProgress(Math.round(p * 100))
+      }).then(path => {
+        if (!cancelledRef.current) { setLocalPath(path); setLoading(false) }
+      }).catch(() => {
+        if (!cancelledRef.current) setLoading(false)
+      })
+    } else {
+      window.telegramAPI.downloadPreview(groupId, file.messageId, `.${ext}`, (p: number) => {
+        if (!cancelledRef.current) setProgress(Math.round(p * 100))
+      }).then(path => {
+        if (!cancelledRef.current) { setLocalPath(path); setLoading(false) }
+      }).catch(() => {
+        if (!cancelledRef.current) setLoading(false)
+      })
+    }
     return () => { cancelledRef.current = true }
   }, [file, groupId])
 

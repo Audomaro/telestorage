@@ -3,7 +3,7 @@ import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
-import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
+import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadStream, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
 
 export function registerIpcHandlers(): void {
@@ -108,6 +108,14 @@ export function registerIpcHandlers(): void {
     const tmpDir = app.getPath('temp')
     const destPath = join(tmpDir, 'telestorage', `${messageId}_preview${ext}`)
     return downloadFileWithProgress(groupId, messageId, destPath, (progress) => {
+      event.sender.send('files:download:progress', { downloadId, progress })
+    })
+  })
+
+  ipcMain.handle('files:downloadStream', async (event, { downloadId, groupId, messageId, ext = '' }) => {
+    const tmpDir = app.getPath('temp')
+    const destPath = join(tmpDir, 'telestorage', `${messageId}_stream${ext}`)
+    return downloadStream(groupId, messageId, destPath, (progress) => {
       event.sender.send('files:download:progress', { downloadId, progress })
     })
   })

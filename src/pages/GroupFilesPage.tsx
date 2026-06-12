@@ -119,7 +119,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
 
   useEffect(() => {
     const el = sentinelRef.current
-    if (!el) return
+    if (!el || !hasMore || loading) return
 
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
@@ -129,7 +129,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [handleLoadMore, loading])
+  }, [handleLoadMore, hasMore, loading])
 
   const filteredFiles = useMemo(() => {
     let result = allFiles
@@ -311,7 +311,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
           <LinearProgress sx={{ mx: 2, mb: 1 }} />
         )}
         {hasMore && !loading && (
-          <div ref={sentinelRef}>
+          <div ref={sentinelRef} style={{ minHeight: '20px' }}>
             {loadingMore && viewMode === 'gallery' && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>}
           </div>
         )}
