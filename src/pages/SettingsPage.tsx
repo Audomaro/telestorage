@@ -10,6 +10,7 @@ import FormControl from '@mui/material/FormControl'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
+import Skeleton from '@mui/material/Skeleton'
 import FolderIcon from '@mui/icons-material/Folder'
 import { useSnackbar } from '../theme/SnackbarContext'
 
@@ -23,6 +24,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [defaultTab, setDefaultTab] = useState<'created' | 'active' | 'archived'>('created')
   const [excludedTags, setExcludedTags] = useState<string[]>([])
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light')
+  const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const { showSnackbar } = useSnackbar()
 
@@ -33,6 +35,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
       setDefaultTab(s.defaultTab ?? 'created')
       if (s.excludedFromMedia) setExcludedTags(s.excludedFromMedia)
       setThemeMode(s.themeMode ?? 'light')
+      setLoaded(true)
     })
   }, [])
 
@@ -62,6 +65,17 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   return (
     <Box sx={{ p: 3, maxWidth: 500 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        {!loaded ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {[1, 2, 3].map(i => (
+              <Box key={i}>
+                <Skeleton variant="text" width={120} />
+                <Skeleton variant="rounded" height={40} sx={{ mt: 0.5 }} />
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <>
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>Apariencia</Typography>
         <Box>
           <FormControl size="small" sx={{ minWidth: 180 }}>
@@ -133,6 +147,8 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         <Button variant="contained" onClick={handleSave} disabled={saving} sx={{ alignSelf: 'flex-start', mt: 1 }}>
           {saving ? 'Guardando...' : 'Guardar'}
         </Button>
+          </>
+        )}
       </Box>
     </Box>
   )
