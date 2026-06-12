@@ -8,6 +8,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SettingsIcon from '@mui/icons-material/Settings'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
+import DownloadIcon from '@mui/icons-material/Download'
 import LoginPage from './pages/LoginPage'
 import GroupListPage from './pages/GroupListPage'
 import GroupFilesPage from './pages/GroupFilesPage'
@@ -23,6 +24,7 @@ function AppContent() {
   const [checking, setChecking] = useState(true)
   const [selectedGroup, setSelectedGroup] = useState<TelegramGroup | null>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [showDownloads, setShowDownloads] = useState(true)
   const { mode, toggleColorMode } = useColorMode()
 
   useEffect(() => {
@@ -63,6 +65,9 @@ function AppContent() {
             <IconButton color="inherit" onClick={toggleColorMode} aria-label={mode === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}>
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
+            <IconButton color="inherit" onClick={() => setShowDownloads(prev => !prev)} aria-label="Descargas">
+              <DownloadIcon />
+            </IconButton>
             <IconButton color="inherit" onClick={() => setShowSettings(true)} aria-label="Configuración">
               <SettingsIcon />
             </IconButton>
@@ -81,9 +86,11 @@ function AppContent() {
                 : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
           }
         </Box>
-        <Box sx={{ flexShrink: 0 }}>
-          <DownloadPanel />
-        </Box>
+        {showDownloads && (
+          <Box sx={{ flexShrink: 0 }}>
+            <DownloadPanel />
+          </Box>
+        )}
       </Box>
     </Box>
   )

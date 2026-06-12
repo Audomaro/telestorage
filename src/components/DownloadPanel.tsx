@@ -1,23 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
-
-import Badge from '@mui/material/Badge'
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import DownloadIcon from '@mui/icons-material/Download'
 import { useDownload } from '../theme/DownloadContext'
 import DownloadItem from './DownloadItem'
 
 export default function DownloadPanel() {
   const { downloads, removeDownload } = useDownload()
-  const [collapsed, setCollapsed] = useState(true)
 
   const completedDownloads = useMemo(() => downloads.filter(d => d.status === 'completed'), [downloads])
-  const activeCount = downloads.length - completedDownloads.length
 
   const handleClear = () => {
     completedDownloads.forEach(d => removeDownload(d.id))
@@ -25,40 +17,6 @@ export default function DownloadPanel() {
 
   const handleOpenFolder = (destPath: string) => {
     window.telegramAPI.showInFolder(destPath)
-  }
-
-  if (collapsed) {
-    return (
-      <Box
-        sx={{
-          position: 'fixed',
-          right: 0,
-          top: 72,
-          zIndex: 1300,
-          py: 1,
-          px: 0.5,
-          borderLeft: 1,
-          borderTop: 1,
-          borderBottom: 1,
-          borderColor: 'divider',
-          borderRadius: '4px 0 0 4px',
-          bgcolor: 'background.paper',
-          cursor: 'pointer',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 0.5,
-        }}
-        onClick={() => setCollapsed(false)}
-      >
-        <IconButton size="small" aria-label="Expandir panel" title="Expandir panel">
-          <ChevronLeftIcon fontSize="small" />
-        </IconButton>
-        <Badge badgeContent={activeCount} color="primary">
-          <DownloadIcon fontSize="small" color="action" />
-        </Badge>
-      </Box>
-    )
   }
 
   return (
@@ -79,9 +37,6 @@ export default function DownloadPanel() {
           {completedDownloads.length > 0 && (
             <Button size="small" onClick={handleClear}>Limpiar</Button>
           )}
-          <IconButton size="small" onClick={() => setCollapsed(true)} aria-label="Colapsar panel" title="Colapsar panel">
-            <ChevronRightIcon fontSize="small" />
-          </IconButton>
         </Box>
       </Box>
       <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain', scrollbarGutter: 'stable' }}>
