@@ -5,6 +5,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import styles from './GroupListPage.module.css'
 
 const TAB_KEY = 'telestorage:groupTab'
+let _sessionFirstMount = true
 
 function loadSavedTab(): 'created' | 'active' | 'archived' {
   try {
@@ -46,13 +47,13 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   }, [])
 
   useEffect(() => {
-    if (!localStorage.getItem(TAB_KEY)) {
+    if (_sessionFirstMount) {
+      _sessionFirstMount = false
       window.telegramAPI.getSettings().then(s => {
         const dt = s.defaultTab ?? 'created'
-        if (!localStorage.getItem(TAB_KEY)) {
-          setTab(dt)
-          if (dt === 'archived') loadArchived()
-        }
+        setTab(dt)
+        saveTab(dt)
+        if (dt === 'archived') loadArchived()
       })
     }
   }, [])
