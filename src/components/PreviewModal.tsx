@@ -96,7 +96,6 @@ export default function PreviewModal({ file, groupId, onClose, onDownload, onSav
         {loading ? (
           <div className={styles.loadingOverlay}>
             <CircularProgress size={60} progress={loadProgress} />
-            <span className={styles.loadingText}>Cargando... {Math.round(loadProgress * 100)}%</span>
           </div>
         ) : error ? (
           <div className={styles.errorText}>{error}</div>
