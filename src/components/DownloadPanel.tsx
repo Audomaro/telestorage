@@ -1,18 +1,24 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
+import Badge from '@mui/material/Badge'
 import CloseIcon from '@mui/icons-material/Close'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import DownloadIcon from '@mui/icons-material/Download'
 import { useDownload } from '../theme/DownloadContext'
 import DownloadItem from './DownloadItem'
 
 export default function DownloadPanel() {
   const { downloads, removeDownload } = useDownload()
+  const [collapsed, setCollapsed] = useState(false)
 
   const completedDownloads = useMemo(() => downloads.filter(d => d.status === 'completed'), [downloads])
+  const activeCount = downloads.length - completedDownloads.length
 
   const hasDownloads = downloads.length > 0
   if (!hasDownloads) return null
@@ -23,6 +29,32 @@ export default function DownloadPanel() {
 
   const handleOpenFolder = (destPath: string) => {
     window.telegramAPI.showInFolder(destPath)
+  }
+
+  if (collapsed) {
+    return (
+      <Paper
+        elevation={4}
+        sx={{
+          position: 'fixed',
+          right: 0,
+          top: 72,
+          zIndex: 1300,
+          overflow: 'hidden',
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, px: 0.5 }}>
+          <Tooltip title="Expandir panel">
+            <IconButton size="small" onClick={() => setCollapsed(false)} aria-label="Expandir panel">
+              <ChevronLeftIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Badge badgeContent={activeCount} color="primary">
+            <DownloadIcon fontSize="small" color="action" />
+          </Badge>
+        </Box>
+      </Paper>
+    )
   }
 
   return (
@@ -46,6 +78,11 @@ export default function DownloadPanel() {
           {completedDownloads.length > 0 && (
             <Button size="small" onClick={handleClear}>Limpiar</Button>
           )}
+          <Tooltip title="Colapsar panel">
+            <IconButton size="small" onClick={() => setCollapsed(true)} aria-label="Colapsar panel">
+              <ChevronRightIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Cerrar panel">
             <IconButton size="small" onClick={() => downloads.forEach(d => removeDownload(d.id))} aria-label="Cerrar panel">
               <CloseIcon fontSize="small" />
