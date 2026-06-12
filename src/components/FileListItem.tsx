@@ -46,9 +46,9 @@ export default function FileListItem({ file, isReadOnly, selectMode, selected, o
         <Typography variant="body2" color="text.secondary">{formatDate(file.date)}</Typography>
       </TableCell>
       <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
-        <IconButton size="small" onClick={() => onDownload(file)} title="Descargar"><DownloadIcon fontSize="small" /></IconButton>
+        <IconButton size="small" onClick={() => onDownload(file)} aria-label="Descargar"><DownloadIcon fontSize="small" /></IconButton>
         {!isReadOnly && !selectMode && (
-          <IconButton size="small" onClick={() => onDelete(file)} title="Eliminar"><DeleteIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={() => onDelete(file)} aria-label="Eliminar"><DeleteIcon fontSize="small" /></IconButton>
         )}
       </TableCell>
     </TableRow>

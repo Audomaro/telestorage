@@ -90,12 +90,12 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
           <Typography color="text.secondary">{file.name}</Typography>
         )}
         {prevFile && (
-          <IconButton onClick={handlePrev} sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
+          <IconButton onClick={handlePrev} aria-label="Anterior" sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
             <ChevronLeftIcon />
           </IconButton>
         )}
         {nextFile && (
-          <IconButton onClick={handleNext} sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
+          <IconButton onClick={handleNext} aria-label="Siguiente" sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
             <ChevronRightIcon />
           </IconButton>
         )}

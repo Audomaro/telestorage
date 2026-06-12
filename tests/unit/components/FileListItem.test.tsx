@@ -22,20 +22,20 @@ describe('FileListItem', () => {
   it('should call onDownload when download button clicked', () => {
     const onDownload = vi.fn()
     render(<FileListItem file={mockFile} isReadOnly={false} onDownload={onDownload} onDelete={() => {}} selectMode={false} selected={false} onToggleSelect={() => {}} />, { wrapper: Wrapper })
-    fireEvent.click(screen.getByTitle('Descargar'))
+    fireEvent.click(screen.getByRole('button', { name: 'Descargar' }))
     expect(onDownload).toHaveBeenCalledWith(mockFile)
   })
 
   it('should call onDelete when delete button clicked', () => {
     const onDelete = vi.fn()
     render(<FileListItem file={mockFile} isReadOnly={false} onDownload={() => {}} onDelete={onDelete} selectMode={false} selected={false} onToggleSelect={() => {}} />, { wrapper: Wrapper })
-    fireEvent.click(screen.getByTitle('Eliminar'))
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }))
     expect(onDelete).toHaveBeenCalledWith(mockFile)
   })
 
   it('should hide delete button when isReadOnly', () => {
     render(<FileListItem file={mockFile} isReadOnly={true} onDownload={() => {}} onDelete={() => {}} selectMode={false} selected={false} onToggleSelect={() => {}} />, { wrapper: Wrapper })
-    expect(screen.queryByTitle('Eliminar')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Eliminar' })).toBeNull()
   })
 
   it('should show file size', () => {

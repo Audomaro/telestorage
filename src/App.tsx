@@ -50,7 +50,7 @@ function AppContent() {
         <AppBar position="sticky" elevation={1}>
           <Toolbar variant="dense">
             {showBack && (
-              <IconButton color="inherit" edge="start" onClick={handleBack}>
+              <IconButton color="inherit" edge="start" onClick={handleBack} aria-label="Volver">
                 <ArrowBackIcon />
               </IconButton>
             )}
@@ -58,10 +58,10 @@ function AppContent() {
               {selectedGroup ? selectedGroup.title : 'TeleStorage'}
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton color="inherit" onClick={toggleColorMode}>
+            <IconButton color="inherit" onClick={toggleColorMode} aria-label={mode === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}>
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
-            <IconButton color="inherit" onClick={() => setShowSettings(true)}>
+            <IconButton color="inherit" onClick={() => setShowSettings(true)} aria-label="Configuración">
               <SettingsIcon />
             </IconButton>
           </Toolbar>

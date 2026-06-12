@@ -45,7 +45,7 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
           </Box>
         </Box>
         {onDelete && group.isOwner && (
-          <IconButton size="small" onClick={e => { e.stopPropagation(); onDelete(group) }}>
+          <IconButton size="small" onClick={e => { e.stopPropagation(); onDelete(group) }} aria-label="Eliminar grupo">
             <DeleteIcon fontSize="small" />
           </IconButton>
         )}
