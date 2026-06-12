@@ -6,7 +6,6 @@ import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
 import Badge from '@mui/material/Badge'
-import CloseIcon from '@mui/icons-material/Close'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -19,9 +18,6 @@ export default function DownloadPanel() {
 
   const completedDownloads = useMemo(() => downloads.filter(d => d.status === 'completed'), [downloads])
   const activeCount = downloads.length - completedDownloads.length
-
-  const hasDownloads = downloads.length > 0
-  if (!hasDownloads) return null
 
   const handleClear = () => {
     completedDownloads.forEach(d => removeDownload(d.id))
@@ -76,22 +72,23 @@ export default function DownloadPanel() {
               <ChevronRightIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Cerrar panel">
-            <IconButton size="small" onClick={() => downloads.forEach(d => removeDownload(d.id))} aria-label="Cerrar panel">
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
         </Box>
       </Box>
-      <Box sx={{ overflow: 'auto' }}>
-        {downloads.map(task => (
-          <DownloadItem
-            key={task.id}
-            task={task}
-            onRemove={() => removeDownload(task.id)}
-            onOpenFolder={() => task.destPath && handleOpenFolder(task.destPath)}
-          />
-        ))}
+      <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain' }}>
+        {downloads.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
+            Sin descargas activas
+          </Typography>
+        ) : (
+          downloads.map(task => (
+            <DownloadItem
+              key={task.id}
+              task={task}
+              onRemove={() => removeDownload(task.id)}
+              onOpenFolder={() => task.destPath && handleOpenFolder(task.destPath)}
+            />
+          ))
+        )}
       </Box>
     </Paper>
   )

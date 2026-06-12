@@ -70,7 +70,7 @@ function AppContent() {
         </AppBar>
       )}
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Box sx={{ flex: 1, overflow: 'auto', overscrollBehavior: 'contain' }}>
           {!isLoggedIn
             ? <LoginPage onLogin={() => setIsLoggedIn(true)} />
             : showSettings
