@@ -31,7 +31,9 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [loadingMore, setLoadingMore] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
-  const loadInitialFiles = async () => {
+  const loadInitialFiles = useCallback(async () => {
+    setAllFiles([])
+    setHasMore(true)
     setLoading(true)
     setError(null)
     try {
@@ -43,11 +45,11 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     } finally {
       setLoading(false)
     }
-  }
+  }, [group.id])
 
-  useEffect(() => { loadInitialFiles() }, [group.id])
+  useEffect(() => { loadInitialFiles() }, [loadInitialFiles])
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return
     setLoadingMore(true)
     try {
@@ -60,21 +62,21 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     } finally {
       setLoadingMore(false)
     }
-  }
+  }, [group.id, loadingMore, hasMore, allFiles])
 
   useEffect(() => {
     const el = sentinelRef.current
     if (!el) return
 
     const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore && !loadingMore) {
+      if (entries[0].isIntersecting) {
         handleLoadMore()
       }
     }, { rootMargin: '200px' })
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasMore, loadingMore])
+  }, [handleLoadMore])
 
   const filteredFiles = useMemo(() => {
     let result = allFiles
