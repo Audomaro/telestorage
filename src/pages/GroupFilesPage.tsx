@@ -54,19 +54,21 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [forwardTargetId, setForwardTargetId] = useState('')
   const [forwarding, setForwarding] = useState(false)
   const [forwardError, setForwardError] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const initialLoadDone = useRef(false)
   const { showSnackbar } = useSnackbar()
 
   useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
   useEffect(() => { hasMoreRef.current = hasMore }, [hasMore])
 
-  const loadInitialFiles = useCallback(async () => {
+  const loadInitialFiles = useCallback(async (query?: string) => {
     setAllFiles([])
     setHasMore(true)
     hasMoreRef.current = true
     setLoading(true)
     setError(null)
     try {
-      const result = await window.telegramAPI.loadMoreFiles(group.id)
+      const result = await window.telegramAPI.loadMoreFiles(group.id, undefined, query)
       setAllFiles(result.files)
       setHasMore(result.hasMore)
       hasMoreRef.current = result.hasMore
@@ -75,6 +77,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       setError(err.message || 'Error al cargar archivos')
     } finally {
       setLoading(false)
+      initialLoadDone.current = true
     }
   }, [group.id])
 
@@ -86,12 +89,20 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     })
   }, [])
 
+  useEffect(() => {
+    if (!initialLoadDone.current) return
+    const timer = setTimeout(() => {
+      loadInitialFiles(searchQuery || undefined)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery, loadInitialFiles])
+
   const handleLoadMore = useCallback(async () => {
     if (loadingMoreRef.current || !hasMoreRef.current) return
     loadingMoreRef.current = true
     setLoadingMore(true)
     try {
-      const result = await window.telegramAPI.loadMoreFiles(group.id, offsetRef.current)
+      const result = await window.telegramAPI.loadMoreFiles(group.id, offsetRef.current, searchQuery || undefined)
       offsetRef.current = result.nextOffsetId
       setAllFiles(prev => [...prev, ...result.files])
       setHasMore(result.hasMore)
@@ -102,7 +113,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       loadingMoreRef.current = false
       setLoadingMore(false)
     }
-  }, [group.id])
+  }, [group.id, searchQuery])
 
   useEffect(() => {
     const el = sentinelRef.current
@@ -237,6 +248,8 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         selectedCount={selectedIds.size}
         onToggleSelectMode={handleToggleSelectMode}
         onBatchDelete={() => setConfirmBatchDelete(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       <Box component="main" sx={{ flex: 1 }}>
