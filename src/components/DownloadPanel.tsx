@@ -4,7 +4,7 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
-import Tooltip from '@mui/material/Tooltip'
+
 import Badge from '@mui/material/Badge'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
@@ -51,11 +51,9 @@ export default function DownloadPanel() {
         }}
         onClick={() => setCollapsed(false)}
       >
-        <Tooltip title="Expandir panel">
-          <IconButton size="small" aria-label="Expandir panel">
-            <ChevronLeftIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        <IconButton size="small" aria-label="Expandir panel" title="Expandir panel">
+          <ChevronLeftIcon fontSize="small" />
+        </IconButton>
         <Badge badgeContent={activeCount} color="primary">
           <DownloadIcon fontSize="small" color="action" />
         </Badge>
@@ -81,11 +79,9 @@ export default function DownloadPanel() {
           {completedDownloads.length > 0 && (
             <Button size="small" onClick={handleClear}>Limpiar</Button>
           )}
-          <Tooltip title="Colapsar panel">
-            <IconButton size="small" onClick={() => setCollapsed(true)} aria-label="Colapsar panel">
-              <ChevronRightIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <IconButton size="small" onClick={() => setCollapsed(true)} aria-label="Colapsar panel" title="Colapsar panel">
+            <ChevronRightIcon fontSize="small" />
+          </IconButton>
         </Box>
       </Box>
       <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain', scrollbarGutter: 'stable' }}>
