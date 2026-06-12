@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { TelegramGroup, TelegramFile, ViewMode, FileFilter } from '../types'
 import Toolbar from '../components/Toolbar'
 import FileList from '../components/FileList'
@@ -6,6 +6,7 @@ import FileGrid from '../components/FileGrid'
 import PreviewModal from '../components/PreviewModal'
 import UploadDialog from '../components/UploadDialog'
 import ConfirmDialog from '../components/ConfirmDialog'
+import CircularProgress from '../components/CircularProgress'
 import { isMedia, isDocument } from '../utils/fileTypes'
 import { getExtension } from '../utils/format'
 import styles from './GroupFilesPage.module.css'
@@ -17,7 +18,7 @@ interface GroupFilesPageProps {
 }
 
 export default function GroupFilesPage({ group, onBack, onSettings }: GroupFilesPageProps) {
-  const [files, setFiles] = useState<TelegramFile[]>([])
+  const [allFiles, setAllFiles] = useState<TelegramFile[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [filter, setFilter] = useState<FileFilter>('all')
@@ -26,13 +27,17 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [confirmDeleteFile, setConfirmDeleteFile] = useState<TelegramFile | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
-  const loadFiles = async () => {
+  const loadInitialFiles = async () => {
     setLoading(true)
     setError(null)
     try {
-      const result = await window.telegramAPI.listFiles(group.id)
-      setFiles(result)
+      const result = await window.telegramAPI.loadMoreFiles(group.id)
+      setAllFiles(result.files)
+      setHasMore(result.hasMore)
     } catch (err: any) {
       setError(err.message || 'Error al cargar archivos')
     } finally {
@@ -40,13 +45,43 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     }
   }
 
-  useEffect(() => { loadFiles() }, [group.id])
+  useEffect(() => { loadInitialFiles() }, [group.id])
 
-  const filteredFiles = files.filter(f => {
-    if (filter === 'media') return isMedia(f.mimeType)
-    if (filter === 'documents') return isDocument(f.mimeType)
-    return true
-  })
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) return
+    setLoadingMore(true)
+    try {
+      const lastFile = allFiles[allFiles.length - 1]
+      const result = await window.telegramAPI.loadMoreFiles(group.id, lastFile?.messageId)
+      setAllFiles(prev => [...prev, ...result.files])
+      setHasMore(result.hasMore)
+    } catch (err: any) {
+      setError(err.message || 'Error al cargar más archivos')
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore && !loadingMore) {
+        handleLoadMore()
+      }
+    }, { rootMargin: '200px' })
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, loadingMore])
+
+  const filteredFiles = useMemo(() => {
+    let result = allFiles
+    if (filter === 'media') return result.filter(f => isMedia(f.mimeType))
+    if (filter === 'documents') return result.filter(f => isDocument(f.mimeType))
+    return result
+  }, [allFiles, filter])
 
   const handleDownload = async (file: TelegramFile, onProgress?: (p: number) => void) => {
     try {
@@ -89,7 +124,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       await window.telegramAPI.deleteFile(group.id, confirmDeleteFile.messageId)
       setPreviewFile(null)
       setConfirmDeleteFile(null)
-      loadFiles()
+      loadInitialFiles()
     } catch (err: any) {
       alert(err.message || 'Error al eliminar')
     } finally {
@@ -140,6 +175,11 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : (
           <FileGrid files={filteredFiles} groupId={group.id} onPreview={handlePreviewOpen} />
         )}
+        {hasMore && (
+          <div ref={sentinelRef} className={styles.sentinel}>
+            {loadingMore && <CircularProgress size={30} progress={0} />}
+          </div>
+        )}
       </div>
 
       {previewFile && (() => {
@@ -172,7 +212,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       {showUpload && (
         <UploadDialog
           groupId={group.id}
-          onUpload={() => { setShowUpload(false); loadFiles() }}
+          onUpload={() => { setShowUpload(false); loadInitialFiles() }}
           onClose={() => setShowUpload(false)}
         />
       )}

@@ -49,3 +49,11 @@
   text-align: center;
   color: #888;
 }
+
+.sentinel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0;
+  min-height: 48px;
+}
