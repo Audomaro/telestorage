@@ -170,13 +170,16 @@ export async function listFilesByTopic(groupId: number, topicId: number, limit: 
 
   const messages = await client.getMessages(groupId, { limit, offsetId, search })
 
-  const files: FileResult[] = messages
-    .filter(m => m.media && (m as any).replyTo?.topId === topicId)
-    .map(m => messageToFileResult(m, groupId))
+  const topicMessages = messages.filter(m => m.media && (m as any).replyTo?.topId === topicId)
+  const files = topicMessages.map(m => messageToFileResult(m, groupId))
 
+  // Use the last message of the entire page for nextOffsetId (to continue scanning)
+  // but only if we found files, otherwise we can't determine pagination
   const nextOffsetId = messages.length > 0 ? messages[messages.length - 1].id : undefined
+  // hasMore is true if the page was full - we might have more topic messages in the next page
+  const hasMore = messages.length === limit
 
-  return { files, hasMore: messages.length === limit, nextOffsetId }
+  return { files, hasMore, nextOffsetId }
 }
 
 export async function listFiles(groupId: number): Promise<FileResult[]> {
