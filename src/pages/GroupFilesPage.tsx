@@ -55,7 +55,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [forwarding, setForwarding] = useState(false)
   const [forwardError, setForwardError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const initialLoadDone = useRef(false)
+  const prevSearchRef = useRef(searchQuery)
   const { showSnackbar } = useSnackbar()
 
   useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
@@ -77,7 +77,6 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       setError(err.message || 'Error al cargar archivos')
     } finally {
       setLoading(false)
-      initialLoadDone.current = true
     }
   }, [group.id])
 
@@ -90,7 +89,8 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   }, [])
 
   useEffect(() => {
-    if (!initialLoadDone.current) return
+    if (prevSearchRef.current === searchQuery) return
+    prevSearchRef.current = searchQuery
     const timer = setTimeout(() => {
       loadInitialFiles(searchQuery || undefined)
     }, 300)
@@ -172,7 +172,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       await window.telegramAPI.deleteFile(group.id, confirmDeleteFile.messageId)
       setPreviewFile(null)
       setConfirmDeleteFile(null)
-      loadInitialFiles()
+      loadInitialFiles(searchQuery || undefined)
     } catch (err: any) {
       showSnackbar(err.message || 'Error al eliminar', 'error')
     } finally {
@@ -226,7 +226,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       setSelectedIds(new Set())
       setSelectMode(false)
       setConfirmBatchDelete(false)
-      loadInitialFiles()
+      loadInitialFiles(searchQuery || undefined)
       showSnackbar(`${ids.length} archivo(s) eliminado(s)`, 'success')
     } catch (err: any) {
       showSnackbar(err.message || 'Error al eliminar archivos', 'error')
@@ -275,7 +275,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : error ? (
           <Alert severity="error" onClose={() => setError(null)} sx={{ mx: 2, mt: 1 }}>
             {error}
-            <Button size="small" onClick={() => loadInitialFiles()} sx={{ ml: 1 }}>Reintentar</Button>
+            <Button size="small" onClick={() => loadInitialFiles(searchQuery || undefined)} sx={{ ml: 1 }}>Reintentar</Button>
           </Alert>
         ) : viewMode === 'list' ? (
           <FileList files={filteredFiles} isReadOnly={!group.isOwner}
@@ -317,7 +317,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       {showUpload && (
         <UploadDialog
           groupId={group.id}
-          onUploadComplete={() => { setShowUpload(false); loadInitialFiles() }}
+          onUploadComplete={() => { setShowUpload(false); loadInitialFiles(searchQuery || undefined) }}
           onClose={() => setShowUpload(false)}
         />
       )}
