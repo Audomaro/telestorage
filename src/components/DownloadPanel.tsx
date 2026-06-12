@@ -31,17 +31,23 @@ export default function DownloadPanel() {
     return (
       <Box
         sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
+          position: 'fixed',
+          right: 0,
+          top: 72,
+          zIndex: 1300,
           py: 1,
           px: 0.5,
           borderLeft: 1,
+          borderTop: 1,
+          borderBottom: 1,
           borderColor: 'divider',
+          borderRadius: '4px 0 0 4px',
+          bgcolor: 'background.paper',
           cursor: 'pointer',
-          overflow: 'visible',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 0.5,
         }}
         onClick={() => setCollapsed(false)}
       >
