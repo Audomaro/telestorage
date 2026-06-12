@@ -15,6 +15,8 @@ import SettingsPage from './pages/SettingsPage'
 import { TelegramGroup } from './types'
 import { ColorModeProvider, useColorMode } from './theme/ColorModeContext'
 import { SnackbarProvider } from './theme/SnackbarContext'
+import { DownloadProvider } from './theme/DownloadContext'
+import DownloadPanel from './components/DownloadPanel'
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -78,6 +80,7 @@ function AppContent() {
               : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
         }
       </Box>
+      <DownloadPanel />
     </Box>
   )
 }
@@ -86,7 +89,9 @@ export default function App() {
   return (
     <ColorModeProvider>
       <SnackbarProvider>
-        <AppContent />
+        <DownloadProvider>
+          <AppContent />
+        </DownloadProvider>
       </SnackbarProvider>
     </ColorModeProvider>
   )
