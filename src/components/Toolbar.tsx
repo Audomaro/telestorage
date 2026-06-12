@@ -25,8 +25,8 @@ interface ToolbarProps {
   onUpload: () => void
   onToggleSelectMode: () => void
   onBatchDelete: () => void
-  searchQuery: string
-  onSearchChange: (query: string) => void
+  searchQuery?: string
+  onSearchChange?: (query: string) => void
 }
 
 export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete, searchQuery, onSearchChange }: ToolbarProps) {
@@ -42,8 +42,8 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
       <TextField
         size="small"
         placeholder="Buscar archivos..."
-        value={searchQuery}
-        onChange={e => onSearchChange(e.target.value)}
+        value={searchQuery || ''}
+        onChange={e => onSearchChange?.(e.target.value)}
         slotProps={{
           input: {
             startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
