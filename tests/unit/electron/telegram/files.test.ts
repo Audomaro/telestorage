@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import { listFilesBatch } from '../../../../electron/main/telegram/files'
 
 vi.mock('electron', () => ({
   safeStorage: { isEncryptionAvailable: () => true, encryptString: (s: string) => Buffer.from(s), decryptString: (b: Buffer) => b.toString() },
@@ -65,5 +66,11 @@ describe('thumbnail extraction', () => {
     const { extractThumbnail } = await import('../../../../electron/main/telegram/files')
     const result = extractThumbnail({ photo: { sizes: [] } } as any)
     expect(result).toBeNull()
+  })
+})
+
+describe('listFilesBatch', () => {
+  it('should be a function', () => {
+    expect(typeof listFilesBatch).toBe('function')
   })
 })

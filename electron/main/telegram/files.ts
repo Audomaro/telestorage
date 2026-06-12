@@ -114,6 +114,51 @@ export function extractThumbnail(media: any): string | null {
   }
 }
 
+export interface ListFilesBatchResult {
+  files: FileResult[]
+  hasMore: boolean
+}
+
+export async function listFilesBatch(groupId: number, limit: number, offsetId?: number): Promise<ListFilesBatchResult> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+
+  const messages = await client.getMessages(groupId, { limit, offsetId })
+
+  const files: FileResult[] = messages
+    .filter(m => m.media)
+    .map(m => {
+      let name = 'unknown'
+      let size = 0
+      let mimeType = 'application/octet-stream'
+
+      const media = m.media as any
+      if (media?.document) {
+        const attrs = media.document.attributes || []
+        const fileNameAttr = attrs.find((a: any) => a.className === 'DocumentAttributeFilename')
+        name = fileNameAttr?.fileName || `file_${m.id}`
+        size = Number(media.document.size) || 0
+        mimeType = media.document.mimeType || 'application/octet-stream'
+      } else if (media?.photo) {
+        name = `photo_${m.id}.jpg`
+        mimeType = 'image/jpeg'
+        const sizes = media.photo.sizes || []
+        size = sizes.reduce((max: number, s: any) => {
+          const sSize = typeof s.size === 'number' ? s.size : 0
+          return sSize > max ? sSize : max
+        }, 0)
+      }
+
+      return {
+        id: m.id, messageId: m.id, name, size, mimeType,
+        date: new Date(m.date * 1000), groupId,
+        thumbnail: extractThumbnail(media)
+      }
+    })
+
+  return { files, hasMore: messages.length === limit }
+}
+
 export async function listFiles(groupId: number): Promise<FileResult[]> {
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
