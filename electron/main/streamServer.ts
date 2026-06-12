@@ -1,6 +1,7 @@
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { getClient } from './telegram/auth'
 import { Api } from 'telegram'
+import bigInt from 'big-integer'
 
 interface StreamInfo {
   groupId: number
@@ -93,8 +94,8 @@ async function downloadChunk(client: any, location: any, offset: number, limit: 
   const chunks: Buffer[] = []
   for await (const chunk of client.iterDownload({
     file: location,
-    offset: BigInt(offset),
-    limit: BigInt(offset + limit),
+    offset: bigInt(offset),
+    limit: bigInt(limit),
     requestSize: 64 * 1024,
   })) {
     chunks.push(chunk)

@@ -58,4 +58,6 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   uploadTempFile: (groupId: number, fileName: string, data: number[]) =>
     ipcRenderer.invoke('files:uploadTempFile', groupId, fileName, data),
   showInFolder: (filePath: string) => ipcRenderer.invoke('shell:showInFolder', filePath),
+  getLogPath: () => ipcRenderer.invoke('log:getPath'),
+  openLogFolder: () => ipcRenderer.invoke('log:open'),
 })

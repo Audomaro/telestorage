@@ -21,7 +21,9 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.1.1",
     "@mui/material": "^9.1.1",
+    "big-integer": "^1.6.52",
     "dotenv": "^17.4.2",
+    "electron-log": "^5.4.4",
     "telegram": "^2.26.0"
   },
   "devDependencies": {

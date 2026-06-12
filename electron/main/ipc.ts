@@ -1,4 +1,5 @@
 import { ipcMain, dialog, app, shell } from 'electron'
+import log from 'electron-log/main'
 import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
@@ -177,5 +178,14 @@ export async function registerIpcHandlers(): Promise<void> {
       await unlink(destPath).catch(() => {})
       throw err
     }
+  })
+
+  ipcMain.handle('log:getPath', async () => {
+    return log.transports.file.getFile().path
+  })
+
+  ipcMain.handle('log:open', async () => {
+    const logPath = log.transports.file.getFile().path
+    shell.showItemInFolder(logPath)
   })
 }

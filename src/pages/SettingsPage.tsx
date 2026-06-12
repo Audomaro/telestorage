@@ -12,6 +12,7 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
 import FolderIcon from '@mui/icons-material/Folder'
+import DescriptionIcon from '@mui/icons-material/Description'
 import { useSnackbar } from '../theme/SnackbarContext'
 
 interface SettingsPageProps {
@@ -142,6 +143,11 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             )}
           />
           <Typography variant="caption" color="text.secondary">Estos archivos se tratarán como documentos y no aparecerán en Multimedia ni Galería.</Typography>
+        </Box>
+        <Box>
+          <Button size="small" variant="outlined" startIcon={<DescriptionIcon />} onClick={() => window.telegramAPI.openLogFolder()}>
+            Abrir carpeta de logs
+          </Button>
         </Box>
 
         <Button variant="contained" onClick={handleSave} disabled={saving} sx={{ alignSelf: 'flex-start', mt: 1 }}>

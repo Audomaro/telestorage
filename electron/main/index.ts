@@ -1,7 +1,12 @@
 import 'dotenv/config'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
+import log from 'electron-log/main'
 import { registerIpcHandlers } from './ipc'
+
+log.initialize({ preload: true })
+log.transports.file.level = 'info'
+log.transports.console.level = 'debug'
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
