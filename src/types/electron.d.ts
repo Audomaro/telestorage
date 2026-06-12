@@ -34,6 +34,7 @@ interface TelegramAPI {
   selectFolder(): Promise<string | null>
   pickFiles(): Promise<string[]>
   uploadTempFile(groupId: number, fileName: string, data: number[]): Promise<any>
+  showInFolder(filePath: string): Promise<void>
 }
 
 interface AuthState {

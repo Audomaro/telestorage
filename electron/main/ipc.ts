@@ -1,4 +1,4 @@
-import { ipcMain, dialog, app } from 'electron'
+import { ipcMain, dialog, app, shell } from 'electron'
 import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
@@ -124,6 +124,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('settings:set', async (_event, partial: Partial<AppSettings>) => {
     return setSettings(partial)
+  })
+
+  ipcMain.handle('shell:showInFolder', async (_event, filePath: string) => {
+    shell.showItemInFolder(filePath)
   })
 
   ipcMain.handle('dialog:selectFolder', async () => {
