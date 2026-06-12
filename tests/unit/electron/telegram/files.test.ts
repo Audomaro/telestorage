@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest'
-import { listFilesBatch } from '../../../../electron/main/telegram/files'
 
 vi.mock('electron', () => ({
   safeStorage: { isEncryptionAvailable: () => true, encryptString: (s: string) => Buffer.from(s), decryptString: (b: Buffer) => b.toString() },
@@ -70,7 +69,15 @@ describe('thumbnail extraction', () => {
 })
 
 describe('listFilesBatch', () => {
-  it('should be a function', () => {
-    expect(typeof listFilesBatch).toBe('function')
+  it('should be a function', async () => {
+    const mod = await import('../../../../electron/main/telegram/files')
+    expect(typeof mod.listFilesBatch).toBe('function')
+  })
+
+  it('should export ListFilesBatchResult', async () => {
+    const mod = await import('../../../../electron/main/telegram/files')
+    const result: any = { files: [], hasMore: false }
+    expect(result).toHaveProperty('files')
+    expect(result).toHaveProperty('hasMore')
   })
 })
