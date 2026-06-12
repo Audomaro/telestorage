@@ -23,6 +23,7 @@ import UploadDialog from '../components/UploadDialog'
 import EmptyState from '../components/EmptyState'
 import { isMedia, isDocument, isExcludedFromMedia } from '../utils/fileTypes'
 import { useSnackbar } from '../theme/SnackbarContext'
+import { useDownload } from '../theme/DownloadContext'
 
 interface GroupFilesPageProps {
   group: TelegramGroup
@@ -57,6 +58,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const [searchQuery, setSearchQuery] = useState('')
   const prevSearchRef = useRef(searchQuery)
   const { showSnackbar } = useSnackbar()
+  const { addDownload, updateProgress, completeDownload, failDownload } = useDownload()
 
   useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
   useEffect(() => { hasMoreRef.current = hasMore }, [hasMore])
@@ -138,22 +140,34 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   }, [allFiles, filter, viewMode, excludedFromMedia])
 
   const handleDownload = async (file: TelegramFile) => {
+    const settings = await window.telegramAPI.getSettings()
+    const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
+    const downloadId = `${file.messageId}_${Date.now()}`
+    addDownload(downloadId, file.name)
     try {
-      const settings = await window.telegramAPI.getSettings()
-      const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
-      await window.telegramAPI.downloadFile(group.id, file.messageId, destPath)
+      await window.telegramAPI.downloadFileWithProgress(
+        group.id, file.messageId, destPath,
+        (progress) => updateProgress(downloadId, progress)
+      )
+      completeDownload(downloadId, destPath)
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al descargar', 'error')
+      failDownload(downloadId, err.message || 'Error al descargar')
     }
   }
 
   const handleSaveToDisk = async (file: TelegramFile) => {
+    const settings = await window.telegramAPI.getSettings()
+    const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
+    const downloadId = `${file.messageId}_${Date.now()}`
+    addDownload(downloadId, file.name)
     try {
-      const settings = await window.telegramAPI.getSettings()
-      const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
-      await window.telegramAPI.downloadFile(group.id, file.messageId, destPath)
+      await window.telegramAPI.downloadFileWithProgress(
+        group.id, file.messageId, destPath,
+        (progress) => updateProgress(downloadId, progress)
+      )
+      completeDownload(downloadId, destPath)
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al guardar', 'error')
+      failDownload(downloadId, err.message || 'Error al guardar')
     }
   }
 
