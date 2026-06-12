@@ -34,6 +34,7 @@ export default function DownloadPanel() {
         sx={{
           height: '100%',
           overflow: 'hidden',
+          transition: 'none',
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, px: 0.5 }}>
@@ -59,6 +60,7 @@ export default function DownloadPanel() {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        transition: 'none',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, borderBottom: 1, borderColor: 'divider' }}>

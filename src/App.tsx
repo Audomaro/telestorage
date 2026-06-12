@@ -70,7 +70,7 @@ function AppContent() {
         </AppBar>
       )}
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
-        <Box sx={{ flex: 1, overflow: 'auto', overscrollBehavior: 'contain' }}>
+        <Box sx={{ flex: 1, minWidth: 0, overflow: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain' }}>
           {!isLoggedIn
             ? <LoginPage onLogin={() => setIsLoggedIn(true)} />
             : showSettings
@@ -81,7 +81,9 @@ function AppContent() {
                 : <GroupListPage onSelectGroup={setSelectedGroup} onSettings={() => setShowSettings(true)} />
           }
         </Box>
-        <DownloadPanel />
+        <Box sx={{ flexShrink: 0 }}>
+          <DownloadPanel />
+        </Box>
       </Box>
     </Box>
   )
