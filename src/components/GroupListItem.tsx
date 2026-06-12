@@ -21,7 +21,6 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
     <div
       onClick={() => onClick(group)}
       className={styles.item}
-      style={{ opacity: group.isArchived ? 0.5 : 1 }}
     >
       <div
         className={styles.avatar}

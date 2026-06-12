@@ -8,7 +8,7 @@ const API_ID = Number(process.env.TELEGRAM_API_ID) || 0
 const API_HASH = process.env.TELEGRAM_API_HASH || ''
 
 if (!API_ID || !API_HASH) {
-  console.warn('TeleDrive: TELEGRAM_API_ID and TELEGRAM_API_HASH must be set in environment')
+  console.warn('TeleStorage: TELEGRAM_API_ID and TELEGRAM_API_HASH must be set in environment')
   console.warn('Get them at https://my.telegram.org/apps')
 }
 

@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
 
-const SESSION_FILE = 'teledrive-session.enc'
+const SESSION_FILE = 'telestorage-session.enc'
 
 function getSessionPath(): string {
   return join(app.getPath('userData'), SESSION_FILE)

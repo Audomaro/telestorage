@@ -4,6 +4,20 @@ import GroupListItem from '../components/GroupListItem'
 import ConfirmDialog from '../components/ConfirmDialog'
 import styles from './GroupListPage.module.css'
 
+const TAB_KEY = 'telestorage:groupTab'
+
+function loadSavedTab(): 'created' | 'active' | 'archived' {
+  try {
+    const saved = localStorage.getItem(TAB_KEY)
+    if (saved === 'created' || saved === 'active' || saved === 'archived') return saved
+  } catch {}
+  return 'created'
+}
+
+function saveTab(tab: 'created' | 'active' | 'archived') {
+  try { localStorage.setItem(TAB_KEY, tab) } catch {}
+}
+
 interface GroupListPageProps {
   onSelectGroup?: (group: TelegramGroup) => void
   onSettings?: () => void
@@ -12,8 +26,7 @@ interface GroupListPageProps {
 export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPageProps) {
   const [groups, setGroups] = useState<TelegramGroup[]>([])
   const [archived, setArchived] = useState<TelegramGroup[]>([])
-  const [showArchived, setShowArchived] = useState(false)
-  const [appFilter, setAppFilter] = useState<'all' | 'created'>('created')
+  const [tab, setTab] = useState<'created' | 'active' | 'archived'>(loadSavedTab)
   const [loading, setLoading] = useState(true)
   const [archivedLoading, setArchivedLoading] = useState(false)
   const [error, setError] = useState('')
@@ -26,6 +39,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
 
   useEffect(() => {
     loadGroups()
+    if (tab === 'archived') loadArchived()
   }, [])
 
   const loadGroups = async () => {
@@ -54,9 +68,14 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     }
   }
 
-  const handleTabChange = (archived: boolean) => {
-    setShowArchived(archived)
-    if (archived) loadArchived()
+  const handleTabChange = (newTab: 'created' | 'active' | 'archived') => {
+    setTab(newTab)
+    saveTab(newTab)
+    if (newTab === 'archived') {
+      loadArchived()
+    } else {
+      loadGroups()
+    }
   }
 
   const handleCreateGroup = async () => {
@@ -95,8 +114,12 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     }
   }
 
-  const displayGroups = showArchived ? archived : groups
-  const visibleGroups = displayGroups.filter(g => appFilter === 'all' || g.isAppCreated)
+  const allGroups = [...groups, ...archived]
+  const visibleGroups = tab === 'created'
+    ? allGroups.filter(g => g.isAppCreated && !g.isArchived)
+    : tab === 'active'
+      ? allGroups.filter(g => !g.isArchived)
+      : allGroups.filter(g => g.isArchived)
 
   if (loading) {
     return (
@@ -113,16 +136,12 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
             <button onClick={onSettings} title="Configuración" className={styles.settingsBtn}>⚙️</button>
           )}
           <div style={{ display: 'flex', gap: 4 }}>
-            <button onClick={() => handleTabChange(false)}
-              className={`${styles.tab} ${!showArchived ? styles.tabActive : ''}`}>Activos</button>
-            <button onClick={() => handleTabChange(true)}
-              className={`${styles.tab} ${showArchived ? styles.tabActive : ''}`}>Archivados</button>
-          </div>
-          <div style={{ display: 'flex', gap: 4 }}>
-            <button onClick={() => setAppFilter('created')}
-              className={`${styles.filterTab} ${appFilter === 'created' ? styles.filterTabActive : ''}`}>Creados</button>
-            <button onClick={() => setAppFilter('all')}
-              className={`${styles.filterTab} ${appFilter === 'all' ? styles.filterTabActive : ''}`}>Todos</button>
+            <button onClick={() => handleTabChange('created')}
+              className={`${styles.tab} ${tab === 'created' ? styles.tabActive : ''}`}>Creados</button>
+            <button onClick={() => handleTabChange('active')}
+              className={`${styles.tab} ${tab === 'active' ? styles.tabActive : ''}`}>Activos</button>
+            <button onClick={() => handleTabChange('archived')}
+              className={`${styles.tab} ${tab === 'archived' ? styles.tabActive : ''}`}>Archivados</button>
           </div>
           <button onClick={handleCreateGroup} className={styles.createBtn}>+ Nuevo grupo</button>
         </div>
@@ -141,18 +160,13 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
 
       {visibleGroups.length === 0 && !archivedLoading && (
         <div className={styles.empty}>
-          {showArchived && appFilter === 'all'
-            ? 'No hay grupos archivados'
-            : showArchived
-              ? 'No hay grupos archivados creados con TeleDrive'
-              : appFilter === 'created'
-                ? 'No hay grupos creados con TeleDrive'
-                : 'No hay grupos. Crea uno nuevo con "+ Nuevo grupo".'
-          }
+          {tab === 'created' && 'No hay grupos creados con TeleStorage'}
+          {tab === 'active' && 'No hay grupos. Crea uno nuevo con "+ Nuevo grupo".'}
+          {tab === 'archived' && 'No hay grupos archivados'}
         </div>
       )}
 
-      {showArchived && archivedLoading && (
+      {tab === 'archived' && archivedLoading && (
         <div className={styles.loading}>Cargando grupos archivados...</div>
       )}
 

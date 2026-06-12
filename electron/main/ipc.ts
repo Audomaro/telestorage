@@ -102,7 +102,7 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('files:downloadPreview', async (event, { downloadId, groupId, messageId, ext = '' }) => {
     const tmpDir = app.getPath('temp')
-    const destPath = join(tmpDir, 'teledrive', `${messageId}_preview${ext}`)
+    const destPath = join(tmpDir, 'telestorage', `${messageId}_preview${ext}`)
     return downloadFileWithProgress(groupId, messageId, destPath, (progress) => {
       event.sender.send('files:download:progress', { downloadId, progress })
     })
@@ -110,7 +110,7 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('files:downloadThumb', async (_event, groupId: number, messageId: number) => {
     const tmpDir = app.getPath('temp')
-    const destPath = join(tmpDir, 'teledrive_thumbs', `${messageId}.jpg`)
+    const destPath = join(tmpDir, 'telestorage_thumbs', `${messageId}.jpg`)
     return downloadThumbnail(groupId, messageId, destPath)
   })
 
@@ -143,7 +143,7 @@ export function registerIpcHandlers(): void {
     const client = getClient()
     if (!client) throw new Error('Not authenticated')
 
-    const tempDir = join(app.getPath('temp'), 'teledrive_uploads')
+    const tempDir = join(app.getPath('temp'), 'telestorage_uploads')
     const { mkdir, writeFile, unlink } = await import('fs/promises')
     await mkdir(tempDir, { recursive: true })
 

@@ -6,6 +6,7 @@ import { registerIpcHandlers } from './ipc'
 function createWindow() {
   const mainWindow = new BrowserWindow({
     show: false,
+    title: 'TeleStorage',
     width: 1200,
     height: 800,
     minWidth: 800,

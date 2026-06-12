@@ -29,7 +29,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, codeHa
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <h1 className={styles.title}>TeleDrive</h1>
+      <h1 className={styles.title}>TeleStorage</h1>
       
       {!codeHash && !needs2FA && (
         <div className={styles.field}>

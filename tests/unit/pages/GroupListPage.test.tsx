@@ -3,6 +3,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import GroupListPage from '../../../src/pages/GroupListPage'
 
 beforeEach(() => {
+  localStorage.clear()
   vi.clearAllMocks()
   window.telegramAPI = {
     ...window.telegramAPI,
@@ -38,12 +39,12 @@ describe('GroupListPage app filter', () => {
     expect(screen.queryByText('Other Group')).toBeNull()
   })
 
-  it('should show all groups when filter is toggled to Todos', async () => {
+  it('should show all groups when tab is changed to Activos', async () => {
     render(<GroupListPage />)
     await waitFor(() => {
       expect(screen.getByText('App Group')).toBeDefined()
     })
-    fireEvent.click(screen.getByText('Todos'))
+    fireEvent.click(screen.getByText('Activos'))
     await waitFor(() => {
       expect(screen.getByText('App Group')).toBeDefined()
       expect(screen.getByText('Other Group')).toBeDefined()

@@ -14,6 +14,18 @@ export function isGroupAppCreated(groupId: number, createdIds: number[]): boolea
   return createdIds.includes(groupId)
 }
 
+function dialogToGroupResult(d: any, createdIds: number[]): GroupResult {
+  const isArchived = (d as any).folderId === 1
+  return {
+    id: Number(d.id),
+    title: d.title || 'Unnamed',
+    isArchived,
+    isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
+    totalSize: 0,
+    isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
+  }
+}
+
 export async function getGroups(): Promise<GroupResult[]> {
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
@@ -23,14 +35,7 @@ export async function getGroups(): Promise<GroupResult[]> {
 
   return dialogs
     .filter(d => d.isGroup || d.isChannel)
-    .map(d => ({
-      id: Number(d.id),
-      title: d.title || 'Unnamed',
-      isArchived: false,
-      isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
-      totalSize: 0,
-      isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
-    }))
+    .map(d => dialogToGroupResult(d, createdIds))
 }
 
 export async function getArchivedGroups(): Promise<GroupResult[]> {
@@ -42,14 +47,7 @@ export async function getArchivedGroups(): Promise<GroupResult[]> {
 
   return dialogs
     .filter(d => d.isGroup || d.isChannel)
-    .map(d => ({
-      id: Number(d.id),
-      title: d.title || 'Unnamed',
-      isArchived: true,
-      isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
-      totalSize: 0,
-      isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
-    }))
+    .map(d => dialogToGroupResult(d, createdIds))
 }
 
 export async function createGroup(title: string): Promise<GroupResult> {
@@ -59,7 +57,7 @@ export async function createGroup(title: string): Promise<GroupResult> {
   const result = await client.invoke(
     new (await import('telegram')).Api.channels.CreateChannel({
       title,
-      about: 'TeleDrive storage group',
+      about: 'TeleStorage storage group',
       megagroup: true
     })
   )

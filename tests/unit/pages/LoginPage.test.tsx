@@ -7,6 +7,6 @@ import LoginPage from '../../../src/pages/LoginPage'
 describe('LoginPage', () => {
   it('should render LoginForm component', () => {
     render(<LoginPage onLogin={() => {}} />)
-    expect(screen.getByText('TeleDrive')).toBeDefined()
+    expect(screen.getByText('TeleStorage')).toBeDefined()
   })
 })
