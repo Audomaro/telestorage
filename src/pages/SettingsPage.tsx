@@ -7,12 +7,14 @@ interface SettingsPageProps {
 
 export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [downloadPath, setDownloadPath] = useState('')
+  const [batchSize, setBatchSize] = useState(50)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     window.telegramAPI.getSettings().then(s => {
       setDownloadPath(s.downloadPath)
+      setBatchSize(s.batchSize ?? 50)
     })
   }, [])
 
@@ -24,7 +26,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await window.telegramAPI.setSettings({ downloadPath })
+      await window.telegramAPI.setSettings({ downloadPath, batchSize })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch {
@@ -48,6 +50,17 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             <input type="text" value={downloadPath} readOnly className={styles.pathInput} />
             <button onClick={handleSelectFolder} className={styles.changeBtn}>Cambiar</button>
           </div>
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>Archivos por carga (batch size)</label>
+          <input
+            type="number"
+            min={1}
+            value={batchSize}
+            onChange={e => setBatchSize(Math.max(1, parseInt(e.target.value) || 1))}
+            className={styles.numInput}
+          />
         </div>
 
         <button onClick={handleSave} disabled={saving} className={styles.saveBtn}

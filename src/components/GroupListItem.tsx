@@ -40,10 +40,10 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
           </span>
         </div>
         <div className={styles.meta}>
-          {group.fileCount != null ? `${group.fileCount} archivos` : ''}
-          {group.fileCount != null && group.totalSize ? ` · ${formatFileSize(group.totalSize)}` : ''}
-          {!group.isOwner && ' · Solo lectura'}
-          {group.isArchived && ' · Archivado'}
+          {group.totalSize ? formatFileSize(group.totalSize) : ''}
+          {group.totalSize && !group.isOwner ? ' · ' : ''}
+          {!group.isOwner && 'Solo lectura'}
+          {group.isArchived && (group.totalSize || !group.isOwner ? ' · ' : '') + 'Archivado'}
         </div>
       </div>
       {group.isOwner && onDelete && (

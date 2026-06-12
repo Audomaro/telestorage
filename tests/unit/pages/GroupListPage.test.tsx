@@ -9,7 +9,7 @@ beforeEach(() => {
     getGroups: vi.fn().mockResolvedValue([]),
     getArchivedGroups: vi.fn().mockResolvedValue([]),
     createGroup: vi.fn().mockResolvedValue({}),
-    deleteGroup: vi.fn().mockResolvedValue(undefined)
+    deleteGroup: vi.fn().mockResolvedValue(undefined),
   }
 })
 

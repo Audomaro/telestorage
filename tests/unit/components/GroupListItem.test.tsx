@@ -7,7 +7,6 @@ const mockGroup = {
   title: 'MiDrive-Fotos',
   isArchived: false,
   isOwner: true,
-  fileCount: 245,
   totalSize: 1048576
 }
 
@@ -33,11 +32,6 @@ describe('GroupListItem', () => {
     render(<GroupListItem group={mockGroup} onClick={onClick} />)
     fireEvent.click(screen.getByText('MiDrive-Fotos'))
     expect(onClick).toHaveBeenCalledWith(mockGroup)
-  })
-
-  it('should show file count', () => {
-    render(<GroupListItem group={mockGroup} onClick={() => {}} />)
-    expect(screen.getByText(/245/)).toBeDefined()
   })
 
   it('should show "Archivado" when isArchived is true', () => {

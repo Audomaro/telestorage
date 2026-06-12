@@ -82,7 +82,8 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('files:listMore', async (_event, { groupId, offsetId }: { groupId: number; offsetId?: number }) => {
-    return listFilesBatch(groupId, 50, offsetId)
+    const settings = getSettings()
+    return listFilesBatch(groupId, settings.batchSize, offsetId)
   })
 
   ipcMain.handle('files:download:start', async (event, { downloadId, groupId, messageId, destPath }) => {

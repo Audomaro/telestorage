@@ -5,13 +5,15 @@ import { join } from 'path'
 export interface AppSettings {
   downloadPath: string
   createdGroupIds: number[]
+  batchSize: number
 }
 
 const SETTINGS_FILE = join(app.getPath('userData'), 'settings.json')
 
 const DEFAULTS: AppSettings = {
   downloadPath: app.getPath('downloads'),
-  createdGroupIds: []
+  createdGroupIds: [],
+  batchSize: 50
 }
 
 export function getSettings(): AppSettings {

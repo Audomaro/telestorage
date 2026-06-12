@@ -48,7 +48,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       setAllFiles(result.files)
       setHasMore(result.hasMore)
       hasMoreRef.current = result.hasMore
-      offsetRef.current = result.files[result.files.length - 1]?.messageId
+      offsetRef.current = result.nextOffsetId
     } catch (err: any) {
       setError(err.message || 'Error al cargar archivos')
     } finally {
@@ -64,7 +64,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     setLoadingMore(true)
     try {
       const result = await window.telegramAPI.loadMoreFiles(group.id, offsetRef.current)
-      offsetRef.current = result.files[result.files.length - 1]?.messageId
+      offsetRef.current = result.nextOffsetId
       setAllFiles(prev => [...prev, ...result.files])
       setHasMore(result.hasMore)
       hasMoreRef.current = result.hasMore
@@ -88,7 +88,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [handleLoadMore])
+  }, [handleLoadMore, loading])
 
   const filteredFiles = useMemo(() => {
     let result = allFiles
@@ -189,7 +189,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         ) : (
           <FileGrid files={filteredFiles} groupId={group.id} onPreview={handlePreviewOpen} />
         )}
-        {hasMore && (
+        {hasMore && !loading && (
           <div ref={sentinelRef} className={styles.sentinel}>
             {loadingMore && <CircularProgress size={30} progress={0} />}
           </div>

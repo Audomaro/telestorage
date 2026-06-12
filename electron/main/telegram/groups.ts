@@ -6,7 +6,6 @@ export interface GroupResult {
   title: string
   isArchived: boolean
   isOwner: boolean
-  fileCount: number
   totalSize: number
   isAppCreated: boolean
 }
@@ -29,7 +28,6 @@ export async function getGroups(): Promise<GroupResult[]> {
       title: d.title || 'Unnamed',
       isArchived: false,
       isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
-      fileCount: 0,
       totalSize: 0,
       isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
     }))
@@ -49,7 +47,6 @@ export async function getArchivedGroups(): Promise<GroupResult[]> {
       title: d.title || 'Unnamed',
       isArchived: true,
       isOwner: d.entity && 'creator' in d.entity ? Boolean((d.entity as any).creator) : false,
-      fileCount: 0,
       totalSize: 0,
       isAppCreated: isGroupAppCreated(Number(d.id), createdIds)
     }))
@@ -71,7 +68,7 @@ export async function createGroup(title: string): Promise<GroupResult> {
   const channel = updates.chats?.[0] || result
   const dialogId = Number(`-${100}${BigInt(channel.id)}`)
   addCreatedGroupId(dialogId)
-  return { id: dialogId, title, isArchived: false, isOwner: true, fileCount: 0, totalSize: 0, isAppCreated: true }
+  return { id: dialogId, title, isArchived: false, isOwner: true, totalSize: 0, isAppCreated: true }
 }
 
 export async function deleteGroup(groupId: number): Promise<void> {

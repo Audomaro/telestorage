@@ -44,3 +44,18 @@ describe('createdGroupIds', () => {
     expect(settings.createdGroupIds.filter(id => id === 123).length).toBe(1)
   })
 })
+
+describe('batchSize', () => {
+  it('should default to 50', async () => {
+    const { getSettings } = await import('../../../../electron/main/telegram/settings')
+    const settings = getSettings()
+    expect(settings.batchSize).toBe(50)
+  })
+
+  it('should persist a custom batchSize', async () => {
+    const { setSettings, getSettings } = await import('../../../../electron/main/telegram/settings')
+    setSettings({ batchSize: 25 })
+    const settings = getSettings()
+    expect(settings.batchSize).toBe(25)
+  })
+})

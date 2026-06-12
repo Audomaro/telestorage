@@ -117,6 +117,7 @@ export function extractThumbnail(media: any): string | null {
 export interface ListFilesBatchResult {
   files: FileResult[]
   hasMore: boolean
+  nextOffsetId?: number
 }
 
 function messageToFileResult(m: any, groupId: number): FileResult {
@@ -158,7 +159,9 @@ export async function listFilesBatch(groupId: number, limit: number, offsetId?: 
     .filter(m => m.media)
     .map(m => messageToFileResult(m, groupId))
 
-  return { files, hasMore: messages.length === limit }
+  const nextOffsetId = messages.length > 0 ? messages[messages.length - 1].id : undefined
+
+  return { files, hasMore: messages.length === limit, nextOffsetId }
 }
 
 export async function listFiles(groupId: number): Promise<FileResult[]> {
