@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Tabs from '@mui/material/Tabs'
@@ -57,6 +57,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   const [showAddExistingDialog, setShowAddExistingDialog] = useState(false)
   const [selectedAddGroup, setSelectedAddGroup] = useState<TelegramGroup | null>(null)
   const [addingGroup, setAddingGroup] = useState(false)
+  const [addGroupSearch, setAddGroupSearch] = useState('')
   const { showSnackbar } = useSnackbar()
 
   useEffect(() => {
@@ -118,6 +119,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
       await window.telegramAPI.addToCreatedGroup(selectedAddGroup.id)
       setShowAddExistingDialog(false)
       setSelectedAddGroup(null)
+      setAddGroupSearch('')
       loadGroups()
     } catch (err: any) {
       showSnackbar(err.message || 'Error al vincular grupo', 'error')
@@ -164,6 +166,17 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
       : allGroups.filter(g => g.isArchived)
 
   const tabIndex = tab === 'created' ? 0 : tab === 'active' ? 1 : 2
+
+  const availableOwnGroups = useMemo(() => {
+    return allGroups.filter(g => g.isOwner && !g.isAppCreated && !g.isArchived)
+  }, [allGroups])
+
+  const filteredOwnGroups = useMemo(() => {
+    if (!addGroupSearch) return availableOwnGroups
+    return availableOwnGroups.filter(g =>
+      g.title.toLowerCase().includes(addGroupSearch.toLowerCase())
+    )
+  }, [availableOwnGroups, addGroupSearch])
 
   if (loading) {
     return (
@@ -238,22 +251,32 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         </DialogActions>
       </Dialog>
 
-      <Dialog open={showAddExistingDialog} onClose={() => setShowAddExistingDialog(false)}>
+      <Dialog open={showAddExistingDialog} onClose={() => { setShowAddExistingDialog(false); setSelectedAddGroup(null); setAddGroupSearch('') }}>
         <DialogTitle>Vincular grupo propio</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Selecciona un grupo propio para agregarlo a TeleStorage
           </DialogContentText>
-          <Box sx={{ maxHeight: 300, overflowY: 'auto', mt: 1 }}>
-            {allGroups.filter(g => g.isOwner && !g.isAppCreated && !g.isArchived).map(g => (
+          <TextField
+            size="small"
+            placeholder="Buscar grupo..."
+            fullWidth
+            value={addGroupSearch}
+            onChange={e => setAddGroupSearch(e.target.value)}
+            sx={{ mt: 1, mb: 1 }}
+          />
+          <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
+            {filteredOwnGroups.map(g => (
               <Box key={g.id} onClick={() => setSelectedAddGroup(g)}
                 sx={{ p: 1, cursor: 'pointer', borderRadius: 1,
                   bgcolor: selectedAddGroup?.id === g.id ? 'action.selected' : 'transparent', mb: 0.5 }}>
                 {g.title}
               </Box>
             ))}
-            {allGroups.filter(g => g.isOwner && !g.isAppCreated && !g.isArchived).length === 0 && (
-              <Typography color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>No hay grupos propios sin vincular</Typography>
+            {filteredOwnGroups.length === 0 && (
+              <Typography color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                {addGroupSearch ? 'Sin resultados' : 'No hay grupos propios sin vincular'}
+              </Typography>
             )}
           </Box>
         </DialogContent>
