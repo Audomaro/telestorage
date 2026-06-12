@@ -21,6 +21,7 @@ interface TelegramAPI {
   downloadFileWithProgress(groupId: number, messageId: number, destPath: string, onProgress: (p: number) => void): Promise<string>
   downloadThumbnail(groupId: number, messageId: number): Promise<string>
   downloadPreview(groupId: number, messageId: number, ext: string, onProgress: (p: number) => void): Promise<string>
+  loadMoreFiles(groupId: number, offsetId?: number): Promise<{ files: FileResult[]; hasMore: boolean }>
   deleteFile(groupId: number, messageId: number): Promise<void>
   forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void>
   getSettings(): Promise<AppSettings>

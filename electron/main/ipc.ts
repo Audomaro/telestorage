@@ -3,7 +3,7 @@ import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup } from './telegram/groups'
-import { listFiles, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
+import { listFiles, listFilesBatch, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile, forwardFile } from './telegram/files'
 import { getSettings, setSettings, AppSettings } from './telegram/settings'
 
 export function registerIpcHandlers(): void {
@@ -79,6 +79,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('files:download', async (_event, groupId: number, messageId: number, filePath: string) => {
     return downloadFile(groupId, messageId, filePath)
+  })
+
+  ipcMain.handle('files:listMore', async (_event, { groupId, offsetId }: { groupId: number; offsetId?: number }) => {
+    return listFilesBatch(groupId, 50, offsetId)
   })
 
   ipcMain.handle('files:download:start', async (event, { downloadId, groupId, messageId, destPath }) => {
