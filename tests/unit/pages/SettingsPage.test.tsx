@@ -1,11 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 import SettingsPage from '../../../src/pages/SettingsPage'
+
+function Wrapper({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider theme={createTheme()}>{children}</ThemeProvider>
+}
 
 const mockSettings = {
   downloadPath: '/tmp',
   createdGroupIds: [],
-  batchSize: 50
+  batchSize: 50,
+  defaultTab: 'created' as const,
 }
 
 beforeEach(() => {
@@ -20,7 +26,7 @@ beforeEach(() => {
 
 describe('SettingsPage batchSize', () => {
   it('should show default batch size of 50', async () => {
-    render(<SettingsPage onBack={vi.fn()} />)
+    render(<SettingsPage onBack={vi.fn()} />, { wrapper: Wrapper })
     await waitFor(() => {
       const input = screen.getByDisplayValue('50')
       expect(input).toBeDefined()
@@ -28,7 +34,7 @@ describe('SettingsPage batchSize', () => {
   })
 
   it('should save updated batch size', async () => {
-    render(<SettingsPage onBack={vi.fn()} />)
+    render(<SettingsPage onBack={vi.fn()} />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(screen.getByDisplayValue('50')).toBeDefined()
     })

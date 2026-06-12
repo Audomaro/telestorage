@@ -13,6 +13,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     globals: true,
-    passWithNoTests: true
+    passWithNoTests: true,
+    deps: {
+      inline: ['@mui/material', '@emotion/react', '@emotion/styled']
+    }
   }
 })

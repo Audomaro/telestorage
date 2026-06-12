@@ -1,48 +1,44 @@
+import Box from '@mui/material/Box'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import ToggleButton from '@mui/material/ToggleButton'
+import Button from '@mui/material/Button'
+import ViewListIcon from '@mui/icons-material/ViewList'
+import GridViewIcon from '@mui/icons-material/GridView'
+import SettingsIcon from '@mui/icons-material/Settings'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { ViewMode, FileFilter } from '../types'
-import styles from './Toolbar.module.css'
 
 interface ToolbarProps {
   viewMode: ViewMode
-  onViewModeChange: (mode: ViewMode) => void
   filter: FileFilter
+  showUpload: boolean
+  onViewModeChange: (mode: ViewMode) => void
   onFilterChange: (filter: FileFilter) => void
   onUpload: () => void
-  readonly?: boolean
+  onSettings?: () => void
 }
 
-const FILTERS: { label: string; value: FileFilter }[] = [
-  { label: 'Todos', value: 'all' },
-  { label: 'Multimedia', value: 'media' },
-  { label: 'Documentos', value: 'documents' },
-]
-
-export default function Toolbar({ viewMode, onViewModeChange, filter, onFilterChange, onUpload, readonly }: ToolbarProps) {
+export default function Toolbar({ viewMode, filter, showUpload, onViewModeChange, onFilterChange, onUpload, onSettings }: ToolbarProps) {
   return (
-    <div className={styles.bar}>
-      <div className={styles.group}>
-        <button
-          onClick={() => onViewModeChange('list')}
-          className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
-        >📋 Lista</button>
-        <button
-          onClick={() => onViewModeChange('gallery')}
-          className={`${styles.viewBtn} ${viewMode === 'gallery' ? styles.viewBtnActive : ''}`}
-        >🖼️ Galería</button>
-      </div>
-
-      <div className={styles.group}>
-        {FILTERS.map(f => (
-          <button
-            key={f.value}
-            onClick={() => onFilterChange(f.value)}
-            className={`${styles.filterBtn} ${filter === f.value ? styles.filterBtnActive : ''}`}
-          >{f.label}</button>
-        ))}
-      </div>
-
-      {!readonly && (
-        <button onClick={onUpload} className={styles.uploadBtn}>+ Subir</button>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 10 }}>
+      <ToggleButtonGroup size="small" value={filter} exclusive onChange={(_, v) => v && onFilterChange(v)}>
+        <ToggleButton value="all">Todos</ToggleButton>
+        <ToggleButton value="media">Multimedia</ToggleButton>
+        <ToggleButton value="documents">Documentos</ToggleButton>
+      </ToggleButtonGroup>
+      <Box sx={{ flex: 1 }} />
+      <ToggleButtonGroup size="small" value={viewMode} exclusive onChange={(_, v) => v && onViewModeChange(v)}>
+        <ToggleButton value="list"><ViewListIcon /></ToggleButton>
+        <ToggleButton value="gallery"><GridViewIcon /></ToggleButton>
+      </ToggleButtonGroup>
+      {showUpload && (
+        <Button variant="contained" size="small" startIcon={<CloudUploadIcon />} onClick={onUpload}>
+          Subir
+        </Button>
       )}
-    </div>
+      {onSettings && (
+        <Button size="small" startIcon={<SettingsIcon />} onClick={onSettings}>Config</Button>
+      )}
+    </Box>
   )
 }

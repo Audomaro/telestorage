@@ -1,123 +1,78 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 import PreviewModal from '../../../src/components/PreviewModal'
 import { TelegramFile } from '../../../src/types'
 
+function Wrapper({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider theme={createTheme()}>{children}</ThemeProvider>
+}
+
 const imageFile: TelegramFile = {
   id: 1, messageId: 1, name: 'foto.jpg', size: 2048,
-  mimeType: 'image/jpeg', date: new Date() as any, groupId: 123
+  mimeType: 'image/jpeg', date: new Date() as any, groupId: 123,
 }
 
 const pdfFile: TelegramFile = {
   id: 2, messageId: 2, name: 'doc.pdf', size: 4096,
-  mimeType: 'application/pdf', date: new Date() as any, groupId: 123
+  mimeType: 'application/pdf', date: new Date() as any, groupId: 123,
 }
 
-const defaultMocks = () => ({
-  onClose: vi.fn(),
-  onDownload: vi.fn(),
-  onDelete: vi.fn(),
-})
-
 describe('PreviewModal', () => {
-  it('should render file info in fallback for non-media files', async () => {
-    const mocks = defaultMocks()
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/doc.pdf')
-    render(<PreviewModal file={pdfFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onLoadOriginal={onLoadOriginal} />)
-    await waitFor(() => {
-      expect(screen.getByText('doc.pdf')).toBeDefined()
-    })
+  it('should render file name in toolbar', async () => {
+    window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/doc.pdf') } as any
+    render(<PreviewModal file={pdfFile} files={[pdfFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper })
+    expect(screen.getByText('doc.pdf')).toBeDefined()
   })
 
-  it('should render image when onLoadOriginal resolves', async () => {
-    const mocks = defaultMocks()
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/foto.jpg')
-    const { container } = render(
-      <PreviewModal file={imageFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onLoadOriginal={onLoadOriginal} />
+  it('should render image when downloadPreview resolves', async () => {
+    window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
+    render(
+      <PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper }
     )
     await waitFor(() => {
-      const img = container.querySelector('img')
+      const img = screen.getByTestId('preview-image')
       expect(img).toBeDefined()
       expect(img?.getAttribute('src')).toBe('/tmp/foto.jpg')
     })
   })
 
-  it('should show loading state initially then emoji fallback for non-media', async () => {
-    const mocks = defaultMocks()
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/doc.pdf')
-    render(<PreviewModal file={pdfFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onLoadOriginal={onLoadOriginal} />)
-    await waitFor(() => {
-      expect(screen.getByText('🖼️')).toBeDefined()
-    })
-  })
-
   it('should call onClose when close button clicked', async () => {
-    const mocks = defaultMocks()
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/foto.jpg')
-    render(<PreviewModal file={imageFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onLoadOriginal={onLoadOriginal} />)
+    window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
+    const onClose = vi.fn()
+    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={onClose} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByText('✕')).toBeDefined()
+      expect(screen.getByLabelText('Cerrar')).toBeDefined()
     })
-    fireEvent.click(screen.getByText('✕'))
-    expect(mocks.onClose).toHaveBeenCalled()
-  })
-
-  it('should show error when onLoadOriginal rejects', async () => {
-    const mocks = defaultMocks()
-    const onLoadOriginal = vi.fn().mockRejectedValue(new Error('Falló la carga'))
-    render(<PreviewModal file={imageFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onLoadOriginal={onLoadOriginal} />)
-    await waitFor(() => {
-      expect(screen.getByText('Falló la carga')).toBeDefined()
-    })
-  })
-
-  it('should call onSaveToDisk when download button clicked with onSaveToDisk', async () => {
-    const mocks = defaultMocks()
-    const onSaveToDisk = vi.fn().mockResolvedValue(undefined)
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/foto.jpg')
-    render(<PreviewModal file={imageFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onSaveToDisk={onSaveToDisk} onLoadOriginal={onLoadOriginal} />)
-    await waitFor(() => {
-      expect(screen.getByText('⬇️')).toBeDefined()
-    })
-    fireEvent.click(screen.getByText('⬇️'))
-    await waitFor(() => {
-      expect(onSaveToDisk).toHaveBeenCalledWith(imageFile, expect.any(Function))
-    })
-  })
-
-  it('should fallback to onDownload when onSaveToDisk is not provided', async () => {
-    const mocks = defaultMocks()
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/foto.jpg')
-    render(<PreviewModal file={imageFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onLoadOriginal={onLoadOriginal} />)
-    await waitFor(() => {
-      expect(screen.getByText('⬇️')).toBeDefined()
-    })
-    fireEvent.click(screen.getByText('⬇️'))
-    expect(mocks.onDownload).toHaveBeenCalledWith(imageFile)
+    fireEvent.click(screen.getByLabelText('Cerrar'))
+    expect(onClose).toHaveBeenCalled()
   })
 
   it('should call onDelete when delete button clicked', async () => {
-    const mocks = defaultMocks()
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/foto.jpg')
-    render(<PreviewModal file={imageFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onLoadOriginal={onLoadOriginal} />)
+    window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
+    const onDelete = vi.fn()
+    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={onDelete} onForward={vi.fn()} />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByText('🗑️')).toBeDefined()
+      expect(screen.getByLabelText('Eliminar')).toBeDefined()
     })
-    fireEvent.click(screen.getByText('🗑️'))
-    expect(mocks.onDelete).toHaveBeenCalledWith(imageFile)
+    fireEvent.click(screen.getByLabelText('Eliminar'))
+    expect(onDelete).toHaveBeenCalledWith(imageFile)
   })
 
-  it('should show saving progress indicator during save', async () => {
-    const mocks = defaultMocks()
-    const onSaveToDisk = vi.fn(() => new Promise<void>(() => {}))
-    const onLoadOriginal = vi.fn().mockResolvedValue('/tmp/foto.jpg')
-    render(<PreviewModal file={imageFile} groupId={123} onClose={mocks.onClose} onDownload={mocks.onDownload} onDelete={mocks.onDelete} onSaveToDisk={onSaveToDisk} onLoadOriginal={onLoadOriginal} />)
+  it('should call onForward when forward button clicked', async () => {
+    window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
+    const onForward = vi.fn()
+    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={onForward} />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByText('⬇️')).toBeDefined()
+      expect(screen.getByLabelText('Reenviar')).toBeDefined()
     })
-    fireEvent.click(screen.getByText('⬇️'))
-    await waitFor(() => {
-      expect(screen.getByText(/guardando/i)).toBeDefined()
-    })
+    fireEvent.click(screen.getByLabelText('Reenviar'))
+    expect(onForward).toHaveBeenCalledWith(imageFile)
+  })
+
+  it('should return null when file is null', () => {
+    window.telegramAPI = { downloadPreview: vi.fn() } as any
+    const { container } = render(<PreviewModal file={null} files={[]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper })
+    expect(container.innerHTML).toBe('')
   })
 })

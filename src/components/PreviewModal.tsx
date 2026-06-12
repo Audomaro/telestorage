@@ -1,125 +1,105 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
+import Tooltip from '@mui/material/Tooltip'
+import CloseIcon from '@mui/icons-material/Close'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import DownloadIcon from '@mui/icons-material/Download'
+import DeleteIcon from '@mui/icons-material/Delete'
+import ForwardIcon from '@mui/icons-material/Forward'
 import { TelegramFile } from '../types'
-import { formatFileSize, formatDate } from '../utils/format'
-import CircularProgress from './CircularProgress'
-import styles from './PreviewModal.module.css'
 
 interface PreviewModalProps {
-  file: TelegramFile
+  file: TelegramFile | null
+  files: TelegramFile[]
   groupId: number
+  isReadOnly: boolean
   onClose: () => void
-  onDownload: (file: TelegramFile) => void
-  onSaveToDisk?: (file: TelegramFile, onProgress: (p: number) => void) => Promise<void>
   onDelete: (file: TelegramFile) => void
-  onForward?: (file: TelegramFile) => void
-  readonly?: boolean
-  hasPrevious?: boolean
-  hasNext?: boolean
-  onPrevious?: () => void
-  onNext?: () => void
-  onLoadOriginal: (file: TelegramFile, onProgress: (p: number) => void) => Promise<string>
+  onForward: (file: TelegramFile) => void
+  onSaveToDisk?: (file: TelegramFile) => void
 }
 
-export default function PreviewModal({ file, groupId, onClose, onDownload, onSaveToDisk, onDelete, onForward, readonly, hasPrevious, hasNext, onPrevious, onNext, onLoadOriginal }: PreviewModalProps) {
-  const isVideo = file.mimeType.startsWith('video/')
-  const isImage = file.mimeType.startsWith('image/')
-  const [saving, setSaving] = useState(false)
-  const [saveProgress, setSaveProgress] = useState(0)
-  const [localPath, setLocalPath] = useState<string | undefined>(undefined)
+export default function PreviewModal({ file, files, groupId, isReadOnly, onClose, onDelete, onForward, onSaveToDisk }: PreviewModalProps) {
+  const [localPath, setLocalPath] = useState('')
   const [loading, setLoading] = useState(false)
-  const [loadProgress, setLoadProgress] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState(0)
+  const cancelledRef = useRef(false)
+
+  const index = file ? files.findIndex(f => f.messageId === file.messageId) : -1
+  const prevFile = index > 0 ? files[index - 1] : null
+  const nextFile = index < files.length - 1 ? files[index + 1] : null
 
   useEffect(() => {
-    let cancelled = false
-    setLocalPath(undefined)
+    if (!file) return
+    setLocalPath('')
     setLoading(true)
-    setLoadProgress(0)
-    setError(null)
-
-    onLoadOriginal(file, (p) => {
-      if (!cancelled) setLoadProgress(p)
-    }).then((path) => {
-      if (!cancelled) {
-        setLocalPath(path)
-        setLoading(false)
-      }
-    }).catch((err: any) => {
-      if (!cancelled) {
-        setError(err.message || 'Error al cargar original')
-        setLoading(false)
-      }
+    setProgress(0)
+    cancelledRef.current = false
+    const ext = file.name.split('.').pop() || 'jpg'
+    window.telegramAPI.downloadPreview(groupId, file.messageId, ext, (p: number) => {
+      if (!cancelledRef.current) setProgress(Math.round(p * 100))
+    }).then(path => {
+      if (!cancelledRef.current) { setLocalPath(path); setLoading(false) }
+    }).catch(() => {
+      if (!cancelledRef.current) setLoading(false)
     })
+    return () => { cancelledRef.current = true }
+  }, [file, groupId])
 
-    return () => { cancelled = true }
-  }, [file.id, groupId])
+  const isPreviewable = file?.mimeType.startsWith('image/') || file?.mimeType.startsWith('video/')
+  const isVideo = file?.mimeType.startsWith('video/')
 
-  const handleSave = async () => {
-    if (!onSaveToDisk) {
-      onDownload(file)
-      return
-    }
-    setSaving(true)
-    setSaveProgress(0)
-    try {
-      await onSaveToDisk(file, setSaveProgress)
-      alert('Archivo guardado en la carpeta de descargas')
-    } catch {
-      alert('Error al guardar el archivo')
-    } finally {
-      setSaving(false)
-    }
-  }
+  const handlePrev = () => { if (prevFile && onSaveToDisk) onSaveToDisk(prevFile) }
+  const handleNext = () => { if (nextFile && onSaveToDisk) onSaveToDisk(nextFile) }
+
+  if (!file) return null
 
   return (
-    <div className={styles.overlay} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div className={styles.toolbar}>
-        {onForward && (
-          <button onClick={() => onForward(file)} title="Reenviar" className={styles.toolbarBtn}>↗️</button>
+    <Dialog open fullScreen onClose={onClose}>
+      <Box sx={{ display: 'flex', alignItems: 'center', px: 1, borderBottom: 1, borderColor: 'divider' }}>
+        <IconButton aria-label="Cerrar" onClick={onClose}><CloseIcon /></IconButton>
+        {!isReadOnly && (
+          <Tooltip title="Reenviar"><IconButton aria-label="Reenviar" onClick={() => onForward(file)}><ForwardIcon /></IconButton></Tooltip>
         )}
-        {!readonly && (
-          <button onClick={() => onDelete(file)} title="Eliminar" className={styles.toolbarBtn}>🗑️</button>
+        {!isReadOnly && (
+          <Tooltip title="Eliminar"><IconButton aria-label="Eliminar" onClick={() => { onClose(); onDelete(file) }}><DeleteIcon /></IconButton></Tooltip>
         )}
-        <button onClick={handleSave} title="Guardar en disco" className={styles.toolbarBtn}>
-          {saving ? `${Math.round(saveProgress * 100)}%` : '⬇️'}
-        </button>
-        <button onClick={onClose} title="Cerrar" className={`${styles.toolbarBtn} ${styles.toolbarBtnClose}`}>✕</button>
-      </div>
-
-      <div className={styles.content}>
-        {hasPrevious && (
-          <button onClick={onPrevious} className={styles.navArrow} style={{ left: 8 }}>‹</button>
+        <Tooltip title="Guardar en disco"><IconButton aria-label="Guardar en disco" onClick={() => onSaveToDisk?.(file)}><DownloadIcon /></IconButton></Tooltip>
+        <Box sx={{ flex: 1 }} />
+        <Typography variant="body2" color="text.secondary">{file.name}</Typography>
+      </Box>
+      <DialogContent sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+        {loading && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <CircularProgress variant="determinate" value={progress} size={60} />
+          </Box>
         )}
-        {hasNext && (
-          <button onClick={onNext} className={styles.navArrow} style={{ right: 8 }}>›</button>
+        {!loading && localPath && isPreviewable && !isVideo && (
+          <Box component="img" src={localPath} data-testid="preview-image" sx={{ maxWidth: '90%', maxHeight: '80vh', objectFit: 'contain' }} />
         )}
-        {loading ? (
-          <div className={styles.loadingOverlay}>
-            <CircularProgress size={60} progress={loadProgress} />
-          </div>
-        ) : error ? (
-          <div className={styles.errorText}>{error}</div>
-        ) : localPath && isImage ? (
-          <img src={localPath} alt={file.name} className={styles.media} />
-        ) : localPath && isVideo ? (
-          <video src={localPath} controls autoPlay className={styles.mediaVideo} />
-        ) : (
-          <>
-            <div className={styles.emoji}>{isVideo ? '🎬' : '🖼️'}</div>
-            <div className={styles.fileName}>{file.name}</div>
-            <div className={styles.fileMeta}>
-              {formatFileSize(file.size)} · {file.mimeType} · {formatDate(new Date(file.date))}
-            </div>
-          </>
+        {!loading && localPath && isVideo && (
+          <Box component="video" src={localPath} controls sx={{ maxWidth: '90%', maxHeight: '80vh' }} />
         )}
-      </div>
-
-      {saving && (
-        <div className={styles.progressBar}>
-          <CircularProgress size={40} progress={saveProgress} />
-          <span className={styles.progressText}>Guardando...</span>
-        </div>
-      )}
-    </div>
+        {!loading && !localPath && (
+          <Typography color="text.secondary">{file.name}</Typography>
+        )}
+        {prevFile && (
+          <IconButton onClick={handlePrev} sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
+            <ChevronLeftIcon />
+          </IconButton>
+        )}
+        {nextFile && (
+          <IconButton onClick={handleNext} sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
+            <ChevronRightIcon />
+          </IconButton>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }

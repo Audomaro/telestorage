@@ -1,101 +1,74 @@
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import PlayCircleIcon from '@mui/icons-material/PlayCircle'
 import { TelegramFile } from '../types'
-import { isMedia } from '../utils/fileTypes'
-import styles from './FileGrid.module.css'
 
 interface FileGridProps {
   files: TelegramFile[]
-  groupId: number
   onPreview: (file: TelegramFile) => void
 }
 
-function getGradient(mimeType: string, index: number): string {
-  const gradients: Record<string, [string, string]> = {
-    'image/jpeg': ['#667eea', '#764ba2'],
-    'image/png':  ['#f093fb', '#f5576c'],
-    'image/gif':  ['#4facfe', '#00f2fe'],
-    'video/mp4':  ['#43e97b', '#38f9d7'],
-    'video/quicktime': ['#fa709a', '#fee140'],
-    'video/x-matroska': ['#a18cd1', '#fbc2eb'],
-  }
-  const g = gradients[mimeType] || ['#667eea', '#764ba2']
-  return g[index]
-}
-
-export default function FileGrid({ files, groupId, onPreview }: FileGridProps) {
-  const mediaFiles = files.filter(f => isMedia(f.mimeType))
-  const [thumbPaths, setThumbPaths] = useState<Record<number, string>>({})
-  const loadingRef = useRef<Set<number>>(new Set())
-  const cardRefs = useRef<Map<number, HTMLElement>>(new Map())
-  const observerRef = useRef<IntersectionObserver | null>(null)
-
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        const id = Number((entry.target as HTMLElement).dataset.fileId)
-        if (entry.isIntersecting && id && !loadingRef.current.has(id) && !thumbPaths[id]) {
-          loadingRef.current.add(id)
-          window.telegramAPI.downloadThumbnail(groupId, id).then(path => {
-            setThumbPaths(prev => ({ ...prev, [id]: `file:///${path.replace(/\\/g, '/')}` }))
-          }).catch(() => {
-            loadingRef.current.delete(id)
-          })
-        }
-      }
-    }, { rootMargin: '100px' })
-
-    return () => observerRef.current?.disconnect()
-  }, [groupId])
-
-  useEffect(() => {
-    for (const [id, el] of cardRefs.current.entries()) {
-      if (observerRef.current) {
-        observerRef.current.unobserve(el)
-        observerRef.current.observe(el)
-      }
-    }
-  }, [mediaFiles.length])
-
-  useEffect(() => {
-    loadingRef.current.clear()
-    setThumbPaths({})
-  }, [groupId])
-
-  if (mediaFiles.length === 0) {
-    return <div className={styles.empty}>Sin archivos multimedia</div>
+export default function FileGrid({ files, onPreview }: FileGridProps) {
+  if (files.length === 0) {
+    return <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin archivos multimedia</Typography>
   }
 
   return (
-    <div className={styles.grid}>
-      {mediaFiles.map(f => {
-        const thumbUrl = thumbPaths[f.id] || f.thumbnail || null
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 1, p: 1 }}>
+      {files.map(f => (
+        <GridCard key={f.messageId} file={f} onPreview={onPreview} />
+      ))}
+    </Box>
+  )
+}
 
-        return (
-          <div
-            key={f.id}
-            ref={(el) => { if (el) cardRefs.current.set(f.id, el) }}
-            data-file-id={f.id}
-            onClick={() => onPreview(f)}
-            className={styles.card}
-            style={{
-              background: thumbUrl
-                ? '#0d0d1a'
-                : `linear-gradient(135deg, ${getGradient(f.mimeType, 0)}, ${getGradient(f.mimeType, 1)})`
-            }}
-          >
-            {thumbUrl ? (
-              f.mimeType.startsWith('video/') ? (
-                <img src={thumbUrl} alt="" className={styles.thumb} />
-              ) : (
-                <img src={thumbUrl} alt="" className={styles.thumb} />
-              )
-            ) : null}
-            {f.mimeType.startsWith('video/') && (
-              <div className={styles.videoBadge}>▶️</div>
-            )}
-          </div>
-        )
-      })}
-    </div>
+function gradientForMime(mimeType: string): string {
+  if (mimeType.startsWith('image/')) return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  if (mimeType.startsWith('video/')) return 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+  return 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+}
+
+function GridCard({ file, onPreview }: { file: TelegramFile; onPreview: (f: TelegramFile) => void }) {
+  const imgRef = useRef<HTMLDivElement>(null)
+  const [thumbnail, setThumbnail] = useState('')
+
+  useEffect(() => {
+    const el = imgRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          window.telegramAPI.downloadThumbnail(file.groupId, file.messageId).then(url => {
+            if (url) setThumbnail(url)
+          })
+          obs.disconnect()
+        }
+      })
+    }, { rootMargin: '200px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [file.groupId, file.messageId])
+
+  return (
+    <Box
+      ref={imgRef}
+      onClick={() => onPreview(file)}
+      sx={{
+        position: 'relative', aspectRatio: '1', borderRadius: 2, overflow: 'hidden', cursor: 'pointer',
+        background: thumbnail ? 'none' : gradientForMime(file.mimeType), backgroundSize: 'cover',
+        '&:hover': { opacity: 0.85 },
+      }}
+    >
+      {thumbnail && (
+        <Box component="img" src={thumbnail} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      )}
+      {file.mimeType.startsWith('video/') && (
+        <IconButton sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'white', bgcolor: 'rgba(0,0,0,0.4)', '&:hover': { bgcolor: 'rgba(0,0,0,0.6)' } }}>
+          <PlayCircleIcon fontSize="large" />
+        </IconButton>
+      )}
+    </Box>
   )
 }

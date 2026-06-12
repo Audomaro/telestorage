@@ -1,140 +1,111 @@
-import { useState, DragEvent } from 'react'
-import { formatFileSize } from '../utils/format'
-import styles from './UploadDialog.module.css'
-
-interface FileEntry {
-  path?: string
-  name: string
-  size: number
-  data?: number[]
-}
+import { useState, useRef, DragEvent } from 'react'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import IconButton from '@mui/material/IconButton'
+import LinearProgress from '@mui/material/LinearProgress'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import CloseIcon from '@mui/icons-material/Close'
+import { useSnackbar } from '../theme/SnackbarContext'
 
 interface UploadDialogProps {
   groupId: number
-  onUpload: () => void
   onClose: () => void
+  onUploadComplete: () => void
 }
 
-const MAX_DRAG_MEMORY = 100 * 1024 * 1024 // 100 MB
-
-export default function UploadDialog({ groupId, onUpload, onClose }: UploadDialogProps) {
-  const [dragging, setDragging] = useState(false)
-  const [files, setFiles] = useState<FileEntry[]>([])
+export default function UploadDialog({ groupId, onClose, onUploadComplete }: UploadDialogProps) {
+  const [files, setFiles] = useState<{ name: string; path?: string; data?: number[] }[]>([])
   const [uploading, setUploading] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const { showSnackbar } = useSnackbar()
 
-  const handleClick = async () => {
-    try {
-      const paths = await window.telegramAPI.pickFiles()
-      if (paths.length > 0) {
-        const entries: FileEntry[] = paths.map(p => ({
-          path: p,
-          name: p.split('\\').pop()?.split('/').pop() || p,
-          size: 0
-        }))
-        setFiles(prev => [...prev, ...entries])
-      }
-    } catch {
-      // user cancelled
+  const handlePick = async () => {
+    const paths = await window.telegramAPI.pickFiles()
+    if (paths) {
+      setFiles(prev => [...prev, ...paths.map(p => ({ name: p.split(/[\\/]/).pop() || p, path: p }))])
     }
   }
 
-  const handleDrop = async (e: DragEvent) => {
+  const handleDrop = (e: DragEvent) => {
     e.preventDefault()
-    setDragging(false)
-
-    for (let i = 0; i < e.dataTransfer.files.length; i++) {
-      const f = e.dataTransfer.files[i]
-      const filePath = (f as any).path
-      if (filePath) {
-        setFiles(prev => [...prev, { path: filePath, name: f.name, size: f.size }])
-      } else if (f.size > MAX_DRAG_MEMORY) {
-        alert(`"${f.name}" es demasiado grande para arrastrar (máx. 100 MB)`)
-      } else {
-        const buf = await f.arrayBuffer()
-        const data = Array.from(new Uint8Array(buf))
-        setFiles(prev => [...prev, { name: f.name, size: f.size, data }])
+    const dropped = Array.from(e.dataTransfer.files).filter(f => {
+      if ((f as any).path) return true
+      if (f.size > 100 * 1024 * 1024) {
+        showSnackbar(`"${f.name}" es demasiado grande para arrastrar (máx. 100 MB)`, 'warning')
+        return false
       }
-    }
-  }
-
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index))
+      return true
+    })
+    Promise.all(dropped.map(f => {
+      if ((f as any).path) return { name: f.name, path: (f as any).path }
+      return f.arrayBuffer().then(buf => ({ name: f.name, data: Array.from(new Uint8Array(buf)) }))
+    })).then(results => setFiles(prev => [...prev, ...results]))
   }
 
   const handleUpload = async () => {
     if (files.length === 0 || uploading) return
     setUploading(true)
-
     const errors: string[] = []
-
-    const clickFiles = files.filter(f => f.path).map(f => f.path!)
-    if (clickFiles.length > 0) {
-      const results = await window.telegramAPI.uploadMultipleFiles(groupId, clickFiles)
-      for (const r of results) {
-        if (r.error) errors.push(`${r.name}: ${r.error}`)
-      }
-    }
-
     for (const f of files) {
-      if (!f.data) continue
       try {
-        await window.telegramAPI.uploadTempFile(groupId, f.name, f.data)
-      } catch (err: any) {
-        errors.push(`${f.name}: ${err.message}`)
+        if (f.path) {
+          await window.telegramAPI.uploadFile(groupId, f.path)
+        } else if (f.data) {
+          await window.telegramAPI.uploadTempFile(groupId, f.name, f.data)
+        }
+      } catch {
+        errors.push(f.name)
       }
     }
-
-    if (errors.length > 0) {
-      alert(`Errores al subir:\n${errors.join('\n')}`)
-    }
-    onUpload()
-    setFiles([])
     setUploading(false)
+    if (errors.length > 0) {
+      showSnackbar(`Errores al subir:\n${errors.join(', ')}`, 'error')
+    }
+    onUploadComplete()
   }
 
   return (
-    <div className={styles.overlay} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div className={styles.dialog}>
-        <h3 className={styles.heading}>
-          {uploading
-            ? 'Subiendo archivos...'
-            : files.length > 0
-              ? `${files.length} archivo${files.length !== 1 ? 's' : ''} seleccionado${files.length !== 1 ? 's' : ''}`
-              : 'Subir archivos'}
-        </h3>
-
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-          onDragLeave={() => setDragging(false)}
+    <Dialog open onClose={uploading ? undefined : onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{uploading ? 'Subiendo archivos...' : 'Subir archivos'}</DialogTitle>
+      <DialogContent>
+        <Box
           onDrop={handleDrop}
-          onClick={uploading ? undefined : handleClick}
-          className={`${styles.dropZone} ${dragging ? styles.dropZoneActive : ''} ${uploading ? styles.dropZoneDisabled : ''}`}
+          onDragOver={e => e.preventDefault()}
+          sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 2, p: 4, textAlign: 'center', mb: 2, cursor: 'pointer' }}
+          onClick={() => inputRef.current?.click()}
         >
-          <div className={styles.dropIcon}>📁</div>
-          <div className={styles.dropText}>
-            Arrastra archivos aquí o haz clic para seleccionar
-          </div>
-        </div>
-
+          <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+          <Typography color="text.secondary">Arrastra archivos aquí o haz clic para seleccionar</Typography>
+          <input ref={inputRef} type="file" multiple hidden onChange={handlePick} />
+        </Box>
         {files.length > 0 && (
-          <div className={styles.fileList}>
+          <List dense>
             {files.map((f, i) => (
-              <div key={i} className={styles.fileRow}>
-                <span className={styles.fileName}>{f.name}</span>
-                {f.size > 0 && <span className={styles.fileSize}>{formatFileSize(f.size)}</span>}
-                <button className={styles.removeBtn} disabled={uploading} onClick={() => removeFile(i)}>✕</button>
-              </div>
+              <ListItem key={i} secondaryAction={
+                <IconButton edge="end" size="small" onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              }>
+                <Typography variant="body2">{f.name}</Typography>
+              </ListItem>
             ))}
-          </div>
+          </List>
         )}
-
-        <div className={styles.footer}>
-          <button onClick={onClose} disabled={uploading} className={styles.cancelBtn}>Cancelar</button>
-          <button onClick={handleUpload} disabled={files.length === 0 || uploading} className={styles.uploadBtn}>
-            {uploading ? 'Subiendo...' : `Subir ${files.length > 0 ? `${files.length} archivo${files.length !== 1 ? 's' : ''}` : ''}`}
-          </button>
-        </div>
-      </div>
-    </div>
+        {uploading && <LinearProgress sx={{ mt: 1 }} />}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} disabled={uploading}>Cancelar</Button>
+        <Button onClick={handleUpload} variant="contained" disabled={files.length === 0 || uploading}>
+          {uploading ? 'Subiendo...' : 'Subir'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }

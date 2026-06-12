@@ -1,28 +1,47 @@
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import DownloadIcon from '@mui/icons-material/Download'
+import DeleteIcon from '@mui/icons-material/Delete'
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
+import ImageIcon from '@mui/icons-material/Image'
+import MovieIcon from '@mui/icons-material/Movie'
 import { TelegramFile } from '../types'
-import { formatFileSize } from '../utils/format'
-import { fileTypeLabel } from '../utils/fileTypes'
-import styles from './FileListItem.module.css'
+import { formatFileSize, formatDate } from '../utils/format'
 
 interface FileListItemProps {
   file: TelegramFile
+  isReadOnly: boolean
   onDownload: (file: TelegramFile) => void
   onDelete: (file: TelegramFile) => void
-  readonly?: boolean
 }
 
-export default function FileListItem({ file, onDownload, onDelete, readonly }: FileListItemProps) {
+function fileIcon(mimeType: string) {
+  if (mimeType.startsWith('image/')) return <ImageIcon fontSize="small" />
+  if (mimeType.startsWith('video/')) return <MovieIcon fontSize="small" />
+  return <InsertDriveFileIcon fontSize="small" />
+}
+
+export default function FileListItem({ file, isReadOnly, onDownload, onDelete }: FileListItemProps) {
   return (
-    <div className={styles.row}>
-      <span className={styles.icon}>{fileTypeLabel(file.mimeType)}</span>
-      <span className={styles.name}>{file.name}</span>
-      <span className={styles.size}>{formatFileSize(file.size)}</span>
-      <span className={styles.date}>{new Date(file.date).toLocaleDateString()}</span>
-      <span className={styles.actions}>
-        <button onClick={() => onDownload(file)} className={styles.actionBtn} title="Descargar">⬇️</button>
-        {!readonly && (
-          <button onClick={() => onDelete(file)} className={styles.actionBtn} title="Eliminar">🗑️</button>
+    <TableRow hover>
+      <TableCell sx={{ width: 36, p: 1 }}>{fileIcon(file.mimeType)}</TableCell>
+      <TableCell sx={{ p: 1 }}>
+        <Typography variant="body2" noWrap>{file.name}</Typography>
+      </TableCell>
+      <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
+        <Typography variant="body2" color="text.secondary">{formatFileSize(file.size)}</Typography>
+      </TableCell>
+      <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
+        <Typography variant="body2" color="text.secondary">{formatDate(file.date)}</Typography>
+      </TableCell>
+      <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
+        <IconButton size="small" onClick={() => onDownload(file)} title="Descargar"><DownloadIcon fontSize="small" /></IconButton>
+        {!isReadOnly && (
+          <IconButton size="small" onClick={() => onDelete(file)} title="Eliminar"><DeleteIcon fontSize="small" /></IconButton>
         )}
-      </span>
-    </div>
+      </TableCell>
+    </TableRow>
   )
 }

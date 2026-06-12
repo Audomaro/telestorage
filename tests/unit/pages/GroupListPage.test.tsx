@@ -1,6 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 import GroupListPage from '../../../src/pages/GroupListPage'
+
+function Wrapper({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider theme={createTheme()}>{children}</ThemeProvider>
+}
 
 beforeEach(() => {
   localStorage.clear()
@@ -33,7 +38,7 @@ describe('GroupListPage app filter', () => {
   })
 
   it('should show only app-created groups by default', async () => {
-    render(<GroupListPage />)
+    render(<GroupListPage />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(screen.getByText('App Group')).toBeDefined()
       expect(screen.getByText('Another App')).toBeDefined()
@@ -42,7 +47,7 @@ describe('GroupListPage app filter', () => {
   })
 
   it('should show all groups when tab is changed to Activos', async () => {
-    render(<GroupListPage />)
+    render(<GroupListPage />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(screen.getByText('App Group')).toBeDefined()
     })
@@ -57,7 +62,7 @@ describe('GroupListPage app filter', () => {
     window.telegramAPI.getGroups = vi.fn().mockResolvedValue([
       { id: 2, title: 'Other Group', isArchived: false, isOwner: false, isAppCreated: false },
     ])
-    render(<GroupListPage />)
+    render(<GroupListPage />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(screen.getByText(/No hay grupos en TeleStorage/i)).toBeDefined()
     })
@@ -66,12 +71,12 @@ describe('GroupListPage app filter', () => {
 
 describe('GroupListPage', () => {
   it('should show loading state initially', () => {
-    render(<GroupListPage />)
+    render(<GroupListPage />, { wrapper: Wrapper })
     expect(screen.getByText('Cargando grupos...')).toBeDefined()
   })
 
   it('should not load archived groups on initial load', async () => {
-    render(<GroupListPage />)
+    render(<GroupListPage />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(window.telegramAPI.getGroups).toHaveBeenCalled()
       expect(window.telegramAPI.getArchivedGroups).not.toHaveBeenCalled()
@@ -79,7 +84,7 @@ describe('GroupListPage', () => {
   })
 
   it('should load archived groups when tab is clicked', async () => {
-    render(<GroupListPage />)
+    render(<GroupListPage />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(screen.queryByText('Cargando grupos...')).toBeNull()
     })

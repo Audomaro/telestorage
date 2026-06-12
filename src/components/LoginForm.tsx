@@ -1,5 +1,10 @@
 import { useState, FormEvent } from 'react'
-import styles from './LoginForm.module.css'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
+import StorageIcon from '@mui/icons-material/Storage'
 
 interface LoginFormProps {
   onSendCode: (phone: string) => void
@@ -28,68 +33,39 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, codeHa
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      <h1 className={styles.title}>TeleStorage</h1>
-      
-      {!codeHash && !needs2FA && (
-        <div className={styles.field}>
-          <label className={styles.label}>Número de teléfono</label>
-          <input
-            type="tel"
-            placeholder="+52 555 123 4567"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            disabled={loading}
-            className={styles.input}
-            autoFocus
-          />
-        </div>
-      )}
-
-      {codeHash && !needs2FA && (
-        <div className={styles.field}>
-          <label className={styles.label}>Código de verificación</label>
-          <p className={styles.hint}>Enviamos un código a {phone}</p>
-          <input
-            type="text"
-            placeholder="Código"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            disabled={loading}
-            className={styles.input}
-            autoFocus
-          />
-        </div>
-      )}
-
-      {needs2FA && (
-        <div className={styles.field}>
-          <label className={styles.label}>Contraseña 2FA</label>
-          <p className={styles.hint}>Tu cuenta tiene verificación en dos pasos</p>
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            className={styles.input}
-            autoFocus
-          />
-        </div>
-      )}
-
-      {error && (
-        <div className={styles.errorBox}>{error}</div>
-      )}
-
-      <button
-        type="submit"
-        disabled={loading}
-        className={styles.submitBtn}
-        style={{ background: loading ? '#A5D6A7' : '#4CAF50' }}
-      >
-        {loading ? 'Procesando...' : needs2FA ? 'Iniciar sesión' : codeHash ? 'Verificar código' : 'Enviar código'}
-      </button>
-    </form>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', px: 2 }}>
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+        <StorageIcon sx={{ fontSize: 48, color: 'primary.main' }} />
+        <Typography variant="h5">TeleStorage</Typography>
+        {!codeHash && !needs2FA && (
+          <TextField label="Número de teléfono" placeholder="+52 555 123 4567" fullWidth
+            value={phone} onChange={e => setPhone(e.target.value)}
+            disabled={loading} autoFocus />
+        )}
+        {codeHash && !needs2FA && (
+          <>
+            <Typography variant="body2" color="text.secondary">
+              Enviamos un código a {phone}
+            </Typography>
+            <TextField label="Código de verificación" placeholder="Código" fullWidth
+              value={code} onChange={e => setCode(e.target.value)} disabled={loading} autoFocus />
+          </>
+        )}
+        {needs2FA && (
+          <>
+            <Typography variant="body2" color="text.secondary">
+              Tu cuenta tiene verificación en dos pasos
+            </Typography>
+            <TextField label="Contraseña 2FA" type="password" placeholder="Contraseña" fullWidth
+              value={password} onChange={e => setPassword(e.target.value)} disabled={loading} autoFocus />
+          </>
+        )}
+        {error && <Typography color="error" variant="body2">{error}</Typography>}
+        <Button variant="contained" fullWidth type="submit" disabled={loading} sx={{ mt: 1 }}>
+          {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+          {loading ? 'Procesando...' : needs2FA ? 'Iniciar sesión' : codeHash ? 'Verificar código' : 'Enviar código'}
+        </Button>
+      </form>
+    </Box>
   )
 }

@@ -1,30 +1,14 @@
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp']
-const VIDEO_TYPES = ['video/mp4', 'video/avi', 'video/mkv', 'video/webm', 'video/quicktime']
-const DOCUMENT_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'text/plain',
-  'application/zip',
-  'application/x-rar-compressed',
-  'application/x-7z-compressed'
-]
-
 export function isMedia(mimeType: string): boolean {
-  return IMAGE_TYPES.includes(mimeType) || VIDEO_TYPES.includes(mimeType)
+  return mimeType.startsWith('image/') || mimeType.startsWith('video/')
 }
 
 export function isDocument(mimeType: string): boolean {
-  return DOCUMENT_TYPES.includes(mimeType)
+  return /^(application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument|application\/vnd\.ms-excel|text\/plain|application\/zip|application\/x-rar|application\/x-7z-compressed)/.test(mimeType)
 }
 
 export function fileTypeLabel(mimeType: string): string {
-  if (IMAGE_TYPES.includes(mimeType)) return '🖼️'
-  if (VIDEO_TYPES.includes(mimeType)) return '🎬'
-  if (DOCUMENT_TYPES.includes(mimeType)) return '📄'
-  return '📦'
+  if (mimeType.startsWith('image/')) return 'image'
+  if (mimeType.startsWith('video/')) return 'video'
+  if (mimeType.startsWith('text/') || mimeType.includes('pdf') || mimeType.includes('document')) return 'document'
+  return 'archive'
 }

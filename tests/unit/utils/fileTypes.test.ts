@@ -26,19 +26,19 @@ describe('isDocument', () => {
 })
 
 describe('fileTypeLabel', () => {
-  it('should return 🖼️ for images', () => {
-    expect(fileTypeLabel('image/jpeg')).toBe('🖼️')
+  it('should return "image" for images', () => {
+    expect(fileTypeLabel('image/jpeg')).toBe('image')
   })
 
-  it('should return 🎬 for videos', () => {
-    expect(fileTypeLabel('video/mp4')).toBe('🎬')
+  it('should return "video" for videos', () => {
+    expect(fileTypeLabel('video/mp4')).toBe('video')
   })
 
-  it('should return 📄 for documents', () => {
-    expect(fileTypeLabel('application/pdf')).toBe('📄')
+  it('should return "document" for documents', () => {
+    expect(fileTypeLabel('application/pdf')).toBe('document')
   })
 
-  it('should return 📦 for unknown', () => {
-    expect(fileTypeLabel('application/octet-stream')).toBe('📦')
+  it('should return "archive" for unknown', () => {
+    expect(fileTypeLabel('application/octet-stream')).toBe('archive')
   })
 })

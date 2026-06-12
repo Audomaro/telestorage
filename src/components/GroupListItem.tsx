@@ -1,6 +1,14 @@
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Typography from '@mui/material/Typography'
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import GroupIcon from '@mui/icons-material/Group'
 import { TelegramGroup } from '../types'
-import { formatFileSize } from '../utils/format'
-import styles from './GroupListItem.module.css'
 
 interface GroupListItemProps {
   group: TelegramGroup
@@ -8,46 +16,40 @@ interface GroupListItemProps {
   onDelete?: (group: TelegramGroup) => void
 }
 
+function getInitials(title: string): string {
+  return title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+}
+
 export default function GroupListItem({ group, onClick, onDelete }: GroupListItemProps) {
-  const initials = group.title.charAt(0).toUpperCase()
-  const bgColor = group.isOwner ? '#4CAF50' : '#FF9800'
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onDelete?.(group)
-  }
-
   return (
-    <div
-      onClick={() => onClick(group)}
-      className={styles.item}
-    >
-      <div
-        className={styles.avatar}
-        style={{ background: bgColor }}
-      >
-        {initials}
-      </div>
-      <div className={styles.info}>
-        <div className={styles.title}>
-          {group.title}
-          <span
-            className={styles.badge}
-            style={{ background: bgColor }}
-          >
-            {group.isOwner ? 'Propio' : 'Tercero'}
-          </span>
-        </div>
-        <div className={styles.meta}>
-          {group.totalSize ? formatFileSize(group.totalSize) : ''}
-          {group.totalSize && !group.isOwner ? ' · ' : ''}
-          {!group.isOwner && 'Solo lectura'}
-          {group.isArchived && (group.totalSize || !group.isOwner ? ' · ' : '') + 'Archivado'}
-        </div>
-      </div>
-      {group.isOwner && onDelete && (
-        <button onClick={handleDelete} className={styles.deleteBtn} title="Eliminar grupo">🗑️</button>
-      )}
-    </div>
+    <Card sx={{ mb: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => onClick(group)}>
+      <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Avatar sx={{ bgcolor: group.isOwner ? 'primary.main' : '#FF9800', width: 40, height: 40, fontSize: 16 }}>
+          {getInitials(group.title)}
+        </Avatar>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="body1" noWrap>{group.title}</Typography>
+          <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
+            <Chip
+              label={group.isOwner ? 'Propio' : 'Tercero'}
+              color={group.isOwner ? 'primary' : 'warning'}
+              size="small"
+              icon={group.isOwner ? <CheckCircleIcon /> : <GroupIcon />}
+            />
+            {!group.isOwner && (
+              <Chip label="Solo lectura" variant="outlined" size="small" />
+            )}
+            {group.isArchived && (
+              <Chip label="Archivado" variant="outlined" size="small" />
+            )}
+          </Box>
+        </Box>
+        {onDelete && group.isOwner && (
+          <IconButton size="small" onClick={e => { e.stopPropagation(); onDelete(group) }}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        )}
+      </CardContent>
+    </Card>
   )
 }

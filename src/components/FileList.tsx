@@ -1,30 +1,40 @@
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import { TelegramFile } from '../types'
 import FileListItem from './FileListItem'
-import styles from './FileList.module.css'
 
 interface FileListProps {
   files: TelegramFile[]
+  isReadOnly: boolean
   onDownload: (file: TelegramFile) => void
   onDelete: (file: TelegramFile) => void
-  readonly?: boolean
 }
 
-export default function FileList({ files, onDownload, onDelete, readonly }: FileListProps) {
+export default function FileList({ files, isReadOnly, onDownload, onDelete }: FileListProps) {
   if (files.length === 0) {
-    return <div className={styles.container}>Sin archivos</div>
+    return <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin archivos</Typography>
   }
 
   return (
-    <div>
-      {files.map(f => (
-        <FileListItem
-          key={f.id}
-          file={f}
-          onDownload={onDownload}
-          onDelete={onDelete}
-          readonly={readonly}
-        />
-      ))}
-    </div>
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell sx={{ width: 36, p: 1 }} />
+          <TableCell sx={{ p: 1 }}>Nombre</TableCell>
+          <TableCell sx={{ p: 1 }}>Tamaño</TableCell>
+          <TableCell sx={{ p: 1 }}>Fecha</TableCell>
+          <TableCell sx={{ p: 1 }}>Acciones</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {files.map(f => (
+          <FileListItem key={f.messageId} file={f} isReadOnly={isReadOnly} onDownload={onDownload} onDelete={onDelete} />
+        ))}
+      </TableBody>
+    </Table>
   )
 }

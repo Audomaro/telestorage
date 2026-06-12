@@ -1,15 +1,21 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import CircularProgress from '@mui/material/CircularProgress'
 import { TelegramGroup, TelegramFile, ViewMode, FileFilter } from '../types'
 import Toolbar from '../components/Toolbar'
 import FileList from '../components/FileList'
 import FileGrid from '../components/FileGrid'
 import PreviewModal from '../components/PreviewModal'
 import UploadDialog from '../components/UploadDialog'
-import ConfirmDialog from '../components/ConfirmDialog'
-import CircularProgress from '../components/CircularProgress'
 import { isMedia, isDocument } from '../utils/fileTypes'
-import { getExtension } from '../utils/format'
-import styles from './GroupFilesPage.module.css'
+import { useSnackbar } from '../theme/SnackbarContext'
 
 interface GroupFilesPageProps {
   group: TelegramGroup
@@ -33,6 +39,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
   const loadingMoreRef = useRef(false)
   const hasMoreRef = useRef(true)
   const offsetRef = useRef<number | undefined>(undefined)
+  const { showSnackbar } = useSnackbar()
 
   useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
   useEffect(() => { hasMoreRef.current = hasMore }, [hasMore])
@@ -97,37 +104,31 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     return result
   }, [allFiles, filter])
 
-  const handleDownload = async (file: TelegramFile, onProgress?: (p: number) => void) => {
+  const handleDownload = async (file: TelegramFile) => {
     try {
       const settings = await window.telegramAPI.getSettings()
       const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
-      if (onProgress) {
-        await window.telegramAPI.downloadFileWithProgress(group.id, file.messageId, destPath, onProgress)
-      } else {
-        await window.telegramAPI.downloadFile(group.id, file.messageId, destPath)
-      }
+      await window.telegramAPI.downloadFile(group.id, file.messageId, destPath)
     } catch (err: any) {
-      alert(err.message || 'Error al descargar')
+      showSnackbar(err.message || 'Error al descargar', 'error')
     }
   }
 
-  const handleGridPreview = useCallback(async (file: TelegramFile, onProgress: (p: number) => void): Promise<string> => {
-    const ext = getExtension(file.mimeType)
-    const localPath = await window.telegramAPI.downloadPreview(group.id, file.messageId, ext, onProgress)
-    return `file:///${localPath.replace(/\\/g, '/')}`
-  }, [group.id])
-
-  const handleSaveToDisk = useCallback(async (file: TelegramFile, onProgress: (p: number) => void): Promise<void> => {
-    const settings = await window.telegramAPI.getSettings()
-    const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
-    await window.telegramAPI.downloadFileWithProgress(group.id, file.messageId, destPath, onProgress)
-  }, [group.id])
+  const handleSaveToDisk = async (file: TelegramFile) => {
+    try {
+      const settings = await window.telegramAPI.getSettings()
+      const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
+      await window.telegramAPI.downloadFile(group.id, file.messageId, destPath)
+    } catch (err: any) {
+      showSnackbar(err.message || 'Error al guardar', 'error')
+    }
+  }
 
   const handlePreviewOpen = (file: TelegramFile) => {
     setPreviewFile(file)
   }
 
-  const handleDelete = async (file: TelegramFile) => {
+  const handleDelete = (file: TelegramFile) => {
     setConfirmDeleteFile(file)
   }
 
@@ -140,7 +141,7 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
       setConfirmDeleteFile(null)
       loadInitialFiles()
     } catch (err: any) {
-      alert(err.message || 'Error al eliminar')
+      showSnackbar(err.message || 'Error al eliminar', 'error')
     } finally {
       setDeleting(false)
     }
@@ -151,95 +152,76 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
     if (!targetId) return
     try {
       await window.telegramAPI.forwardFile(group.id, Number(targetId), file.messageId)
-      alert('Archivo reenviado')
+      showSnackbar('Archivo reenviado', 'success')
     } catch (err: any) {
-      alert(err.message || 'Error al reenviar')
+      showSnackbar(err.message || 'Error al reenviar', 'error')
     }
   }
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div className={styles.header}>
-        <button onClick={onBack} className={styles.backBtn}>⬅️</button>
-        <span className={styles.groupTitle}>{group.title}</span>
-        {!group.isOwner && <span className={styles.readonlyLabel}>(Solo lectura)</span>}
-        <div className={styles.headerRight}>
-          {onSettings && (
-            <button onClick={onSettings} title="Configuración" className={styles.settingsBtn}>⚙️</button>
-          )}
-        </div>
-      </div>
-
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Toolbar
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         filter={filter}
         onFilterChange={setFilter}
         onUpload={() => setShowUpload(true)}
-        readonly={!group.isOwner}
+        showUpload={group.isOwner}
+        onSettings={onSettings}
       />
 
-      <div className={styles.body}>
+      <Box sx={{ flex: 1 }}>
         {loading ? (
-          <div className={styles.loading}>Cargando archivos...</div>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4, color: 'text.secondary' }}>Cargando archivos...</Box>
         ) : error ? (
-          <div className={styles.error}>{error}</div>
+          <Typography color="error" sx={{ p: 2 }}>{error}</Typography>
         ) : viewMode === 'list' ? (
-          <FileList files={filteredFiles} onDownload={handleDownload} onDelete={handleDelete} readonly={!group.isOwner} />
+          <FileList files={filteredFiles} isReadOnly={!group.isOwner} onDownload={handleDownload} onDelete={handleDelete} />
         ) : (
-          <FileGrid files={filteredFiles} groupId={group.id} onPreview={handlePreviewOpen} />
+          <FileGrid files={filteredFiles} onPreview={handlePreviewOpen} />
         )}
         {hasMore && !loading && (
-          <div ref={sentinelRef} className={styles.sentinel}>
-            {loadingMore && <CircularProgress size={30} progress={0} />}
+          <div ref={sentinelRef}>
+            {loadingMore && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>}
           </div>
         )}
-      </div>
+      </Box>
 
-      {previewFile && (() => {
-        const previewIndex = filteredFiles.findIndex(f => f.id === previewFile.id)
-        const hasPrev = previewIndex > 0
-        const hasNext = previewIndex < filteredFiles.length - 1
-        const navigateTo = (index: number) => {
-          if (index < 0 || index >= filteredFiles.length) return
-          setPreviewFile(filteredFiles[index])
-        }
-        return (
-          <PreviewModal
-            file={previewFile}
-            groupId={group.id}
-            onClose={() => setPreviewFile(null)}
-            onDownload={(f) => handleDownload(f)}
-            onSaveToDisk={handleSaveToDisk}
-            onDelete={handleDelete}
-            onForward={handleForward}
-            readonly={!group.isOwner}
-            hasPrevious={hasPrev}
-            hasNext={hasNext}
-            onPrevious={() => navigateTo(previewIndex - 1)}
-            onNext={() => navigateTo(previewIndex + 1)}
-            onLoadOriginal={handleGridPreview}
-          />
-        )
-      })()}
+      {previewFile && (
+        <PreviewModal
+          file={previewFile}
+          files={filteredFiles}
+          groupId={group.id}
+          isReadOnly={!group.isOwner}
+          onClose={() => setPreviewFile(null)}
+          onDelete={handleDelete}
+          onForward={handleForward}
+          onSaveToDisk={handleSaveToDisk}
+        />
+      )}
 
       {showUpload && (
         <UploadDialog
           groupId={group.id}
-          onUpload={() => { setShowUpload(false); loadInitialFiles() }}
+          onUploadComplete={() => { setShowUpload(false); loadInitialFiles() }}
           onClose={() => setShowUpload(false)}
         />
       )}
 
-      {confirmDeleteFile && (
-        <ConfirmDialog
-          title="Eliminar archivo"
-          message={`¿Estás seguro de eliminar "${confirmDeleteFile.name}"? Esta acción no se puede deshacer.`}
-          loading={deleting}
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setConfirmDeleteFile(null)}
-        />
-      )}
-    </div>
+      <Dialog open={!!confirmDeleteFile} onClose={() => setConfirmDeleteFile(null)}>
+        <DialogTitle>Eliminar archivo</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de eliminar "{confirmDeleteFile?.name}"? Esta acción no se puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteFile(null)}>Cancelar</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={deleting}>
+            {deleting ? 'Eliminando...' : 'Eliminar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   )
 }
