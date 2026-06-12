@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { waitForAppReady, openTeleStorageTab, openActivosTab } from './helpers'
+import { waitForAppReady, openTeleStorageTab, openActivosTab, openForumTopics } from './helpers'
 
 // NOTE: These tests require the app to be logged in.
 // They are skipped when no session exists (app shows login screen).
@@ -113,5 +113,38 @@ test.describe('Group List', () => {
       // Should show empty state for TeleStorage
       await expect(page.getByText(/no hay grupos en telestorage/i)).toBeVisible()
     }
+  })
+
+  test('forum group shows forum badge', async ({ page }) => {
+    await openActivosTab(page)
+
+    const groups = page.getByTestId('group-list-item')
+    const count = await groups.count()
+    if (count === 0) {
+      test.skip(true, 'No groups available in Activos tab')
+    }
+
+    // Look for at least one forum badge among the groups
+    let forumBadgeVisible = false
+    for (let i = 0; i < count; i++) {
+      const hasBadge = await groups.nth(i).getByTestId('forum-badge').isVisible().catch(() => false)
+      if (hasBadge) {
+        forumBadgeVisible = true
+        break
+      }
+    }
+
+    if (!forumBadgeVisible) {
+      test.skip(true, 'No forum groups found in test account')
+    }
+
+    await expect(page.getByTestId('forum-badge').first()).toBeVisible()
+  })
+
+  test('clicking forum group shows topics', async ({ page }) => {
+    await openForumTopics(page)
+
+    // Should show the ForumTopicsPage (either topics or empty state)
+    await expect(page.getByText('Temas del forum')).toBeVisible()
   })
 })

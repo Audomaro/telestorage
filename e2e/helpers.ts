@@ -56,3 +56,36 @@ export async function openFirstGroup(page: any) {
   await groups.first().click()
   await page.waitForTimeout(800)
 }
+
+export async function openForumTopics(page: any) {
+  await openActivosTab(page)
+
+  const groups = page.getByTestId('group-list-item')
+  const count = await groups.count()
+  if (count === 0) {
+    test.skip(true, 'No groups available in Activos tab')
+  }
+
+  // Find a group with the Forum badge
+  let forumGroupFound = false
+  for (let i = 0; i < count; i++) {
+    const group = groups.nth(i)
+    const hasBadge = await group.getByTestId('forum-badge').isVisible().catch(() => false)
+    if (hasBadge) {
+      await expect(group).toBeVisible()
+      await group.click()
+      await page.waitForTimeout(800)
+      forumGroupFound = true
+      break
+    }
+  }
+
+  if (!forumGroupFound) {
+    test.skip(true, 'No forum groups found in test account')
+  }
+
+  // Wait for ForumTopicsPage to load
+  await expect(
+    page.getByText('Temas del forum').or(page.getByTestId('forum-topic-list-item').first()).or(page.getByText(/no hay temas en este forum/i))
+  ).toBeVisible()
+}
