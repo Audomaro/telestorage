@@ -149,11 +149,11 @@ function messageToFileResult(m: any, groupId: number): FileResult {
   }
 }
 
-export async function listFilesBatch(groupId: number, limit: number, offsetId?: number): Promise<ListFilesBatchResult> {
+export async function listFilesBatch(groupId: number, limit: number, offsetId?: number, search?: string): Promise<ListFilesBatchResult> {
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
 
-  const messages = await client.getMessages(groupId, { limit, offsetId })
+  const messages = await client.getMessages(groupId, { limit, offsetId, search })
 
   const files: FileResult[] = messages
     .filter(m => m.media)
