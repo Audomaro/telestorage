@@ -14,7 +14,7 @@ import DownloadItem from './DownloadItem'
 
 export default function DownloadPanel() {
   const { downloads, removeDownload } = useDownload()
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
 
   const completedDownloads = useMemo(() => downloads.filter(d => d.status === 'completed'), [downloads])
   const activeCount = downloads.length - completedDownloads.length
@@ -76,7 +76,7 @@ export default function DownloadPanel() {
           </Tooltip>
         </Box>
       </Box>
-      <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain' }}>
+      <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain', scrollbarGutter: 'stable' }}>
         {downloads.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
             Sin descargas activas
