@@ -33,4 +33,21 @@ describe('Toolbar', () => {
     render(<Toolbar viewMode="list" onViewModeChange={() => {}} filter="all" onFilterChange={() => {}} onUpload={() => {}} showUpload={false} />, { wrapper: Wrapper })
     expect(screen.queryByText('+ Subir')).toBeNull()
   })
+
+  it('should render search field when viewMode is list', () => {
+    render(<Toolbar viewMode="list" onViewModeChange={() => {}} filter="all" onFilterChange={() => {}} onUpload={() => {}} showUpload={true} selectMode={false} selectedCount={0} onToggleSelectMode={() => {}} onBatchDelete={() => {}} searchQuery="" onSearchChange={() => {}} />, { wrapper: Wrapper })
+    expect(screen.getByPlaceholderText('Buscar archivos...')).toBeDefined()
+  })
+
+  it('should render search field when viewMode is gallery', () => {
+    render(<Toolbar viewMode="gallery" onViewModeChange={() => {}} filter="all" onFilterChange={() => {}} onUpload={() => {}} showUpload={true} selectMode={false} selectedCount={0} onToggleSelectMode={() => {}} onBatchDelete={() => {}} searchQuery="" onSearchChange={() => {}} />, { wrapper: Wrapper })
+    expect(screen.getByPlaceholderText('Buscar archivos...')).toBeDefined()
+  })
+
+  it('should call onSearchChange when typing in search field', () => {
+    const onSearchChange = vi.fn()
+    render(<Toolbar viewMode="list" onViewModeChange={() => {}} filter="all" onFilterChange={() => {}} onUpload={() => {}} showUpload={true} selectMode={false} selectedCount={0} onToggleSelectMode={() => {}} onBatchDelete={() => {}} searchQuery="" onSearchChange={onSearchChange} />, { wrapper: Wrapper })
+    fireEvent.change(screen.getByPlaceholderText('Buscar archivos...'), { target: { value: 'test' } })
+    expect(onSearchChange).toHaveBeenCalledWith('test')
+  })
 })

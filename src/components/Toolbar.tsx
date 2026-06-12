@@ -1,4 +1,6 @@
 import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
@@ -9,6 +11,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
+import SearchIcon from '@mui/icons-material/Search'
 import { ViewMode, FileFilter } from '../types'
 
 interface ToolbarProps {
@@ -22,9 +25,11 @@ interface ToolbarProps {
   onUpload: () => void
   onToggleSelectMode: () => void
   onBatchDelete: () => void
+  searchQuery: string
+  onSearchChange: (query: string) => void
 }
 
-export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete }: ToolbarProps) {
+export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete, searchQuery, onSearchChange }: ToolbarProps) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 10 }}>
       {viewMode === 'list' && (
@@ -34,6 +39,18 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
           <ToggleButton value="documents" aria-label="Filtrar Documentos">Documentos</ToggleButton>
         </ToggleButtonGroup>
       )}
+      <TextField
+        size="small"
+        placeholder="Buscar archivos..."
+        value={searchQuery}
+        onChange={e => onSearchChange(e.target.value)}
+        slotProps={{
+          input: {
+            startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
+          }
+        }}
+        sx={{ minWidth: 200, '& .MuiInputBase-root': { fontSize: '0.875rem' } }}
+      />
       <Box sx={{ flex: 1 }} />
       <ToggleButtonGroup size="small" value={viewMode} exclusive onChange={(_, v) => v && onViewModeChange(v)}>
         <ToggleButton value="list" aria-label="Vista de lista"><ViewListIcon /></ToggleButton>
