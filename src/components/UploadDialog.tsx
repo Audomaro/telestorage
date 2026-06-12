@@ -1,4 +1,4 @@
-import { useState, useRef, DragEvent } from 'react'
+import { useState, DragEvent } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
@@ -20,33 +20,42 @@ interface UploadDialogProps {
   onUploadComplete: () => void
 }
 
+function processDroppedFiles(dropped: FileList): Promise<{ name: string; path?: string; data?: number[] }[]> {
+  const files = Array.from(dropped)
+  return Promise.all(files.map(f => {
+    if ((f as any).path) return { name: f.name, path: (f as any).path }
+    return f.arrayBuffer().then(buf => ({ name: f.name, data: Array.from(new Uint8Array(buf)) }))
+  }))
+}
+
 export default function UploadDialog({ groupId, onClose, onUploadComplete }: UploadDialogProps) {
   const [files, setFiles] = useState<{ name: string; path?: string; data?: number[] }[]>([])
   const [uploading, setUploading] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
   const { showSnackbar } = useSnackbar()
 
   const handlePick = async () => {
-    const paths = await window.telegramAPI.pickFiles()
-    if (paths) {
+    const paths: string[] = await window.telegramAPI.pickFiles()
+    if (paths && paths.length > 0) {
       setFiles(prev => [...prev, ...paths.map(p => ({ name: p.split(/[\\/]/).pop() || p, path: p }))])
     }
   }
 
   const handleDrop = (e: DragEvent) => {
     e.preventDefault()
-    const dropped = Array.from(e.dataTransfer.files).filter(f => {
-      if ((f as any).path) return true
-      if (f.size > 100 * 1024 * 1024) {
-        showSnackbar(`"${f.name}" es demasiado grande para arrastrar (máx. 100 MB)`, 'warning')
-        return false
-      }
-      return true
+    const tooBig = Array.from(e.dataTransfer.files).filter(f => {
+      if ((f as any).path) return false
+      return f.size > 100 * 1024 * 1024
     })
-    Promise.all(dropped.map(f => {
-      if ((f as any).path) return { name: f.name, path: (f as any).path }
-      return f.arrayBuffer().then(buf => ({ name: f.name, data: Array.from(new Uint8Array(buf)) }))
-    })).then(results => setFiles(prev => [...prev, ...results]))
+    tooBig.forEach(f => showSnackbar(`"${f.name}" es demasiado grande para arrastrar (máx. 100 MB)`, 'warning'))
+
+    const valid = Array.from(e.dataTransfer.files).filter(f => {
+      if ((f as any).path) return true
+      return f.size <= 100 * 1024 * 1024
+    })
+    if (valid.length === 0) return
+    processDroppedFiles(valid as unknown as FileList).then(results => {
+      setFiles(prev => [...prev, ...results])
+    })
   }
 
   const handleUpload = async () => {
@@ -79,11 +88,10 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete }: Upl
           onDrop={handleDrop}
           onDragOver={e => e.preventDefault()}
           sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 2, p: 4, textAlign: 'center', mb: 2, cursor: 'pointer' }}
-          onClick={() => inputRef.current?.click()}
+          onClick={handlePick}
         >
           <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
           <Typography color="text.secondary">Arrastra archivos aquí o haz clic para seleccionar</Typography>
-          <input ref={inputRef} type="file" multiple hidden onChange={handlePick} />
         </Box>
         {files.length > 0 && (
           <List dense>

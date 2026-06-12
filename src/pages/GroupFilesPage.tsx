@@ -167,7 +167,6 @@ export default function GroupFilesPage({ group, onBack, onSettings }: GroupFiles
         onFilterChange={setFilter}
         onUpload={() => setShowUpload(true)}
         showUpload={group.isOwner}
-        onSettings={onSettings}
       />
 
       <Box sx={{ flex: 1 }}>

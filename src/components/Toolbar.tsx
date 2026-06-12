@@ -4,7 +4,6 @@ import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import GridViewIcon from '@mui/icons-material/GridView'
-import SettingsIcon from '@mui/icons-material/Settings'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { ViewMode, FileFilter } from '../types'
 
@@ -15,10 +14,9 @@ interface ToolbarProps {
   onViewModeChange: (mode: ViewMode) => void
   onFilterChange: (filter: FileFilter) => void
   onUpload: () => void
-  onSettings?: () => void
 }
 
-export default function Toolbar({ viewMode, filter, showUpload, onViewModeChange, onFilterChange, onUpload, onSettings }: ToolbarProps) {
+export default function Toolbar({ viewMode, filter, showUpload, onViewModeChange, onFilterChange, onUpload }: ToolbarProps) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 10 }}>
       <ToggleButtonGroup size="small" value={filter} exclusive onChange={(_, v) => v && onFilterChange(v)}>
@@ -35,9 +33,6 @@ export default function Toolbar({ viewMode, filter, showUpload, onViewModeChange
         <Button variant="contained" size="small" startIcon={<CloudUploadIcon />} onClick={onUpload}>
           Subir
         </Button>
-      )}
-      {onSettings && (
-        <Button size="small" startIcon={<SettingsIcon />} onClick={onSettings}>Config</Button>
       )}
     </Box>
   )
