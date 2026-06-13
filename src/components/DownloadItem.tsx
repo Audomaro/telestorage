@@ -33,33 +33,42 @@ export default function DownloadItem({ task, onRemove, onOpenFolder }: DownloadI
   }, [isCompleted])
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1, borderBottom: 1, borderColor: 'divider' }} data-testid="download-item">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1.5, borderBottom: '1px solid rgba(0, 136, 204, 0.08)', transition: 'all 200ms', '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.02)' } }} data-testid="download-item">
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        {isCompleted ? <CheckCircleIcon fontSize="small" color="success" /> : isError ? <ErrorIcon fontSize="small" color="error" /> : <InsertDriveFileIcon fontSize="small" color="action" />}
-        <Typography variant="body2" noWrap sx={{ flex: 1 }}>{task.fileName}</Typography>
+        {isCompleted ? <CheckCircleIcon fontSize="small" sx={{ color: '#0088cc' }} /> : isError ? <ErrorIcon fontSize="small" color="error" /> : <InsertDriveFileIcon fontSize="small" sx={{ color: '#0088cc' }} />}
+        <Typography variant="body2" noWrap sx={{ flex: 1, fontWeight: 600, color: '#222222' }}>{task.fileName}</Typography>
         {isCompleted && (
           <Tooltip title="Abrir carpeta">
-            <IconButton size="small" onClick={onOpenFolder} aria-label="Abrir carpeta"><FolderOpenIcon fontSize="small" /></IconButton>
+            <IconButton size="small" onClick={onOpenFolder} aria-label="Abrir carpeta" sx={{ '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.08)' } }}><FolderOpenIcon fontSize="small" sx={{ color: '#0088cc' }} /></IconButton>
           </Tooltip>
         )}
 
         <Tooltip title="Eliminar">
-          <IconButton size="small" onClick={onRemove} aria-label="Eliminar"><CloseIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={onRemove} aria-label="Eliminar" sx={{ '&:hover': { backgroundColor: 'rgba(243, 115, 22, 0.08)' } }}><CloseIcon fontSize="small" /></IconButton>
         </Tooltip>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <LinearProgress
           variant="determinate"
           value={isCompleted ? 100 : isError ? 100 : Math.round(task.progress * 100)}
-          color={isCompleted ? 'success' : isError ? 'error' : 'primary'}
-          sx={{ flex: 1, height: 4 }}
+          sx={{
+            flex: 1,
+            height: 6,
+            borderRadius: 3,
+            backgroundColor: 'rgba(0, 136, 204, 0.12)',
+            '& .MuiLinearProgress-bar': {
+              backgroundColor: isCompleted ? '#0088cc' : isError ? '#EF4444' : '#0088cc',
+              borderRadius: 3,
+              transition: 'transform 200ms',
+            }
+          }}
         />
-        <Typography variant="caption" sx={{ minWidth: 36, textAlign: 'right' }}>
+        <Typography variant="caption" sx={{ minWidth: 36, textAlign: 'right', color: '#222222', fontWeight: 500 }}>
           {isCompleted ? '100%' : isError ? 'Error' : `${Math.round(task.progress * 100)}%`}
         </Typography>
       </Box>
       {isError && (
-        <Typography variant="caption" color="error">{task.error}</Typography>
+        <Typography variant="caption" sx={{ color: '#EF4444' }}>{task.error}</Typography>
       )}
     </Box>
   )

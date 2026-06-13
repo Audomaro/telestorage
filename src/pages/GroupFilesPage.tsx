@@ -256,8 +256,9 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Toolbar
+    <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#F0F6FA' }}>
+      <Box sx={{ bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(0,136,204,0.15)' }}>
+        <Toolbar
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         filter={filter}
@@ -272,6 +273,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
+      </Box>
 
       <Box component="main" sx={{ flex: 1 }}>
         {loading ? (
@@ -360,7 +362,8 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
         </DialogActions>
       </Dialog>
 
-      <Dialog open={!!forwardFile} onClose={() => setForwardFile(null)} maxWidth="xs" fullWidth>
+      <Dialog open={!!forwardFile} onClose={() => setForwardFile(null)} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { bgcolor: 'rgba(240,253,250,0.95)', backdropFilter: 'blur(12px)', borderRadius: 3, boxShadow: '0 8px 32px rgba(0,136,204,0.15)' } }}>
         <DialogTitle>Reenviar archivo</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>

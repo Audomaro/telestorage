@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
+import Paper from '@mui/material/Paper'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
@@ -22,13 +22,32 @@ function getInitials(title: string): string {
 
 export default function GroupListItem({ group, onClick, onDelete }: GroupListItemProps) {
   return (
-    <Card data-testid="group-list-item" sx={{ mb: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => onClick(group)}>
+    <Paper data-testid="group-list-item" elevation={0} onClick={() => onClick(group)}
+      sx={{
+        mb: 1,
+        borderRadius: '12px',
+        cursor: 'pointer',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(30,41,59,0.7)' : '#F0F6FA',
+        backdropFilter: 'blur(10px)',
+        border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,136,204,0.15)'}`,
+        boxShadow: (theme) => theme.palette.mode === 'dark'
+          ? '0 4px 6px -1px rgba(0,0,0,0.3)'
+          : '0 4px 6px -1px rgba(0,136,204,0.1)',
+        transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+        '&:hover': {
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 10px 15px -3px rgba(0,0,0,0.4)'
+            : '0 10px 15px -3px rgba(0,136,204,0.15)',
+          transform: 'translateY(-2px)'
+        }
+      }}
+    >
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, '&:last-child': { pb: 1.5 } }}>
         <Avatar sx={{ bgcolor: group.isOwner ? 'primary.main' : '#FF9800', width: 40, height: 40, fontSize: 16 }}>
           {getInitials(group.title)}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body1" noWrap>{group.title}</Typography>
+          <Typography variant="body1" noWrap sx={{ fontWeight: 700, color: (theme) => theme.palette.mode === 'dark' ? '#E2E8F0' : '#222222' }}>{group.title}</Typography>
           <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
             <Chip
               label={group.isOwner ? 'Propio' : 'Tercero'}
@@ -37,7 +56,8 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
               icon={group.isOwner ? <CheckCircleIcon /> : <GroupIcon />}
             />
             {group.isForum && (
-              <Chip label="Forum" variant="outlined" size="small" color="info" data-testid="forum-badge" />
+              <Chip label="Forum" size="small" data-testid="forum-badge"
+                sx={{ bgcolor: '#0088cc', color: '#fff', fontWeight: 600 }} />
             )}
             {!group.isOwner && (
               <Chip label="Solo lectura" variant="outlined" size="small" />
@@ -53,6 +73,6 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
           </IconButton>
         )}
       </CardContent>
-    </Card>
+    </Paper>
   )
 }

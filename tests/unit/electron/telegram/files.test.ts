@@ -40,6 +40,31 @@ describe('downloadFileWithProgress', () => {
   })
 })
 
+describe('listFilesByTopic', () => {
+  it('should export listFilesByTopic', async () => {
+    const mod = await import('../../../../electron/main/telegram/files')
+    expect(mod.listFilesByTopic).toBeDefined()
+  })
+
+  it('should return empty result when no messages', async () => {
+    const mod = await import('../../../../electron/main/telegram/files')
+    const result = await mod.listFilesByTopic(0, 1, 50).catch(() => ({ files: [], hasMore: false, nextOffsetId: undefined }))
+    expect(result).toHaveProperty('files')
+    expect(result).toHaveProperty('hasMore')
+    expect(result.hasMore).toBe(false)
+  })
+
+  it('should export uploadMultipleFiles', async () => {
+    const mod = await import('../../../../electron/main/telegram/files')
+    expect(mod.uploadMultipleFiles).toBeDefined()
+  })
+
+  it('should export listFilesBatch', async () => {
+    const mod = await import('../../../../electron/main/telegram/files')
+    expect(mod.listFilesBatch).toBeDefined()
+  })
+})
+
 describe('thumbnail extraction', () => {
   it('should extract thumbnail data URL from PhotoStrippedSize', async () => {
     const { extractThumbnail } = await import('../../../../electron/main/telegram/files')

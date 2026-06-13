@@ -96,6 +96,7 @@ export async function getForumTopics(groupId: number): Promise<ForumTopicResult[
   const topics = result.topics || []
   return topics.map((t: any) => ({
     id: t.id,
+    groupId,
     title: t.title || 'Unnamed',
     iconColor: t.iconColor || 0,
     iconEmojiId: t.iconEmojiId?.toString(),

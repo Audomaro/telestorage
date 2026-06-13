@@ -3,22 +3,25 @@ import { createTheme } from '@mui/material/styles'
 export const getTheme = (mode: 'light' | 'dark') => createTheme({
   palette: {
     mode,
-    primary: { main: '#4CAF50', light: '#81C784', dark: '#388E3C', contrastText: '#ffffff' },
-    secondary: { main: '#66BB6A' },
+    primary: { main: '#0088cc', light: '#33A0D6', dark: '#0077b3', contrastText: '#ffffff' },
+    secondary: { main: '#2AABEE' },
     ...(mode === 'dark' ? {
-      background: { default: '#121212', paper: '#1e1e1e' },
-      text: { primary: '#e0e0e0', secondary: '#9e9e9e' },
-      divider: '#333333',
+      background: { default: '#17212B', paper: '#242F3D' },
+      text: { primary: '#FFFFFF', secondary: '#8E9296' },
+      divider: '#313D4F',
     } : {
-      background: { default: '#fafafa', paper: '#ffffff' },
-      text: { primary: '#212121', secondary: '#616161' },
-      divider: '#e0e0e0',
+      background: { default: '#FFFFFF', paper: '#FFFFFF' },
+      text: { primary: '#222222', secondary: '#707579' },
+      divider: '#E7E8EA',
     }),
-    error: { main: mode === 'dark' ? '#ef5350' : '#e53935' },
+    error: { main: mode === 'dark' ? '#EF5350' : '#E53935' },
     warning: { main: mode === 'dark' ? '#FFA726' : '#FF9800' },
     success: { main: mode === 'dark' ? '#66BB6A' : '#4CAF50' },
     info: { main: mode === 'dark' ? '#42A5F5' : '#2196F3' },
   },
   shape: { borderRadius: 8 },
-  typography: { fontSize: 14 },
+  typography: {
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontSize: 14,
+  },
 })

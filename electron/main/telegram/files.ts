@@ -168,15 +168,29 @@ export async function listFilesByTopic(groupId: number, topicId: number, limit: 
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
 
-  const messages = await client.getMessages(groupId, { limit, offsetId, search })
+  // Use replyTo to fetch only messages from the specific forum topic.
+  // GramJS maps replyTo -> messages.GetReplies, the correct API for forum topics.
+  // GetHistory/Search (without topMsgId) only returns messages from the general topic.
+  const messages = await client.getMessages(groupId, { limit, offsetId, replyTo: topicId })
 
-  const topicMessages = messages.filter(m => m.media && (m as any).replyTo?.topId === topicId)
-  const files = topicMessages.map(m => messageToFileResult(m, groupId))
+  if (messages.length === 0) {
+    return { files: [], hasMore: false }
+  }
 
-  // Use the last message of the entire page for nextOffsetId (to continue scanning)
-  // but only if we found files, otherwise we can't determine pagination
-  const nextOffsetId = messages.length > 0 ? messages[messages.length - 1].id : undefined
-  // hasMore is true if the page was full - we might have more topic messages in the next page
+  let topicMessages = messages.filter((m: any) => m.media)
+
+  // Client-side search by filename (GetReplies doesn't support server-side search)
+  if (search) {
+    const term = search.toLowerCase()
+    topicMessages = topicMessages.filter((m: any) => {
+      const name = messageToFileResult(m, groupId).name.toLowerCase()
+      return name.includes(term)
+    })
+  }
+
+  const files = topicMessages.map((m: any) => messageToFileResult(m, groupId))
+
+  const nextOffsetId = messages[messages.length - 1].id
   const hasMore = messages.length === limit
 
   return { files, hasMore, nextOffsetId }
@@ -202,7 +216,7 @@ export async function uploadFile(groupId: number, filePath: string, topicId?: nu
   const result = await client.sendFile(groupId, { 
     file: filePath, 
     forceDocument: true,
-    ...(topicId ? { replyTo: topicId } : {})
+    ...(topicId ? { replyTo: topicId, topMsgId: topicId } : {})
   })
   return { messageId: result.id }
 }

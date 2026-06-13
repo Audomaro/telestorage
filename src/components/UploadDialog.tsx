@@ -82,37 +82,69 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
   }
 
   return (
-    <Dialog open onClose={uploading ? undefined : onClose} maxWidth="sm" fullWidth data-testid="upload-dialog">
-      <DialogTitle>{uploading ? 'Subiendo archivos...' : 'Subir archivos'}</DialogTitle>
-      <DialogContent>
+    <Dialog open onClose={uploading ? undefined : onClose} maxWidth="sm" fullWidth data-testid="upload-dialog"
+      sx={{
+        '& .MuiPaper-root': {
+          borderRadius: '16px',
+          backdropFilter: 'blur(10px)',
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+          border: '1px solid rgba(0, 136, 204, 0.15)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.12)',
+          transition: 'all 200ms',
+        },
+        '& .MuiBackdrop-root': {
+          backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }
+      }}
+    >
+      <DialogTitle sx={{ fontWeight: 600, color: '#222222' }}>{uploading ? 'Subiendo archivos...' : 'Subir archivos'}</DialogTitle>
+      <DialogContent sx={{ py: 2 }}>
         <Box
           onDrop={handleDrop}
           onDragOver={e => e.preventDefault()}
-          sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 2, p: 4, textAlign: 'center', mb: 2, cursor: 'pointer' }}
+          sx={{
+            border: '2px dashed',
+            borderColor: '#0088cc',
+            borderRadius: 2,
+            p: 4,
+            textAlign: 'center',
+            mb: 2,
+            cursor: 'pointer',
+            transition: 'all 200ms',
+            '&:hover': {
+              borderStyle: 'solid',
+              backgroundColor: 'rgba(0, 136, 204, 0.04)',
+            }
+          }}
           onClick={handlePick}
           data-testid="upload-dropzone"
         >
-          <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
-          <Typography color="text.secondary">Arrastra archivos aquí o haz clic para seleccionar</Typography>
+          <CloudUploadIcon sx={{ fontSize: 48, color: '#0088cc', mb: 1 }} />
+          <Typography color="#222222">Arrastra archivos aquí o haz clic para seleccionar</Typography>
         </Box>
         {files.length > 0 && (
-          <List dense>
+          <List dense sx={{ '& .MuiListItem-root': { borderRadius: 1, mb: 0.5, '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.04)' } } }}>
             {files.map((f, i) => (
               <ListItem key={i} secondaryAction={
-                <IconButton edge="end" size="small" onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))}>
+                <IconButton edge="end" size="small" onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))}
+                  sx={{ '&:hover': { backgroundColor: 'rgba(243, 115, 22, 0.08)' } }}
+                >
                   <CloseIcon fontSize="small" />
                 </IconButton>
               }>
-                <Typography variant="body2">{f.name}</Typography>
+                <Typography variant="body2" sx={{ color: '#222222' }}>{f.name}</Typography>
               </ListItem>
             ))}
           </List>
         )}
-        {uploading && <LinearProgress sx={{ mt: 1 }} />}
+        {uploading && <LinearProgress sx={{ mt: 1, '& .MuiLinearProgress-bar': { backgroundColor: '#0088cc' } }} />}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={uploading}>Cancelar</Button>
-        <Button onClick={handleUpload} variant="contained" disabled={files.length === 0 || uploading}>
+        <Button onClick={onClose} disabled={uploading} variant="outlined" sx={{ color: '#222222', borderColor: 'rgba(34, 34, 34, 0.3)', borderRadius: '8px', fontWeight: 600, transition: 'all 200ms', '&:hover': { borderColor: '#222222', backgroundColor: 'rgba(34, 34, 34, 0.04)' } }}>Cancelar</Button>
+        <Button onClick={handleUpload} variant="contained" disabled={files.length === 0 || uploading}
+          sx={{ backgroundColor: '#F97316', borderRadius: '8px', fontWeight: 600, transition: 'all 200ms', '&:hover': { backgroundColor: '#EA580C', transform: 'translateY(-1px)' }, '&.Mui-disabled': { backgroundColor: 'rgba(249, 115, 22, 0.4)' } }}
+        >
           {uploading ? 'Subiendo...' : 'Subir'}
         </Button>
       </DialogActions>

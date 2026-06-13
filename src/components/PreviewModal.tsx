@@ -97,20 +97,31 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
   if (!file) return null
 
   return (
-    <Dialog open fullScreen onClose={onClose}>
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 1, borderBottom: 1, borderColor: 'divider' }}>
-        <IconButton aria-label="Cerrar" onClick={onClose}><CloseIcon /></IconButton>
+    <Dialog open fullScreen onClose={onClose}
+      sx={{
+        '& .MuiPaper-root': {
+          backdropFilter: 'blur(16px)',
+          backgroundColor: 'rgba(240, 253, 250, 0.92)',
+        },
+        '& .MuiBackdrop-root': {
+          backdropFilter: 'blur(8px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, py: 0.5, backdropFilter: 'blur(12px)', backgroundColor: 'rgba(255, 255, 255, 0.7)', borderBottom: '1px solid rgba(0, 136, 204, 0.12)' }}>
+        <IconButton aria-label="Cerrar" onClick={onClose} sx={{ '&:hover': { backgroundColor: 'rgba(243, 115, 22, 0.1)' } }}><CloseIcon /></IconButton>
         {!isReadOnly && (
-          <Tooltip title="Reenviar"><IconButton aria-label="Reenviar" onClick={() => onForward(file)}><ForwardIcon /></IconButton></Tooltip>
+          <Tooltip title="Reenviar"><IconButton aria-label="Reenviar" onClick={() => onForward(file)} sx={{ '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.1)' } }}><ForwardIcon /></IconButton></Tooltip>
         )}
         {!isReadOnly && (
-          <Tooltip title="Eliminar"><IconButton aria-label="Eliminar" onClick={() => { onClose(); onDelete(file) }}><DeleteIcon /></IconButton></Tooltip>
+          <Tooltip title="Eliminar"><IconButton aria-label="Eliminar" onClick={() => { onClose(); onDelete(file) }} sx={{ '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' } }}><DeleteIcon /></IconButton></Tooltip>
         )}
-        <Tooltip title="Guardar en disco"><IconButton aria-label="Guardar en disco" onClick={() => onSaveToDisk?.(file)}><DownloadIcon /></IconButton></Tooltip>
+        <Tooltip title="Guardar en disco"><IconButton aria-label="Guardar en disco" onClick={() => onSaveToDisk?.(file)} sx={{ '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.1)' } }}><DownloadIcon /></IconButton></Tooltip>
         <Box sx={{ flex: 1 }} />
-        <Typography variant="body2" color="text.secondary">{file.name}</Typography>
+        <Typography variant="body2" sx={{ color: '#222222', fontWeight: 500 }}>{file.name}</Typography>
       </Box>
-      <DialogContent sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+      <DialogContent sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(0, 0, 0, 0.06)' }}>
         {loading && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <CircularProgress variant="determinate" value={progress} size={60} />
@@ -126,12 +137,12 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
           <Typography color="text.secondary">{file.name}</Typography>
         )}
         {prevFile && (
-          <IconButton onClick={handlePrev} aria-label="Anterior" sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
+          <IconButton onClick={handlePrev} aria-label="Anterior" sx={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', transition: 'all 200ms', '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.05)' } }}>
             <ChevronLeftIcon />
           </IconButton>
         )}
         {nextFile && (
-          <IconButton onClick={handleNext} aria-label="Siguiente" sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(0,0,0,0.1)' }}>
+          <IconButton onClick={handleNext} aria-label="Siguiente" sx={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', transition: 'all 200ms', '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.05)' } }}>
             <ChevronRightIcon />
           </IconButton>
         )}

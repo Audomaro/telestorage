@@ -74,8 +74,8 @@ describe('UploadDialog', () => {
     fireEvent.click(screen.getByRole('button', { name: /subir/i }))
     await vi.waitFor(() => {
       expect(window.telegramAPI.uploadFile).toHaveBeenCalledTimes(2)
-      expect(window.telegramAPI.uploadFile).toHaveBeenCalledWith(1, '/a/1.txt')
-      expect(window.telegramAPI.uploadFile).toHaveBeenCalledWith(1, '/a/2.txt')
+      expect(window.telegramAPI.uploadFile).toHaveBeenCalledWith(1, '/a/1.txt', undefined)
+      expect(window.telegramAPI.uploadFile).toHaveBeenCalledWith(1, '/a/2.txt', undefined)
       expect(onComplete).toHaveBeenCalled()
     })
   })

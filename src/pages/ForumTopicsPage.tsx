@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
 import Alert from '@mui/material/Alert'
-import IconButton from '@mui/material/IconButton'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import FolderOffIcon from '@mui/icons-material/FolderOff'
 import { TelegramGroup, ForumTopic } from '../types'
 import ForumTopicListItem from '../components/ForumTopicListItem'
@@ -39,20 +36,16 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
 
   if (loading) {
     return (
-      <Box component="main" sx={{ px: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
-          <Skeleton variant="circular" width={24} height={24} />
-          <Skeleton variant="text" width="40%" />
-        </Box>
+      <Box component="main" sx={{ px: 2, pt: 2, pb: 2, bgcolor: '#F0F6FA', minHeight: '100%' }}>
         <Box sx={{ mb: 1 }}>
-          <Skeleton variant="text" width="30%" />
+          <Skeleton variant="text" width="30%" sx={{ bgcolor: 'rgba(0,136,204,0.1)' }} />
         </Box>
         {[1, 2, 3].map(i => (
           <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
-            <Skeleton variant="circular" width={40} height={40} />
+            <Skeleton variant="circular" width={40} height={40} sx={{ bgcolor: 'rgba(0,136,204,0.15)' }} />
             <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="60%" />
-              <Skeleton variant="text" width="30%" />
+              <Skeleton variant="text" width="60%" sx={{ bgcolor: 'rgba(0,136,204,0.1)' }} />
+              <Skeleton variant="text" width="30%" sx={{ bgcolor: 'rgba(0,136,204,0.1)' }} />
             </Box>
           </Box>
         ))}
@@ -61,22 +54,13 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
   }
 
   return (
-    <Box component="main">
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 2 }}>
-        <IconButton onClick={onBack} aria-label="Volver">
-          <ArrowBackIcon />
-        </IconButton>
-        <Box>
-          <Typography variant="h6" noWrap>{group.title}</Typography>
-          <Typography variant="body2" color="text.secondary">Temas del forum</Typography>
-        </Box>
-      </Box>
+    <Box component="main" sx={{ px: 2, pt: 2, pb: 2, bgcolor: '#F0F6FA', minHeight: '100%' }}>
       {error && (
-        <Alert severity="error" onClose={() => setError('')} sx={{ mx: 2, mt: 2 }}>
+        <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2, borderRadius: '8px' }}>
           {error}
         </Alert>
       )}
-      <Box sx={{ px: 2, pt: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {topics.map(t => (
           <ForumTopicListItem key={t.id} topic={t} onClick={(topic) => onSelectTopic(topic)} />
         ))}

@@ -21,7 +21,7 @@ export default function DownloadPanel() {
 
   return (
     <Paper
-      elevation={4}
+      elevation={0}
       data-testid="download-panel"
       sx={{
         height: '100%',
@@ -29,20 +29,24 @@ export default function DownloadPanel() {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        transition: 'none',
+        borderRadius: '16px',
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        border: '1px solid rgba(0, 136, 204, 0.12)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, borderBottom: 1, borderColor: 'divider' }}>
-        <Typography variant="subtitle2">Descargas</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, borderBottom: '1px solid rgba(0, 136, 204, 0.12)' }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#222222' }}>Descargas</Typography>
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           {completedDownloads.length > 0 && (
-            <Button size="small" onClick={handleClear}>Limpiar</Button>
+            <Button size="small" onClick={handleClear} sx={{ color: '#0088cc', fontWeight: 600, '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.08)' } }}>Limpiar</Button>
           )}
         </Box>
       </Box>
-      <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain', scrollbarGutter: 'stable' }}>
+      <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain' }}>
         {downloads.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
+          <Typography variant="body2" sx={{ p: 2, textAlign: 'center', color: '#222222', opacity: 0.6 }}>
             Sin descargas activas
           </Typography>
         ) : (

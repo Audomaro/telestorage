@@ -183,10 +183,10 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
       <Box sx={{ px: 2 }}>
         {[1, 2, 3].map(i => (
           <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
-            <Skeleton variant="circular" width={40} height={40} />
+            <Skeleton variant="circular" width={40} height={40} sx={{ bgcolor: 'rgba(0,136,204,0.15)' }} />
             <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="60%" />
-              <Skeleton variant="text" width="30%" />
+              <Skeleton variant="text" width="60%" sx={{ bgcolor: 'rgba(0,136,204,0.1)' }} />
+              <Skeleton variant="text" width="30%" sx={{ bgcolor: 'rgba(0,136,204,0.08)' }} />
             </Box>
           </Box>
         ))}
@@ -195,9 +195,28 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   }
 
   return (
-    <Box component="main">
+    <Box component="main" sx={(theme) => ({
+      bgcolor: theme.palette.mode === 'dark' ? '#0F172A' : '#F0F6FA',
+      py: 2
+    })}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1 }}>
-        <Tabs value={tabIndex} onChange={handleTabChange}>
+        <Tabs value={tabIndex} onChange={handleTabChange}
+          sx={{
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontWeight: 600,
+              transition: 'all 200ms',
+              '&.Mui-selected': {
+                color: '#0088cc',
+              }
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#0088cc',
+              height: 3,
+              borderRadius: '3px 3px 0 0'
+            }
+          }}
+        >
           <Tab label="TeleStorage" data-testid="tab-telestorage" />
           <Tab label="Activos" data-testid="tab-activos" />
           <Tab label="Archivados" data-testid="tab-archivados" />
@@ -205,10 +224,36 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
       </Box>
       {tab === 'created' && (
         <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-          <Button data-testid="btn-vincular" size="small" variant="outlined" startIcon={<LinkIcon />} onClick={() => setShowAddExistingDialog(true)}>
+          <Button data-testid="btn-vincular" size="small" variant="outlined" startIcon={<LinkIcon />}
+            onClick={() => setShowAddExistingDialog(true)}
+            sx={{
+              borderRadius: '8px',
+              fontWeight: 600,
+              borderColor: '#0088cc',
+              color: '#0088cc',
+              transition: 'all 200ms',
+              '&:hover': {
+                borderColor: '#0088cc',
+                bgcolor: 'rgba(0,136,204,0.08)',
+                transform: 'translateY(-1px)'
+              }
+            }}
+          >
             Vincular propio
           </Button>
-          <Button data-testid="btn-nuevo-grupo" size="small" variant="contained" startIcon={<AddIcon />} onClick={() => { setShowCreateDialog(true); setTimeout(() => createInputRef.current?.focus(), 50) }}>
+          <Button data-testid="btn-nuevo-grupo" size="small" variant="contained" startIcon={<AddIcon />}
+            onClick={() => { setShowCreateDialog(true); setTimeout(() => createInputRef.current?.focus(), 50) }}
+            sx={{
+              borderRadius: '8px',
+              fontWeight: 600,
+              bgcolor: '#F97316',
+              transition: 'all 200ms',
+              '&:hover': {
+                bgcolor: '#EA580C',
+                transform: 'translateY(-1px)'
+              }
+            }}
+          >
             Nuevo grupo
           </Button>
         </Box>
@@ -218,7 +263,18 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
           {error}
         </Alert>
       )}
-      <Box component="nav" aria-label="Grupos" sx={{ px: 2 }}>
+      <Box component="nav" aria-label="Grupos" sx={(theme) => ({
+        mx: 2,
+        mb: 2,
+        p: 2,
+        borderRadius: '12px',
+        bgcolor: theme.palette.mode === 'dark' ? 'rgba(30,41,59,0.7)' : '#F0F6FA',
+        backdropFilter: 'blur(10px)',
+        border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,136,204,0.15)'}`,
+        boxShadow: theme.palette.mode === 'dark'
+          ? '0 4px 6px -1px rgba(0,0,0,0.3)'
+          : '0 4px 6px -1px rgba(0,136,204,0.1)',
+      })}>
         {visibleGroups.map(g => (
           <GroupListItem key={g.id} group={g} onClick={(grp) => onSelectGroup?.(grp)} onDelete={(grp) => setDeletingGroup(grp)} />
         ))}

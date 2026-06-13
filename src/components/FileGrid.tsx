@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Checkbox from '@mui/material/Checkbox'
 import PlayCircleIcon from '@mui/icons-material/PlayCircle'
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { TelegramFile } from '../types'
 
 interface FileGridProps {
@@ -25,7 +26,7 @@ export default function FileGrid({ files, selectMode, selectedIds, onPreview, on
   }
 
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 1, p: 1 }}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2, p: 2 }}>
       {files.map(f => (
         <GridCard key={f.messageId} file={f} selectMode={selectMode} selected={selectedIds.has(f.messageId)} onClick={() => handleClick(f)} />
       ))}
@@ -74,17 +75,26 @@ function GridCard({ file, selectMode, selected, onClick }: { file: TelegramFile;
         position: 'relative', aspectRatio: '1', borderRadius: 2, overflow: 'hidden', cursor: 'pointer',
         background: thumbnail ? 'none' : gradientForMime(file.mimeType), backgroundSize: 'cover',
         outline: selected ? '3px solid' : 'none',
-        outlineColor: 'primary.main',
-        '&:hover': { opacity: 0.85 },
+        outlineColor: '#0088cc',
+        bgcolor: '#F0F6FA', boxShadow: '0 1px 3px rgba(0,136,204,0.1)',
+        transition: 'all 200ms',
+        '&:hover': { boxShadow: '0 8px 25px rgba(0,136,204,0.15)', transform: 'translateY(-2px)' },
+        backdropFilter: 'blur(4px)',
+        border: '1px solid rgba(0,136,204,0.1)',
       }}
     >
       {thumbnail && (
         <Box component="img" src={thumbnail} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       )}
+      {!thumbnail && (
+        <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <InsertDriveFileIcon sx={{ fontSize: 48, color: 'rgba(255,255,255,0.6)' }} />
+        </Box>
+      )}
       {selectMode && (
         <Checkbox
           checked={selected}
-          sx={{ position: 'absolute', top: 4, left: 4, color: 'white', '&.Mui-checked': { color: 'primary.main' } }}
+          sx={{ position: 'absolute', top: 8, left: 8, bgcolor: selected ? '#0088cc' : 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', borderRadius: 0.5, color: selected ? 'white' : '#0088cc', '&.Mui-checked': { color: 'white' }, transition: 'all 200ms' }}
         />
       )}
       {file.mimeType.startsWith('video/') && !selectMode && (
