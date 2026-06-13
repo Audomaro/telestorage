@@ -32,7 +32,6 @@ interface TelegramAPI {
   stopVideoStream(streamId: string): Promise<void>
   loadMoreFiles(groupId: number, offsetId?: number, search?: string): Promise<{ files: FileResult[]; hasMore: boolean; nextOffsetId?: number }>
   deleteFile(groupId: number, messageId: number): Promise<void>
-  forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void>
   getSettings(): Promise<AppSettings>
   setSettings(s: Partial<AppSettings>): Promise<AppSettings>
   selectFolder(): Promise<string | null>

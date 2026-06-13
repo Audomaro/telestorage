@@ -21,14 +21,14 @@ const pdfFile: TelegramFile = {
 describe('PreviewModal', () => {
   it('should render file name in toolbar', async () => {
     window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/doc.pdf') } as any
-    render(<PreviewModal file={pdfFile} files={[pdfFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper })
+    render(<PreviewModal file={pdfFile} files={[pdfFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} />, { wrapper: Wrapper })
     expect(screen.getByText('doc.pdf')).toBeDefined()
   })
 
   it('should render image when downloadPreview resolves', async () => {
     window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
     render(
-      <PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper }
+      <PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} />, { wrapper: Wrapper }
     )
     await waitFor(() => {
       const img = screen.getByTestId('preview-image')
@@ -40,7 +40,7 @@ describe('PreviewModal', () => {
   it('should call onClose when close button clicked', async () => {
     window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
     const onClose = vi.fn()
-    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={onClose} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper })
+    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={onClose} onDelete={vi.fn()} />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(screen.getByLabelText('Cerrar')).toBeDefined()
     })
@@ -51,7 +51,7 @@ describe('PreviewModal', () => {
   it('should call onDelete when delete button clicked', async () => {
     window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
     const onDelete = vi.fn()
-    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={onDelete} onForward={vi.fn()} />, { wrapper: Wrapper })
+    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={onDelete} />, { wrapper: Wrapper })
     await waitFor(() => {
       expect(screen.getByLabelText('Eliminar')).toBeDefined()
     })
@@ -59,20 +59,19 @@ describe('PreviewModal', () => {
     expect(onDelete).toHaveBeenCalledWith(imageFile)
   })
 
-  it('should call onForward when forward button clicked', async () => {
-    window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('/tmp/foto.jpg') } as any
-    const onForward = vi.fn()
-    render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={onForward} />, { wrapper: Wrapper })
+  it('should render embed for pdf files', async () => {
+    window.telegramAPI = { downloadPreview: vi.fn().mockResolvedValue('C:\\tmp\\doc.pdf') } as any
+    render(<PreviewModal file={pdfFile} files={[pdfFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByLabelText('Reenviar')).toBeDefined()
+      const embed = document.querySelector('embed')
+      expect(embed).toBeDefined()
+      expect(embed?.getAttribute('src')).toBe('file:///C:/tmp/doc.pdf')
     })
-    fireEvent.click(screen.getByLabelText('Reenviar'))
-    expect(onForward).toHaveBeenCalledWith(imageFile)
   })
 
   it('should return null when file is null', () => {
     window.telegramAPI = { downloadPreview: vi.fn() } as any
-    const { container } = render(<PreviewModal file={null} files={[]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} onForward={vi.fn()} />, { wrapper: Wrapper })
+    const { container } = render(<PreviewModal file={null} files={[]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={vi.fn()} />, { wrapper: Wrapper })
     expect(container.innerHTML).toBe('')
   })
 })

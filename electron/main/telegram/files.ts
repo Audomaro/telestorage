@@ -370,9 +370,4 @@ export async function downloadThumbnail(groupId: number, messageId: number, dest
   return destPath
 }
 
-export async function forwardFile(fromGroupId: number, toGroupId: number, messageId: number): Promise<void> {
-  const client = getClient()
-  if (!client) throw new Error('Not authenticated')
 
-  await client.forwardMessages(toGroupId, { messages: [messageId], fromPeer: fromGroupId })
-}

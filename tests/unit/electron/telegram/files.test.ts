@@ -27,10 +27,6 @@ describe('File functions exports', () => {
     expect(mod.deleteFile).toBeDefined()
   })
 
-  it('should export forwardFile', async () => {
-    const mod = await import('../../../../electron/main/telegram/files')
-    expect(mod.forwardFile).toBeDefined()
-  })
 })
 
 describe('downloadFileWithProgress', () => {

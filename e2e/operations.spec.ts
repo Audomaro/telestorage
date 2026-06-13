@@ -127,29 +127,4 @@ test.describe('File Operations', () => {
     await expect(page.getByRole('button', { name: /descargar seleccionados/i })).toBeVisible()
   })
 
-  test('forward dialog opens', async ({ page }) => {
-    await openFirstGroup(page)
-    
-    const files = page.getByTestId('file-list-item')
-    if (await files.count() === 0) {
-      test.skip(true, 'No files to test forward')
-    }
-    
-    // Click preview button to open preview modal
-    const previewButton = files.first().getByRole('button', { name: /vista previa/i })
-    if (await previewButton.isVisible().catch(() => false)) {
-      await previewButton.click()
-      await page.waitForTimeout(500)
-      
-      // Click forward button in preview
-      await page.getByRole('button', { name: /reenviar/i }).click()
-      await page.waitForTimeout(500)
-      
-      // Forward dialog should appear
-      await expect(page.getByRole('dialog')).toBeVisible()
-      await expect(page.getByText(/reenviar archivo/i)).toBeVisible()
-    } else {
-      test.skip(true, 'No previewable files to test forward')
-    }
-  })
 })

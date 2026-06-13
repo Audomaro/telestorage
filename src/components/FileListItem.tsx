@@ -30,7 +30,7 @@ function fileIcon(mimeType: string) {
 }
 
 export default function FileListItem({ file, isReadOnly, selectMode, selected, onDownload, onDelete, onToggleSelect, onPreview }: FileListItemProps) {
-  const isPreviewable = file.mimeType.startsWith('image/') || file.mimeType.startsWith('video/')
+  const isPreviewable = file.mimeType.startsWith('image/') || file.mimeType.startsWith('video/') || file.mimeType === 'application/pdf'
 
   return (
     <TableRow hover selected={selected} data-testid="file-list-item"

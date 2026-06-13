@@ -11,7 +11,6 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import DownloadIcon from '@mui/icons-material/Download'
 import DeleteIcon from '@mui/icons-material/Delete'
-import ForwardIcon from '@mui/icons-material/Forward'
 import { TelegramFile } from '../types'
 
 interface PreviewModalProps {
@@ -21,12 +20,11 @@ interface PreviewModalProps {
   isReadOnly: boolean
   onClose: () => void
   onDelete: (file: TelegramFile) => void
-  onForward: (file: TelegramFile) => void
   onSaveToDisk?: (file: TelegramFile) => void
   onNavigate?: (file: TelegramFile) => void
 }
 
-export default function PreviewModal({ file, files, groupId, isReadOnly, onClose, onDelete, onForward, onSaveToDisk, onNavigate }: PreviewModalProps) {
+export default function PreviewModal({ file, files, groupId, isReadOnly, onClose, onDelete, onSaveToDisk, onNavigate }: PreviewModalProps) {
   const [localPath, setLocalPath] = useState('')
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -88,8 +86,9 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [prevFile, nextFile, onNavigate, onClose])
 
-  const isPreviewable = file?.mimeType.startsWith('image/') || file?.mimeType.startsWith('video/')
+  const isPreviewable = file?.mimeType.startsWith('image/') || file?.mimeType.startsWith('video/') || file?.mimeType === 'application/pdf'
   const isVideo = file?.mimeType.startsWith('video/')
+  const isPdf = file?.mimeType === 'application/pdf'
 
   const handlePrev = () => { if (prevFile) onNavigate?.(prevFile) }
   const handleNext = () => { if (nextFile) onNavigate?.(nextFile) }
@@ -112,9 +111,6 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
       <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, py: 0.5, backdropFilter: 'blur(12px)', backgroundColor: 'rgba(255, 255, 255, 0.7)', borderBottom: '1px solid rgba(0, 136, 204, 0.12)' }}>
         <IconButton aria-label="Cerrar" onClick={onClose} sx={{ '&:hover': { backgroundColor: 'rgba(243, 115, 22, 0.1)' } }}><CloseIcon /></IconButton>
         {!isReadOnly && (
-          <Tooltip title="Reenviar"><IconButton aria-label="Reenviar" onClick={() => onForward(file)} sx={{ '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.1)' } }}><ForwardIcon /></IconButton></Tooltip>
-        )}
-        {!isReadOnly && (
           <Tooltip title="Eliminar"><IconButton aria-label="Eliminar" onClick={() => { onClose(); onDelete(file) }} sx={{ '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' } }}><DeleteIcon /></IconButton></Tooltip>
         )}
         <Tooltip title="Guardar en disco"><IconButton aria-label="Guardar en disco" onClick={() => onSaveToDisk?.(file)} sx={{ '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.1)' } }}><DownloadIcon /></IconButton></Tooltip>
@@ -127,11 +123,14 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
             <CircularProgress variant="determinate" value={progress} size={60} />
           </Box>
         )}
-        {!loading && localPath && isPreviewable && !isVideo && (
+        {!loading && localPath && isPreviewable && !isVideo && !isPdf && (
           <Box component="img" src={localPath} data-testid="preview-image" sx={{ maxWidth: '90%', maxHeight: '80vh', objectFit: 'contain' }} />
         )}
         {!loading && localPath && isVideo && (
           <Box component="video" src={localPath} controls autoPlay sx={{ maxWidth: '90%', maxHeight: '80vh' }} />
+        )}
+        {!loading && localPath && isPdf && (
+          <embed src={`file:///${localPath.replace(/\\/g, '/')}`} type="application/pdf" style={{ width: '90%', height: '80vh', border: 'none', borderRadius: '8px' }} />
         )}
         {!loading && !localPath && (
           <Typography color="text.secondary">{file.name}</Typography>

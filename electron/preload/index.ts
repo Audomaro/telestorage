@@ -52,8 +52,6 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   stopVideoStream: (streamId: string) => ipcRenderer.invoke('video:stopStream', streamId),
   loadMoreFiles: (groupId: number, offsetId?: number, search?: string) => ipcRenderer.invoke('files:listMore', { groupId, offsetId, search }),
   deleteFile: (groupId: number, messageId: number) => ipcRenderer.invoke('files:delete', groupId, messageId),
-  forwardFile: (fromGroupId: number, toGroupId: number, messageId: number) =>
-    ipcRenderer.invoke('files:forward', fromGroupId, toGroupId, messageId),
   getSettings: () => ipcRenderer.invoke('settings:get'),
   setSettings: (s: Record<string, unknown>) => ipcRenderer.invoke('settings:set', s),
   selectFolder: () => ipcRenderer.invoke('dialog:selectFolder'),
