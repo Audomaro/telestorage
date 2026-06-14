@@ -5,6 +5,7 @@ export type UploadStatus = 'uploading' | 'completed' | 'error'
 export interface UploadTask {
   id: string
   fileName: string
+  fileSize?: number
   progress: number
   status: UploadStatus
   error?: string
@@ -13,11 +14,12 @@ export interface UploadTask {
 
 export interface UploadContextValue {
   uploads: UploadTask[]
-  addUpload: (id: string, fileName: string) => void
+  addUpload: (id: string, fileName: string, fileSize?: number) => void
   updateProgress: (id: string, progress: number) => void
   completeUpload: (id: string) => void
   failUpload: (id: string, error: string) => void
   removeUpload: (id: string) => void
+  retryUpload: (id: string) => void
 }
 
 const UploadContext = createContext<UploadContextValue>({
@@ -27,6 +29,7 @@ const UploadContext = createContext<UploadContextValue>({
   completeUpload: () => {},
   failUpload: () => {},
   removeUpload: () => {},
+  retryUpload: () => {},
 })
 
 export const useUpload = () => useContext(UploadContext)
@@ -34,8 +37,8 @@ export const useUpload = () => useContext(UploadContext)
 export function UploadProvider({ children }: { children: ReactNode }) {
   const [uploads, setUploads] = useState<UploadTask[]>([])
 
-  const addUpload = useCallback((id: string, fileName: string) => {
-    setUploads(prev => [...prev, { id, fileName, progress: 0, status: 'uploading' }])
+  const addUpload = useCallback((id: string, fileName: string, fileSize?: number) => {
+    setUploads(prev => [...prev, { id, fileName, fileSize, progress: 0, status: 'uploading' }])
   }, [])
 
   const updateProgress = useCallback((id: string, progress: number) => {
@@ -54,8 +57,12 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     setUploads(prev => prev.filter(u => u.id !== id))
   }, [])
 
+  const retryUpload = useCallback((id: string) => {
+    setUploads(prev => prev.map(u => u.id === id ? { ...u, status: 'uploading', progress: 0, error: undefined } : u))
+  }, [])
+
   return (
-    <UploadContext.Provider value={{ uploads, addUpload, updateProgress, completeUpload, failUpload, removeUpload }}>
+    <UploadContext.Provider value={{ uploads, addUpload, updateProgress, completeUpload, failUpload, removeUpload, retryUpload }}>
       {children}
     </UploadContext.Provider>
   )

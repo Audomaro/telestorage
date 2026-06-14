@@ -142,7 +142,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
     const settings = await window.telegramAPI.getSettings()
     const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
     const downloadId = `${file.messageId}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`
-    addDownload(downloadId, file.name)
+    addDownload(downloadId, file.name, file.size)
     showSnackbar('Descarga agregada a la lista', 'success')
     try {
       await window.telegramAPI.downloadFileWithProgress(

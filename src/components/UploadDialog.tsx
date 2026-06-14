@@ -67,7 +67,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
 
     const uploadPromises = files.map(f => {
       const uploadId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-      addUpload(uploadId, f.name)
+      addUpload(uploadId, f.name, f.size)
 
       const uploadPromise = f.path
         ? window.telegramAPI.uploadFileWithProgress(groupId, f.path, topicId, (p: number) => updateProgress(uploadId, p))

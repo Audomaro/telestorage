@@ -5,6 +5,7 @@ export type DownloadStatus = 'downloading' | 'completed' | 'error'
 export interface DownloadTask {
   id: string
   fileName: string
+  fileSize?: number
   progress: number
   status: DownloadStatus
   error?: string
@@ -14,11 +15,12 @@ export interface DownloadTask {
 
 export interface DownloadContextValue {
   downloads: DownloadTask[]
-  addDownload: (id: string, fileName: string) => void
+  addDownload: (id: string, fileName: string, fileSize?: number) => void
   updateProgress: (id: string, progress: number) => void
   completeDownload: (id: string, destPath: string) => void
   failDownload: (id: string, error: string) => void
   removeDownload: (id: string) => void
+  retryDownload: (id: string) => void
 }
 
 const DownloadContext = createContext<DownloadContextValue>({
@@ -28,6 +30,7 @@ const DownloadContext = createContext<DownloadContextValue>({
   completeDownload: () => {},
   failDownload: () => {},
   removeDownload: () => {},
+  retryDownload: () => {},
 })
 
 export const useDownload = () => useContext(DownloadContext)
@@ -35,8 +38,8 @@ export const useDownload = () => useContext(DownloadContext)
 export function DownloadProvider({ children }: { children: ReactNode }) {
   const [downloads, setDownloads] = useState<DownloadTask[]>([])
 
-  const addDownload = useCallback((id: string, fileName: string) => {
-    setDownloads(prev => [...prev, { id, fileName, progress: 0, status: 'downloading' }])
+  const addDownload = useCallback((id: string, fileName: string, fileSize?: number) => {
+    setDownloads(prev => [...prev, { id, fileName, fileSize, progress: 0, status: 'downloading' }])
   }, [])
 
   const updateProgress = useCallback((id: string, progress: number) => {
@@ -55,8 +58,12 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
     setDownloads(prev => prev.filter(d => d.id !== id))
   }, [])
 
+  const retryDownload = useCallback((id: string) => {
+    setDownloads(prev => prev.map(d => d.id === id ? { ...d, status: 'downloading', progress: 0, error: undefined } : d))
+  }, [])
+
   return (
-    <DownloadContext.Provider value={{ downloads, addDownload, updateProgress, completeDownload, failDownload, removeDownload }}>
+    <DownloadContext.Provider value={{ downloads, addDownload, updateProgress, completeDownload, failDownload, removeDownload, retryDownload }}>
       {children}
     </DownloadContext.Provider>
   )
