@@ -8,11 +8,12 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
 import IconButton from '@mui/material/IconButton'
-import LinearProgress from '@mui/material/LinearProgress'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import { useSnackbar } from '../theme/SnackbarContext'
+import { useUpload } from '../theme/UploadContext'
 
 interface UploadDialogProps {
   groupId: number
@@ -33,6 +34,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
   const [files, setFiles] = useState<{ name: string; path?: string; data?: number[] }[]>([])
   const [uploading, setUploading] = useState(false)
   const { showSnackbar } = useSnackbar()
+  const { addUpload, updateProgress, completeUpload, failUpload } = useUpload()
 
   const handlePick = async () => {
     const paths: string[] = await window.telegramAPI.pickFiles()
@@ -59,25 +61,26 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
     })
   }
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (files.length === 0 || uploading) return
     setUploading(true)
-    const errors: string[] = []
-    for (const f of files) {
-      try {
-        if (f.path) {
-          await window.telegramAPI.uploadFile(groupId, f.path, topicId)
-        } else if (f.data) {
-          await window.telegramAPI.uploadTempFile(groupId, f.name, f.data, topicId)
-        }
-      } catch {
-        errors.push(f.name)
-      }
-    }
-    setUploading(false)
-    if (errors.length > 0) {
-      showSnackbar(`Errores al subir:\n${errors.join(', ')}`, 'error')
-    }
+
+    files.forEach(f => {
+      const uploadId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      addUpload(uploadId, f.name)
+
+      const uploadPromise = f.path
+        ? window.telegramAPI.uploadFileWithProgress(groupId, f.path, topicId, (p: number) => updateProgress(uploadId, p))
+        : f.data
+          ? window.telegramAPI.uploadTempFileWithProgress(groupId, f.name, f.data, topicId, (p: number) => updateProgress(uploadId, p))
+          : Promise.resolve()
+
+      uploadPromise
+        .then(() => completeUpload(uploadId))
+        .catch((err: any) => failUpload(uploadId, err.message || 'Error al subir'))
+    })
+
+    showSnackbar(`${files.length} archivo(s) agregados a la cola de subida`, 'success')
     onUploadComplete()
   }
 
@@ -98,7 +101,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
         }
       }}
     >
-      <DialogTitle sx={{ fontWeight: 600, color: '#222222' }}>{uploading ? 'Subiendo archivos...' : 'Subir archivos'}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 600, color: '#222222' }}>{uploading ? 'Iniciando subidas...' : 'Subir archivos'}</DialogTitle>
       <DialogContent sx={{ py: 2 }}>
         <Box
           onDrop={handleDrop}
@@ -133,19 +136,18 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
                   <CloseIcon fontSize="small" />
                 </IconButton>
               }>
-                <Typography variant="body2" sx={{ color: '#222222' }}>{f.name}</Typography>
+                <ListItemText primary={f.name} primaryTypographyProps={{ variant: 'body2', sx: { color: '#222222' } }} />
               </ListItem>
             ))}
           </List>
         )}
-        {uploading && <LinearProgress sx={{ mt: 1, '& .MuiLinearProgress-bar': { backgroundColor: '#0088cc' } }} />}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={uploading} variant="outlined" sx={{ color: '#222222', borderColor: 'rgba(34, 34, 34, 0.3)', borderRadius: '8px', fontWeight: 600, transition: 'all 200ms', '&:hover': { borderColor: '#222222', backgroundColor: 'rgba(34, 34, 34, 0.04)' } }}>Cancelar</Button>
         <Button onClick={handleUpload} variant="contained" disabled={files.length === 0 || uploading}
           sx={{ backgroundColor: '#F97316', borderRadius: '8px', fontWeight: 600, transition: 'all 200ms', '&:hover': { backgroundColor: '#EA580C', transform: 'translateY(-1px)' }, '&.Mui-disabled': { backgroundColor: 'rgba(249, 115, 22, 0.4)' } }}
         >
-          {uploading ? 'Subiendo...' : 'Subir'}
+          {uploading ? 'Iniciando...' : 'Subir'}
         </Button>
       </DialogActions>
     </Dialog>
