@@ -25,7 +25,8 @@ import { TelegramGroup, ForumTopic } from './types'
 import { ColorModeProvider, useColorMode } from './theme/ColorModeContext'
 import { SnackbarProvider } from './theme/SnackbarContext'
 import { DownloadProvider } from './theme/DownloadContext'
-import DownloadPanel from './components/DownloadPanel'
+import { UploadProvider } from './theme/UploadContext'
+import TransferPanel from './components/TransferPanel'
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -114,7 +115,7 @@ function AppContent() {
         </Box>
       {showDownloads && (
         <Box sx={{ flexShrink: 0 }}>
-          <DownloadPanel />
+          <TransferPanel />
         </Box>
       )}
       </Box>
@@ -142,7 +143,9 @@ export default function App() {
     <ColorModeProvider>
       <SnackbarProvider>
         <DownloadProvider>
-          <AppContent />
+          <UploadProvider>
+            <AppContent />
+          </UploadProvider>
         </DownloadProvider>
       </SnackbarProvider>
     </ColorModeProvider>
