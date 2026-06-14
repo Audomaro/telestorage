@@ -37,6 +37,8 @@ interface TelegramAPI {
   selectFolder(): Promise<string | null>
   pickFiles(): Promise<string[]>
   uploadTempFile(groupId: number, fileName: string, data: number[], topicId?: number): Promise<any>
+  uploadFileWithProgress(groupId: number, filePath: string, topicId: number | undefined, onProgress: (p: number) => void): Promise<any>
+  uploadTempFileWithProgress(groupId: number, fileName: string, data: number[], topicId: number | undefined, onProgress: (p: number) => void): Promise<any>
   showInFolder(filePath: string): Promise<void>
   getLogPath(): Promise<string>
   openLogFolder(): Promise<void>
