@@ -130,5 +130,44 @@ export const getTheme = (mode: 'light' | 'dark') => createTheme({
         },
       },
     },
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          scrollbarWidth: 'thin',
+          scrollbarColor: mode === 'dark' ? '#334155 #0F172A' : '#99C2D9 #F0F6FA',
+          '&::-webkit-scrollbar': {
+            width: 6,
+            height: 6,
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: mode === 'dark' ? '#0F172A' : '#F0F6FA',
+            borderRadius: 3,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: mode === 'dark' ? '#334155' : alpha('#0088cc', 0.5),
+            borderRadius: 3,
+            '&:hover': {
+              backgroundColor: mode === 'dark' ? '#475569' : alpha('#0088cc', 0.7),
+            },
+          },
+        },
+        '*': {
+          '&::-webkit-scrollbar': {
+            width: 6,
+            height: 6,
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: mode === 'dark' ? '#334155' : alpha('#0088cc', 0.3),
+            borderRadius: 3,
+            '&:hover': {
+              backgroundColor: mode === 'dark' ? '#475569' : alpha('#0088cc', 0.5),
+            },
+          },
+        },
+      },
+    },
   },
 })

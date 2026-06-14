@@ -127,7 +127,7 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
         )}
       </Box>
 
-      <Dialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)}>
+      <Dialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Crear tema</DialogTitle>
         <DialogContent>
           <TextField inputRef={createInputRef} placeholder="Nombre del tema" fullWidth sx={{ mt: 1 }}

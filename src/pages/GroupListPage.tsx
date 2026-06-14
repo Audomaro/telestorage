@@ -259,7 +259,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         )}
       </Box>
 
-      <Dialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)}>
+      <Dialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Nuevo grupo</DialogTitle>
         <DialogContent>
           <TextField inputRef={createInputRef} placeholder="Nombre del grupo" fullWidth sx={{ mt: 1 }}
@@ -282,10 +282,10 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         </DialogActions>
       </Dialog>
 
-      <Dialog open={showAddExistingDialog} onClose={() => { setShowAddExistingDialog(false); setSelectedAddGroup(null); setAddGroupSearch('') }}>
+      <Dialog open={showAddExistingDialog} onClose={() => { setShowAddExistingDialog(false); setSelectedAddGroup(null); setAddGroupSearch('') }} maxWidth="xs" fullWidth>
         <DialogTitle>Vincular grupo propio</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText sx={{ mb: 1 }}>
             Selecciona un grupo propio para agregarlo a TeleStorage
           </DialogContentText>
           <TextField
@@ -295,14 +295,19 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
             fullWidth
             value={addGroupSearch}
             onChange={e => setAddGroupSearch(e.target.value)}
-            sx={{ mt: 1, mb: 1 }}
           />
-          <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
+          <Box sx={{ maxHeight: 240, overflowY: 'auto', mt: 1 }}>
             {filteredOwnGroups.map(g => (
               <Box key={g.id} onClick={() => setSelectedAddGroup(g)}
-                sx={{ p: 1, cursor: 'pointer', borderRadius: 1,
-                  bgcolor: selectedAddGroup?.id === g.id ? 'action.selected' : 'transparent', mb: 0.5 }}>
-                {g.title}
+                sx={{
+                  p: 1.5, cursor: 'pointer', borderRadius: 1,
+                  bgcolor: selectedAddGroup?.id === g.id ? 'action.selected' : 'transparent',
+                  '&:hover': { bgcolor: 'action.hover' },
+                  transition: 'background-color 200ms',
+                }}>
+                <Typography variant="body2" sx={{ fontWeight: selectedAddGroup?.id === g.id ? 700 : 400 }}>
+                  {g.title}
+                </Typography>
               </Box>
             ))}
             {filteredOwnGroups.length === 0 && (
@@ -320,7 +325,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         </DialogActions>
       </Dialog>
 
-      <Dialog open={!!deletingGroup} onClose={() => setDeletingGroup(null)}>
+      <Dialog open={!!deletingGroup} onClose={() => setDeletingGroup(null)} maxWidth="xs" fullWidth>
         <DialogTitle>Eliminar grupo</DialogTitle>
         <DialogContent>
           <DialogContentText>

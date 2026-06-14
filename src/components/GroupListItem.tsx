@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -46,11 +47,18 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
           boxShadow: (t) => t.palette.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,136,204,0.15)',
           transform: 'translateY(-2px)',
           borderColor: 'primary.main',
-        }
+          '& .group-actions': { opacity: 1 },
+        },
+        '&:focus-visible': {
+          outline: '2px solid',
+          outlineColor: 'primary.main',
+          outlineOffset: 2,
+        },
+        '& .group-actions': { opacity: 0, transition: 'opacity 200ms' },
       }}
     >
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, '&:last-child': { pb: 1.5 } }}>
-        <Avatar sx={{ bgcolor: group.isOwner ? 'primary.main' : '#FF9800', width: 40, height: 40, fontSize: 16 }}>
+        <Avatar sx={{ bgcolor: group.isOwner ? 'primary.main' : 'warning.main', width: 40, height: 40, fontSize: 16 }}>
           {getInitials(group.title)}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -73,16 +81,22 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
             )}
           </Box>
         </Box>
-        {onRename && group.isOwner && (
-          <IconButton size="small" onClick={e => { e.stopPropagation(); setRenameTitle(group.title); setRenameOpen(true) }} aria-label="Renombrar grupo">
-            <EditIcon fontSize="small" />
-          </IconButton>
-        )}
-        {onDelete && group.isOwner && (
-          <IconButton size="small" onClick={e => { e.stopPropagation(); onDelete(group) }} aria-label="Eliminar grupo">
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        )}
+        <Box className="group-actions">
+          {onRename && group.isOwner && (
+            <Tooltip title="Renombrar">
+              <IconButton size="small" onClick={e => { e.stopPropagation(); setRenameTitle(group.title); setRenameOpen(true) }} aria-label="Renombrar grupo">
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+          {onDelete && group.isOwner && (
+            <Tooltip title="Eliminar">
+              <IconButton size="small" onClick={e => { e.stopPropagation(); onDelete(group) }} aria-label="Eliminar grupo">
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
       </CardContent>
     </Paper>
     <Dialog open={renameOpen} onClose={() => setRenameOpen(false)} maxWidth="xs" fullWidth>

@@ -13,6 +13,7 @@ import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { ForumTopic } from '../types'
@@ -46,11 +47,32 @@ export default function ForumTopicListItem({ topic, onClick, onRename, canRename
     <>
     <Card
       data-testid="forum-topic-list-item"
-      sx={{ cursor: 'pointer', borderRadius: 2, bgcolor: 'background.paper', border: 1, borderColor: 'divider', transition: 'all 200ms', '&:hover': { boxShadow: (t) => t.palette.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,136,204,0.15)', transform: 'translateY(-2px)', borderColor: 'primary.main' } }}
+      tabIndex={0}
+      sx={{
+        cursor: 'pointer',
+        borderRadius: 2,
+        bgcolor: 'background.paper',
+        border: 1,
+        borderColor: 'divider',
+        transition: 'all 200ms',
+        '&:hover': {
+          boxShadow: (t) => t.palette.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,136,204,0.15)',
+          transform: 'translateY(-2px)',
+          borderColor: 'primary.main',
+          '& .topic-actions': { opacity: 1 },
+        },
+        '&:focus-visible': {
+          outline: '2px solid',
+          outlineColor: 'primary.main',
+          outlineOffset: 2,
+        },
+        '& .topic-actions': { opacity: 0, transition: 'opacity 200ms' },
+      }}
       onClick={() => onClick(topic)}
+      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') onClick(topic) }}
     >
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, '&:last-child': { pb: 1.5 } }}>
-        <Avatar sx={{ bgcolor: color, width: 40, height: 40, fontSize: 16, color: '#fff', boxShadow: `0 2px 6px ${color}60` }}>
+        <Avatar sx={{ bgcolor: color, width: 40, height: 40, fontSize: 16, color: '#fff', boxShadow: `0 2px 8px ${color}80` }}>
           {initial}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -59,16 +81,22 @@ export default function ForumTopicListItem({ topic, onClick, onRename, canRename
             <Chip label="Tema" size="small" color="primary" variant="outlined" />
           </Box>
         </Box>
-        {onRename && canRename && (
-          <IconButton size="small" onClick={e => { e.stopPropagation(); setRenameTitle(topic.title); setRenameOpen(true) }} aria-label="Renombrar tema">
-            <EditIcon fontSize="small" />
-          </IconButton>
-        )}
-        {onDelete && canRename && (
-          <IconButton size="small" onClick={e => { e.stopPropagation(); setConfirmDeleteOpen(true) }} aria-label="Eliminar tema">
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        )}
+        <Box className="topic-actions">
+          {onRename && canRename && (
+            <Tooltip title="Renombrar tema">
+              <IconButton size="small" onClick={e => { e.stopPropagation(); setRenameTitle(topic.title); setRenameOpen(true) }} aria-label="Renombrar tema">
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+          {onDelete && canRename && (
+            <Tooltip title="Eliminar tema">
+              <IconButton size="small" onClick={e => { e.stopPropagation(); setConfirmDeleteOpen(true) }} aria-label="Eliminar tema">
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
       </CardContent>
     </Card>
     <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)} maxWidth="xs" fullWidth>
