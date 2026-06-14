@@ -168,9 +168,6 @@ export async function listFilesByTopic(groupId: number, topicId: number, limit: 
   const client = getClient()
   if (!client) throw new Error('Not authenticated')
 
-  // Use replyTo to fetch only messages from the specific forum topic.
-  // GramJS maps replyTo -> messages.GetReplies, the correct API for forum topics.
-  // GetHistory/Search (without topMsgId) only returns messages from the general topic.
   const messages = await client.getMessages(groupId, { limit, offsetId, replyTo: topicId })
 
   if (messages.length === 0) {
@@ -179,7 +176,6 @@ export async function listFilesByTopic(groupId: number, topicId: number, limit: 
 
   let topicMessages = messages.filter((m: any) => m.media)
 
-  // Client-side search by filename (GetReplies doesn't support server-side search)
   if (search) {
     const term = search.toLowerCase()
     topicMessages = topicMessages.filter((m: any) => {

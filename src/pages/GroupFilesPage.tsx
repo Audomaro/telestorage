@@ -13,7 +13,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 import Alert from '@mui/material/Alert'
 import InsertDriveFileOutlined from '@mui/icons-material/InsertDriveFileOutlined'
 import ImageOutlined from '@mui/icons-material/ImageOutlined'
-import { TelegramGroup, TelegramFile, ViewMode, FileFilter, SortField, SortDirection, ForumTopic } from '../types'
+import { TelegramGroup, TelegramFile, ViewMode, FileFilter, ForumTopic } from '../types'
 import Toolbar from '../components/Toolbar'
 import FileList from '../components/FileList'
 import FileGrid from '../components/FileGrid'
@@ -51,8 +51,6 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [confirmBatchDelete, setConfirmBatchDelete] = useState(false)
-  const [sortField, setSortField] = useState<SortField>('name')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [searchQuery, setSearchQuery] = useState('')
   const prevSearchRef = useRef(searchQuery)
   const { showSnackbar } = useSnackbar()
@@ -60,7 +58,6 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
 
   useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
   useEffect(() => { hasMoreRef.current = hasMore }, [hasMore])
-
   const loadInitialFiles = useCallback(async (query?: string) => {
     setAllFiles([])
     setHasMore(true)
@@ -140,27 +137,6 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
     if (viewMode === 'gallery') return result.filter(f => isMedia(f.mimeType) && !isExcludedFromMedia(f.name, excludedFromMedia))
     return result
   }, [allFiles, filter, viewMode, excludedFromMedia])
-
-  const sortedFiles = useMemo(() => {
-    return [...filteredFiles].sort((a, b) => {
-      let cmp = 0
-      switch (sortField) {
-        case 'name':
-          cmp = a.name.localeCompare(b.name)
-          break
-        case 'size':
-          cmp = a.size - b.size
-          break
-        case 'date':
-          cmp = new Date(a.date).getTime() - new Date(b.date).getTime()
-          break
-        case 'type':
-          cmp = a.mimeType.localeCompare(b.mimeType)
-          break
-      }
-      return sortDirection === 'asc' ? cmp : -cmp
-    })
-  }, [filteredFiles, sortField, sortDirection])
 
   const downloadWithTracking = async (file: TelegramFile, errorLabel: string) => {
     const settings = await window.telegramAPI.getSettings()
@@ -251,21 +227,6 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
     }
   }
 
-  const handleSort = useCallback((field: SortField) => {
-    setSortField(prev => {
-      if (prev === field) {
-        setSortDirection(d => d === 'asc' ? 'desc' : 'asc')
-        return prev
-      }
-      setSortDirection('asc')
-      return field
-    })
-  }, [])
-
-  const handleSortDirectionToggle = useCallback(() => {
-    setSortDirection(d => d === 'asc' ? 'desc' : 'asc')
-  }, [])
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#F0F6FA' }}>
       <Box sx={{ bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(0,136,204,0.15)' }}>
@@ -283,10 +244,6 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
         onBatchDownload={handleBatchDownload}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSortChange={handleSort}
-        onSortDirectionToggle={handleSortDirectionToggle}
       />
       </Box>
 
@@ -316,15 +273,14 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
             <Button size="small" onClick={() => loadInitialFiles(searchQuery || undefined)} sx={{ ml: 1 }}>Reintentar</Button>
           </Alert>
         ) : viewMode === 'list' ? (
-          <FileList files={sortedFiles} isReadOnly={!group.isOwner}
+          <FileList files={filteredFiles} isReadOnly={!group.isOwner}
             selectMode={selectMode} selectedIds={selectedIds}
-            onDownload={handleDownload} onDelete={handleDelete} onToggleSelect={handleToggleSelect} onPreview={handlePreviewOpen}
-            sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+            onDownload={handleDownload} onDelete={handleDelete} onToggleSelect={handleToggleSelect} onPreview={handlePreviewOpen} />
         ) : (
-          <FileGrid files={sortedFiles} selectMode={selectMode} selectedIds={selectedIds}
+          <FileGrid files={filteredFiles} selectMode={selectMode} selectedIds={selectedIds}
             onPreview={handlePreviewOpen} onToggleSelect={handleToggleSelect} />
         )}
-        {sortedFiles.length === 0 && !loading && !error && (
+        {filteredFiles.length === 0 && !loading && !error && (
           <EmptyState
             icon={filter === 'media' ? <ImageOutlined /> : <InsertDriveFileOutlined />}
             title={filter === 'media' ? 'Sin archivos multimedia' : 'Sin archivos'}
@@ -343,7 +299,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
       {previewFile && (
         <PreviewModal
           file={previewFile}
-          files={sortedFiles}
+          files={filteredFiles}
           groupId={group.id}
           isReadOnly={!group.isOwner}
           onClose={() => setPreviewFile(null)}

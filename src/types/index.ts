@@ -38,6 +38,5 @@ export interface TelegramFile {
 
 export type ViewMode = 'list' | 'gallery'
 export type FileFilter = 'all' | 'media' | 'documents'
-export type SortField = 'name' | 'size' | 'date' | 'type'
-export type SortDirection = 'asc' | 'desc'
+
 export type AuthStep = 'phone' | 'code' | '2fa' | 'done'
