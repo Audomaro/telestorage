@@ -65,7 +65,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
     if (files.length === 0 || uploading) return
     setUploading(true)
 
-    files.forEach(f => {
+    const uploadPromises = files.map(f => {
       const uploadId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
       addUpload(uploadId, f.name)
 
@@ -75,13 +75,17 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
           ? window.telegramAPI.uploadTempFileWithProgress(groupId, f.name, f.data, topicId, (p: number) => updateProgress(uploadId, p))
           : Promise.resolve()
 
-      uploadPromise
+      return uploadPromise
         .then(() => completeUpload(uploadId))
         .catch((err: any) => failUpload(uploadId, err.message || 'Error al subir'))
     })
 
     showSnackbar(`${files.length} archivo(s) agregados a la cola de subida`, 'success')
     onUploadComplete()
+
+    Promise.allSettled(uploadPromises).then(() => {
+      onUploadComplete()
+    })
   }
 
   return (
