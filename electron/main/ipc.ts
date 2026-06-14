@@ -4,7 +4,7 @@ import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup, getForumTopics } from './telegram/groups'
-import { listFiles, listFilesBatch, listFilesByTopic, uploadFile, uploadMultipleFiles, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile } from './telegram/files'
+import { listFiles, listFilesBatch, listFilesByTopic, uploadFile, uploadMultipleFiles, uploadFileWithProgress, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile } from './telegram/files'
 import { startStreamServer, registerStream, unregisterStream, getStreamServerPort } from './streamServer'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
 
