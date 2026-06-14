@@ -3,7 +3,7 @@ import log from 'electron-log/main'
 import { join } from 'path'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
-import { getGroups, getArchivedGroups, createGroup, deleteGroup, getForumTopics } from './telegram/groups'
+import { getGroups, getArchivedGroups, createGroup, deleteGroup, getForumTopics, renameGroup, renameForumTopic, createForumTopic, deleteForumTopic } from './telegram/groups'
 import { listFiles, listFilesBatch, listFilesByTopic, uploadFile, uploadMultipleFiles, uploadFileWithProgress, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile } from './telegram/files'
 import { startStreamServer, registerStream, unregisterStream, getStreamServerPort } from './streamServer'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
@@ -66,8 +66,8 @@ export async function registerIpcHandlers(): Promise<void> {
     return getArchivedGroups()
   })
 
-  ipcMain.handle('groups:create', async (_event, title: string) => {
-    return createGroup(title)
+  ipcMain.handle('groups:create', async (_event, title: string, isForum = false) => {
+    return createGroup(title, isForum)
   })
 
   ipcMain.handle('groups:delete', async (_event, groupId: number) => {
@@ -82,7 +82,23 @@ export async function registerIpcHandlers(): Promise<void> {
     return getForumTopics(groupId)
   })
 
-  ipcMain.handle('files:list', async (_event, groupId: number) => {
+  ipcMain.handle('groups:rename', async (_event, groupId: number, title: string) => {
+    return renameGroup(groupId, title)
+  })
+
+ipcMain.handle('groups:renameTopic', async (_event, groupId: number, topicId: number, title: string) => {
+  return renameForumTopic(groupId, topicId, title)
+})
+
+ipcMain.handle('groups:createTopic', async (_event, groupId: number, title: string) => {
+  return createForumTopic(groupId, title)
+})
+
+ipcMain.handle('groups:deleteTopic', async (_event, groupId: number, topicId: number) => {
+  return deleteForumTopic(groupId, topicId)
+})
+
+ipcMain.handle('files:list', async (_event, groupId: number) => {
     return listFiles(groupId)
   })
 

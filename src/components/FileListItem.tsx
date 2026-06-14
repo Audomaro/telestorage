@@ -51,6 +51,9 @@ export default function FileListItem({ file, isReadOnly, selectMode, selected, o
         <Typography variant="body2" color="text.secondary">{formatDate(file.date)}</Typography>
       </TableCell>
       <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
+        <Typography variant="body2" color="text.secondary">{file.mimeType.split('/').pop()?.toUpperCase() || file.mimeType}</Typography>
+      </TableCell>
+      <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
         <IconButton size="small" onClick={() => onDownload(file)} aria-label="Descargar"
           sx={{ transition: 'all 200ms', '&:hover': { bgcolor: 'rgba(0,136,204,0.1)' } }}><DownloadIcon fontSize="small" /></IconButton>
         {isPreviewable && onPreview && (

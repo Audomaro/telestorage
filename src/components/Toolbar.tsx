@@ -5,6 +5,10 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import GridViewIcon from '@mui/icons-material/GridView'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
@@ -13,7 +17,9 @@ import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DownloadIcon from '@mui/icons-material/Download'
 import SearchIcon from '@mui/icons-material/Search'
-import { ViewMode, FileFilter } from '../types'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+import { ViewMode, FileFilter, SortField, SortDirection } from '../types'
 
 interface ToolbarProps {
   viewMode: ViewMode
@@ -29,9 +35,15 @@ interface ToolbarProps {
   onBatchDownload?: () => void
   searchQuery?: string
   onSearchChange?: (query: string) => void
+  sortField?: SortField
+  sortDirection?: SortDirection
+  onSortChange?: (field: SortField) => void
+  onSortDirectionToggle?: () => void
 }
 
-export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete, onBatchDownload, searchQuery, onSearchChange }: ToolbarProps) {
+export default function Toolbar({ viewMode, filter, showUpload, selectMode, selectedCount, onViewModeChange, onFilterChange, onUpload, onToggleSelectMode, onBatchDelete, onBatchDownload, searchQuery, onSearchChange, sortField, sortDirection, onSortChange, onSortDirectionToggle }: ToolbarProps) {
+  const activeSortField = sortField ?? 'name'
+  const activeSortDir = sortDirection ?? 'asc'
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 10 }}>
       {viewMode === 'list' && (
@@ -55,6 +67,22 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
         }}
         sx={{ minWidth: 200, '& .MuiInputBase-root': { fontSize: '0.875rem', borderRadius: 2 }, '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#0088cc', borderWidth: 2 } }}
       />
+      <FormControl size="small" sx={{ minWidth: 120 }}>
+        <Select
+          value={activeSortField}
+          onChange={e => onSortChange?.(e.target.value as SortField)}
+          displayEmpty
+          sx={{ fontSize: '0.8rem', borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(0,136,204,0.3)' }, '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#0088cc' } }}
+        >
+          <MenuItem value="name" sx={{ fontSize: '0.8rem' }}>Nombre</MenuItem>
+          <MenuItem value="size" sx={{ fontSize: '0.8rem' }}>Tamaño</MenuItem>
+          <MenuItem value="date" sx={{ fontSize: '0.8rem' }}>Fecha</MenuItem>
+          <MenuItem value="type" sx={{ fontSize: '0.8rem' }}>Tipo</MenuItem>
+        </Select>
+      </FormControl>
+      <IconButton size="small" onClick={onSortDirectionToggle} aria-label={activeSortDir === 'asc' ? 'Orden ascendente' : 'Orden descendente'}>
+        {activeSortDir === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
+      </IconButton>
       <Box sx={{ flex: 1 }} />
       <ToggleButtonGroup size="small" value={viewMode} exclusive onChange={(_, v) => v && onViewModeChange(v)}
         sx={{ '& .MuiToggleButton-root': { px: 1, py: 0.5, borderColor: '#0088cc', color: '#222222', '&.Mui-selected': { bgcolor: '#0088cc', color: 'white', '&:hover': { bgcolor: '#0077b3' } } } }}>

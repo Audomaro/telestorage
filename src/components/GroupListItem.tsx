@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import CardContent from '@mui/material/CardContent'
@@ -6,22 +7,33 @@ import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import GroupIcon from '@mui/icons-material/Group'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
 import { TelegramGroup } from '../types'
 
 interface GroupListItemProps {
   group: TelegramGroup
   onClick: (group: TelegramGroup) => void
   onDelete?: (group: TelegramGroup) => void
+  onRename?: (group: TelegramGroup, newTitle: string) => void
 }
 
 function getInitials(title: string): string {
   return title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
 }
 
-export default function GroupListItem({ group, onClick, onDelete }: GroupListItemProps) {
+export default function GroupListItem({ group, onClick, onDelete, onRename }: GroupListItemProps) {
+  const [renameOpen, setRenameOpen] = useState(false)
+  const [renameTitle, setRenameTitle] = useState(group.title)
   return (
+    <>
     <Paper data-testid="group-list-item" elevation={0} onClick={() => onClick(group)}
       sx={{
         mb: 1,
@@ -67,6 +79,11 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
             )}
           </Box>
         </Box>
+        {onRename && group.isOwner && (
+          <IconButton size="small" onClick={e => { e.stopPropagation(); setRenameTitle(group.title); setRenameOpen(true) }} aria-label="Renombrar grupo">
+            <EditIcon fontSize="small" />
+          </IconButton>
+        )}
         {onDelete && group.isOwner && (
           <IconButton size="small" onClick={e => { e.stopPropagation(); onDelete(group) }} aria-label="Eliminar grupo">
             <DeleteIcon fontSize="small" />
@@ -74,5 +91,16 @@ export default function GroupListItem({ group, onClick, onDelete }: GroupListIte
         )}
       </CardContent>
     </Paper>
+    <Dialog open={renameOpen} onClose={() => setRenameOpen(false)} maxWidth="xs" fullWidth>
+      <DialogTitle>Renombrar grupo</DialogTitle>
+      <DialogContent>
+        <TextField fullWidth autoFocus value={renameTitle} onChange={e => setRenameTitle(e.target.value)} sx={{ mt: 1 }} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setRenameOpen(false)}>Cancelar</Button>
+        <Button variant="contained" onClick={() => { onRename?.(group, renameTitle); setRenameOpen(false) }} sx={{ bgcolor: '#0088cc' }}>Guardar</Button>
+      </DialogActions>
+    </Dialog>
+    </>
   )
 }

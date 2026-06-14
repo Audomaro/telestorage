@@ -1,9 +1,20 @@
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import Avatar from '@mui/material/Avatar'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { ForumTopic } from '../types'
 
 const TOPIC_COLORS: Record<number, string> = {
@@ -19,13 +30,20 @@ const TOPIC_COLORS: Record<number, string> = {
 interface Props {
   topic: ForumTopic
   onClick: (topic: ForumTopic) => void
+  onRename?: (topic: ForumTopic, newTitle: string) => void
+  canRename?: boolean
+  onDelete?: (topic: ForumTopic) => void
 }
 
-export default function ForumTopicListItem({ topic, onClick }: Props) {
+export default function ForumTopicListItem({ topic, onClick, onRename, canRename, onDelete }: Props) {
   const color = TOPIC_COLORS[topic.iconColor] ?? TOPIC_COLORS[0]
   const initial = topic.title.charAt(0).toUpperCase()
+  const [renameOpen, setRenameOpen] = useState(false)
+  const [renameTitle, setRenameTitle] = useState(topic.title)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
 
   return (
+    <>
     <Card
       data-testid="forum-topic-list-item"
       sx={{ cursor: 'pointer', borderRadius: '12px', bgcolor: '#F0F6FA', border: '1px solid rgba(0,136,204,0.1)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', transition: 'all 0.2s ease', '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.12)', transform: 'translateY(-2px)' } }}
@@ -41,7 +59,40 @@ export default function ForumTopicListItem({ topic, onClick }: Props) {
             <Chip label="Tema" size="small" sx={{ bgcolor: 'rgba(0,136,204,0.1)', color: '#0088cc', fontWeight: 600 }} />
           </Box>
         </Box>
+        {onRename && canRename && (
+          <IconButton size="small" onClick={e => { e.stopPropagation(); setRenameTitle(topic.title); setRenameOpen(true) }} aria-label="Renombrar tema">
+            <EditIcon fontSize="small" />
+          </IconButton>
+        )}
+        {onDelete && canRename && (
+          <IconButton size="small" onClick={e => { e.stopPropagation(); setConfirmDeleteOpen(true) }} aria-label="Eliminar tema">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        )}
       </CardContent>
     </Card>
+    <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)} maxWidth="xs" fullWidth>
+      <DialogTitle>Eliminar tema</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          ¿Estás seguro de eliminar "{topic.title}"? Los archivos de este tema se eliminarán permanentemente.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setConfirmDeleteOpen(false)}>Cancelar</Button>
+        <Button variant="contained" color="error" onClick={() => { onDelete?.(topic); setConfirmDeleteOpen(false) }}>Eliminar</Button>
+      </DialogActions>
+    </Dialog>
+    <Dialog open={renameOpen} onClose={() => setRenameOpen(false)} maxWidth="xs" fullWidth>
+      <DialogTitle>Renombrar tema</DialogTitle>
+      <DialogContent>
+        <TextField fullWidth autoFocus value={renameTitle} onChange={e => setRenameTitle(e.target.value)} sx={{ mt: 1 }} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setRenameOpen(false)}>Cancelar</Button>
+        <Button variant="contained" onClick={() => { onRename?.(topic, renameTitle); setRenameOpen(false) }} sx={{ bgcolor: '#0088cc' }}>Guardar</Button>
+      </DialogActions>
+    </Dialog>
+    </>
   )
 }

@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import DownloadPanel from '../../../src/components/DownloadPanel'
+import TransferPanel from '../../../src/components/TransferPanel'
 
 function Wrapper({ children }: { children: React.ReactNode }) {
   return <ThemeProvider theme={createTheme()}>{children}</ThemeProvider>
 }
 
-describe('DownloadPanel', () => {
+describe('TransferPanel', () => {
   it('should exist', () => {
-    render(<DownloadPanel />, { wrapper: Wrapper })
+    render(<TransferPanel />, { wrapper: Wrapper })
     expect(document.body).toBeDefined()
   })
 })

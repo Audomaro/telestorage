@@ -16,6 +16,8 @@ beforeEach(() => {
     pickFiles: vi.fn().mockResolvedValue([]),
     uploadFile: vi.fn().mockResolvedValue({ messageId: 1 }),
     uploadTempFile: vi.fn().mockResolvedValue({ messageId: 1 }),
+    uploadFileWithProgress: vi.fn().mockResolvedValue({ messageId: 1 }),
+    uploadTempFileWithProgress: vi.fn().mockResolvedValue({ messageId: 1 }),
   }
 })
 
@@ -66,16 +68,16 @@ describe('UploadDialog', () => {
 
   it('should call uploadFile for each selected file', async () => {
     window.telegramAPI.pickFiles = vi.fn().mockResolvedValue(['/a/1.txt', '/a/2.txt'])
-    window.telegramAPI.uploadFile = vi.fn().mockResolvedValue({ messageId: 1 })
+    window.telegramAPI.uploadFileWithProgress = vi.fn().mockResolvedValue({ messageId: 1 })
     const onComplete = vi.fn()
     render(<UploadDialog {...defaultProps} onUploadComplete={onComplete} />, { wrapper: Wrapper })
     fireEvent.click(screen.getByText(/arrastra archivos/i))
     await vi.waitFor(() => expect(screen.getByText('1.txt')).toBeDefined())
     fireEvent.click(screen.getByRole('button', { name: /subir/i }))
     await vi.waitFor(() => {
-      expect(window.telegramAPI.uploadFile).toHaveBeenCalledTimes(2)
-      expect(window.telegramAPI.uploadFile).toHaveBeenCalledWith(1, '/a/1.txt', undefined)
-      expect(window.telegramAPI.uploadFile).toHaveBeenCalledWith(1, '/a/2.txt', undefined)
+      expect(window.telegramAPI.uploadFileWithProgress).toHaveBeenCalledTimes(2)
+      expect(window.telegramAPI.uploadFileWithProgress).toHaveBeenCalledWith(1, '/a/1.txt', undefined, expect.any(Function))
+      expect(window.telegramAPI.uploadFileWithProgress).toHaveBeenCalledWith(1, '/a/2.txt', undefined, expect.any(Function))
       expect(onComplete).toHaveBeenCalled()
     })
   })

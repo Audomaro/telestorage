@@ -15,13 +15,13 @@ const mockFiles: TelegramFile[] = [
 
 describe('FileList', () => {
   it('should render all files', () => {
-    render(<FileList files={mockFiles} isReadOnly={false} onDownload={() => {}} onDelete={() => {}} selectMode={false} selectedIds={new Set()} onToggleSelect={() => {}} />, { wrapper: Wrapper })
+    render(<FileList files={mockFiles} isReadOnly={false} onDownload={() => {}} onDelete={() => {}} selectMode={false} selectedIds={new Set()} onToggleSelect={() => {}} sortField="name" sortDirection="asc" onSort={() => {}} />, { wrapper: Wrapper })
     expect(screen.getByText('foto.jpg')).toBeDefined()
     expect(screen.getByText('doc.pdf')).toBeDefined()
   })
 
   it('should show empty state', () => {
-    render(<FileList files={[]} isReadOnly={false} onDownload={() => {}} onDelete={() => {}} selectMode={false} selectedIds={new Set()} onToggleSelect={() => {}} />, { wrapper: Wrapper })
+    render(<FileList files={[]} isReadOnly={false} onDownload={() => {}} onDelete={() => {}} selectMode={false} selectedIds={new Set()} onToggleSelect={() => {}} sortField="name" sortDirection="asc" onSort={() => {}} />, { wrapper: Wrapper })
     expect(screen.getByText(/sin archivos/i)).toBeDefined()
   })
 })

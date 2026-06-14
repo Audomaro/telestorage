@@ -16,9 +16,13 @@ interface TelegramAPI {
   logout(): Promise<void>
   getGroups(): Promise<any[]>
   getArchivedGroups(): Promise<any[]>
-  createGroup(title: string): Promise<any>
+  createGroup(title: string, isForum?: boolean): Promise<any>
   deleteGroup(groupId: number): Promise<void>
   addToCreatedGroup(groupId: number): Promise<void>
+  renameGroup(groupId: number, title: string): Promise<void>
+  createTopic(groupId: number, title: string): Promise<{ id: number; title: string }>
+  renameTopic(groupId: number, topicId: number, title: string): Promise<void>
+  deleteTopic(groupId: number, topicId: number): Promise<void>
   getForumTopics(groupId: number): Promise<ForumTopic[]>
   listFiles(groupId: number): Promise<any[]>
   listFilesByTopic(groupId: number, topicId: number, limit: number, offsetId?: number, search?: string): Promise<{ files: TelegramFile[]; hasMore: boolean; nextOffsetId?: number }>

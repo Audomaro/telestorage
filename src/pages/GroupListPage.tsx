@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Tabs from '@mui/material/Tabs'
@@ -10,6 +10,10 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
 import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
 import Alert from '@mui/material/Alert'
@@ -52,6 +56,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
   const [deleting, setDeleting] = useState(false)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
+  const [isForumGroup, setIsForumGroup] = useState(false)
   const [creating, setCreating] = useState(false)
   const createInputRef = useRef<HTMLInputElement>(null)
   const [showAddExistingDialog, setShowAddExistingDialog] = useState(false)
@@ -132,7 +137,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     if (!newGroupName.trim() || creating) return
     setCreating(true)
     try {
-      await window.telegramAPI.createGroup(newGroupName.trim())
+      await window.telegramAPI.createGroup(newGroupName.trim(), isForumGroup)
       setShowCreateDialog(false)
       setNewGroupName('')
       loadGroups()
@@ -142,6 +147,17 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
       setCreating(false)
     }
   }
+
+  const handleRename = useCallback(async (group: TelegramGroup, newTitle: string) => {
+    try {
+      await window.telegramAPI.renameGroup(group.id, newTitle)
+      setGroups(prev => prev.map(g => g.id === group.id ? { ...g, title: newTitle } : g))
+      setArchived(prev => prev.map(g => g.id === group.id ? { ...g, title: newTitle } : g))
+      showSnackbar('Grupo renombrado correctamente', 'success')
+    } catch (err: any) {
+      showSnackbar(err.message || 'Error al renombrar grupo', 'error')
+    }
+  }, [showSnackbar])
 
   const handleDeleteGroup = async () => {
     if (!deletingGroup) return
@@ -276,7 +292,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
           : '0 4px 6px -1px rgba(0,136,204,0.1)',
       })}>
         {visibleGroups.map(g => (
-          <GroupListItem key={g.id} group={g} onClick={(grp) => onSelectGroup?.(grp)} onDelete={(grp) => setDeletingGroup(grp)} />
+          <GroupListItem key={g.id} group={g} onClick={(grp) => onSelectGroup?.(grp)} onDelete={(grp) => setDeletingGroup(grp)} onRename={tab !== 'archived' ? handleRename : undefined} />
         ))}
         {visibleGroups.length === 0 && !archivedLoading && (
           tab === 'created'
@@ -298,6 +314,14 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
           <TextField inputRef={createInputRef} placeholder="Nombre del grupo" fullWidth sx={{ mt: 1 }}
             value={newGroupName} onChange={e => setNewGroupName(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handleConfirmCreate() }} />
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Tipo de grupo</InputLabel>
+            <Select value={isForumGroup ? 'forum' : 'simple'} label="Tipo de grupo"
+              onChange={e => setIsForumGroup(e.target.value === 'forum')}>
+              <MenuItem value="simple">Grupo simple</MenuItem>
+              <MenuItem value="forum">Grupo foro</MenuItem>
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowCreateDialog(false)}>Cancelar</Button>
