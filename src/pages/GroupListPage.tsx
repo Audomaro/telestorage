@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
+import Badge from '@mui/material/Badge'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -16,6 +17,7 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
+import Fade from '@mui/material/Fade'
 import Alert from '@mui/material/Alert'
 import AddIcon from '@mui/icons-material/Add'
 import LinkIcon from '@mui/icons-material/Link'
@@ -44,6 +46,12 @@ interface GroupListPageProps {
   onSelectGroup?: (group: TelegramGroup) => void
   onSettings?: () => void
 }
+
+const TABS = [
+  { key: 'created', label: 'TeleStorage' },
+  { key: 'active', label: 'Activos' },
+  { key: 'archived', label: 'Archivados' },
+] as const
 
 export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPageProps) {
   const [groups, setGroups] = useState<TelegramGroup[]>([])
@@ -181,6 +189,10 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
       ? allGroups.filter(g => !g.isArchived)
       : allGroups.filter(g => g.isArchived)
 
+  const createdCount = allGroups.filter(g => g.isAppCreated && !g.isArchived).length
+  const activeCount = allGroups.filter(g => !g.isArchived).length
+  const archivedCount = allGroups.filter(g => g.isArchived).length
+
   const tabIndex = tab === 'created' ? 0 : tab === 'active' ? 1 : 2
 
   const availableOwnGroups = useMemo(() => {
@@ -196,16 +208,20 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
 
   if (loading) {
     return (
-      <Box sx={{ px: 2 }}>
-        {[1, 2, 3].map(i => (
-          <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
-            <Skeleton variant="circular" width={40} height={40} />
-            <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="60%" />
-              <Skeleton variant="text" width="30%" />
-            </Box>
+      <Box sx={{ px: 2, py: 2 }}>
+        <Fade in timeout={300}>
+          <Box>
+            {[1, 2, 3].map(i => (
+              <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, px: 2, mb: 0.5 }}>
+                <Skeleton variant="circular" width={40} height={40} animation="wave" />
+                <Box sx={{ flex: 1 }}>
+                  <Skeleton variant="text" width="60%" height={16} animation="wave" />
+                  <Skeleton variant="text" width="30%" height={14} animation="wave" sx={{ mt: 0.5 }} />
+                </Box>
+              </Box>
+            ))}
           </Box>
-        ))}
+        </Fade>
       </Box>
     )
   }
@@ -214,9 +230,19 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     <Box component="main" sx={{ py: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1 }}>
         <Tabs value={tabIndex} onChange={handleTabChange}>
-          <Tab label="TeleStorage" data-testid="tab-telestorage" />
-          <Tab label="Activos" data-testid="tab-activos" />
-          <Tab label="Archivados" data-testid="tab-archivados" />
+          {TABS.map((t, i) => {
+            const count = [createdCount, activeCount, archivedCount][i]
+            return (
+              <Tab key={t.key} data-testid={`tab-${t.key}`}
+                label={
+                  <Badge badgeContent={count} color="primary"
+                    sx={{ '& .MuiBadge-badge': { fontSize: 10, height: 16, minWidth: 16, position: 'relative', transform: 'none', ml: 0.5 } }}>
+                    {t.label}
+                  </Badge>
+                }
+              />
+            )
+          })}
         </Tabs>
       </Box>
       {tab === 'created' && (
@@ -247,9 +273,9 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         ))}
         {visibleGroups.length === 0 && !archivedLoading && (
           tab === 'created'
-            ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos en TeleStorage" />
+            ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos en TeleStorage" subtitle="Crea tu primer grupo para empezar" />
             : tab === 'active'
-              ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos" subtitle="Crea uno nuevo en TeleStorage" />
+              ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos activos" subtitle="Crea uno nuevo en TeleStorage" />
               : <EmptyState icon={<FolderOffIcon />} title="No hay grupos archivados" />
         )}
         {tab === 'archived' && archivedLoading && (

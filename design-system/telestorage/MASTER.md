@@ -7,8 +7,8 @@
 ---
 
 **Project:** TeleStorage
-**Generated:** 2026-06-13 13:21:24
-**Category:** Messaging / Cloud Storage
+**Generated:** 2026-06-13 22:33:04
+**Category:** SaaS (General)
 
 ---
 
@@ -18,26 +18,24 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#0088cc` | `--color-primary` |
-| Secondary | `#2AABEE` | `--color-secondary` |
-| CTA/Accent | `#0088cc` | `--color-cta` |
-| Background Light | `#FFFFFF` | `--color-background-light` |
-| Background Dark | `#17212B` | `--color-background-dark` |
-| Text Light | `#222222` | `--color-text-light` |
-| Text Dark | `#FFFFFF` | `--color-text-dark` |
+| Primary | `#6366F1` | `--color-primary` |
+| Secondary | `#818CF8` | `--color-secondary` |
+| CTA/Accent | `#10B981` | `--color-cta` |
+| Background | `#F5F3FF` | `--color-background` |
+| Text | `#1E1B4B` | `--color-text` |
 
-**Color Notes:** Telegram-inspired blue palette. Clean, minimal, high contrast.
+**Color Notes:** Indigo primary + emerald CTA
 
 ### Typography
 
-- **Heading Font:** Inter
-- **Body Font:** Inter
-- **Mood:** clean, modern, professional, trustworthy, messaging
-- **Google Fonts:** [Inter](https://fonts.google.com/share?selection.family=Inter:wght@300;400;500;600;700)
+- **Heading Font:** Fira Code
+- **Body Font:** Fira Sans
+- **Mood:** dashboard, data, analytics, code, technical, precise
+- **Google Fonts:** [Fira Code + Fira Sans](https://fonts.google.com/share?selection.family=Fira+Code:wght@400;500;600;700|Fira+Sans:wght@300;400;500;600;700)
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
 ```
 
 ### Spacing Variables
@@ -70,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #0088cc;
+  background: #10B981;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -87,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #0088cc;
-  border: 2px solid #0088cc;
+  color: #6366F1;
+  border: 2px solid #6366F1;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -101,7 +99,7 @@
 
 ```css
 .card {
-  background: #F0F6FA;
+  background: #F5F3FF;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -127,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #0088cc;
+  border-color: #6366F1;
   outline: none;
-  box-shadow: 0 0 0 3px #0088cc40;
+  box-shadow: 0 0 0 3px #6366F120;
 }
 ```
 
@@ -155,30 +153,27 @@
 
 ## Style Guidelines
 
-**Style:** Clean Minimalism
+**Style:** Glassmorphism
 
-**Keywords:** clean, minimal, messaging, blue, professional, trustworthy, modern, telegram-inspired
+**Keywords:** Frosted glass, transparent, blurred background, layered, vibrant background, light source, depth, multi-layer
 
-**Best For:** Messaging apps, cloud storage, communication tools, productivity
+**Best For:** Modern SaaS, financial dashboards, high-end corporate, lifestyle apps, modal overlays, navigation
 
-**Key Effects:** Subtle shadows (200ms), hover lift (translateY(-1px)), blue accent borders, backdrop blur for overlays, smooth transitions 200ms cubic-bezier
+**Key Effects:** Backdrop blur (10-20px), subtle border (1px solid rgba white 0.2), light reflection, Z-depth
 
 ### Page Pattern
 
-**Pattern Name:** Chat-Inspired Dashboard
+**Pattern Name:** Hero + Features + CTA
 
-- **Conversion Strategy:** Familiar messaging UI patterns. Clean whitespace. Blue accent CTA.
-- **CTA Placement:** Top-right action buttons, FAB for upload
-- **Section Order:** 1. Group list (tabs), 2. File list/grid, 3. Preview modal
+- **CTA Placement:** Above fold
+- **Section Order:** Hero > Features > CTA
 
 ---
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Green or teal accents (use Telegram blue instead)
-- ❌ Dark backgrounds mixed with white elements
-- ❌ Heavy shadows or excessive glassmorphism
-- ❌ Emoji-based icons
+- ❌ Excessive animation
+- ❌ Dark mode by default
 
 ### Additional Forbidden Patterns
 

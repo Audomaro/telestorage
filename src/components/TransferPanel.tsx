@@ -17,7 +17,11 @@ import TransferItem from './TransferItem'
 
 type TransferTask = DownloadTask | UploadTask
 
-export default function TransferPanel() {
+interface TransferPanelProps {
+  onClose?: () => void
+}
+
+export default function TransferPanel({ onClose }: TransferPanelProps) {
   const [tab, setTab] = useState(0)
   const { downloads, removeDownload, retryDownload } = useDownload()
   const { uploads, removeUpload, retryUpload } = useUpload()

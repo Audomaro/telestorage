@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
+import Fade from '@mui/material/Fade'
 import AddIcon from '@mui/icons-material/Add'
 import FolderOffIcon from '@mui/icons-material/FolderOff'
 import { TelegramGroup, ForumTopic } from '../types'
@@ -86,20 +87,22 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
 
   if (loading) {
     return (
-      <Box sx={{ px: 2, pt: 2, pb: 2 }}>
-        <Box sx={{ mb: 1 }}>
-          <Skeleton variant="text" width="30%" />
-        </Box>
-        {[1, 2, 3].map(i => (
-          <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
-            <Skeleton variant="circular" width={40} height={40} />
-            <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="60%" />
-              <Skeleton variant="text" width="30%" />
-            </Box>
+      <Fade in timeout={300}>
+        <Box sx={{ px: 2, pt: 2, pb: 2 }}>
+          <Box sx={{ mb: 1 }}>
+            <Skeleton variant="text" width="30%" animation="wave" />
           </Box>
-        ))}
-      </Box>
+          {[1, 2, 3].map(i => (
+            <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
+              <Skeleton variant="circular" width={40} height={40} animation="wave" />
+              <Box sx={{ flex: 1 }}>
+                <Skeleton variant="text" width="60%" animation="wave" />
+                <Skeleton variant="text" width="30%" animation="wave" />
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </Fade>
     )
   }
 

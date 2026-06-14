@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import log from 'electron-log/main'
 import { registerIpcHandlers } from './ipc'
@@ -42,6 +42,7 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  Menu.setApplicationMenu(null)
   await registerIpcHandlers()
   createWindow()
 
