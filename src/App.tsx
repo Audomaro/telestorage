@@ -71,9 +71,9 @@ function AppContent() {
   }
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {isLoggedIn && (
-        <AppBar position="sticky" elevation={1}>
+        <AppBar position="sticky" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider', backdropFilter: 'blur(8px)', bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(15,23,42,0.9)' : 'rgba(255,255,255,0.9)', color: 'text.primary' }}>
           <Toolbar variant="dense">
             {showBack && (
               <IconButton color="inherit" edge="start" onClick={handleBack} aria-label="Volver">
@@ -100,7 +100,7 @@ function AppContent() {
         </AppBar>
       )}
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
-        <Box sx={(theme) => ({ flex: 1, minWidth: 0, overflow: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain', bgcolor: mode === 'dark' ? '#0F172A' : '#F0F6FA' })}>
+        <Box sx={{ flex: 1, minWidth: 0, overflow: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain', bgcolor: 'background.default' }}>
           {!isLoggedIn
             ? <LoginPage onLogin={() => setIsLoggedIn(true)} />
             : showSettings

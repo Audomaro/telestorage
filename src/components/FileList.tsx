@@ -24,16 +24,16 @@ export default function FileList({ files, isReadOnly, selectMode, selectedIds, o
   }
 
   return (
-    <Table size="small" sx={{ '& .MuiTableRow-root': { '&:hover': { bgcolor: 'rgba(0,136,204,0.04)' } }, '& .MuiTableCell-root': { borderColor: 'rgba(0,136,204,0.12)' } }}>
+    <Table size="small">
       <TableHead>
         <TableRow>
-          {selectMode && <TableCell sx={{ width: 36, p: 0.5, bgcolor: '#0088cc', color: 'white', fontWeight: 600 }} />}
-          <TableCell sx={{ width: 36, p: 1, bgcolor: '#0088cc', color: 'white', fontWeight: 600 }} />
-          <TableCell sx={{ p: 1, bgcolor: '#0088cc', color: 'white', fontWeight: 600 }}>Nombre</TableCell>
-          <TableCell sx={{ p: 1, bgcolor: '#0088cc', color: 'white', fontWeight: 600 }}>Tamaño</TableCell>
-          <TableCell sx={{ p: 1, bgcolor: '#0088cc', color: 'white', fontWeight: 600 }}>Fecha</TableCell>
-          <TableCell sx={{ p: 1, bgcolor: '#0088cc', color: 'white', fontWeight: 600 }}>Tipo</TableCell>
-          <TableCell sx={{ p: 1, bgcolor: '#0088cc', color: 'white', fontWeight: 600 }}>Acciones</TableCell>
+          {selectMode && <TableCell sx={{ width: 36, p: 0.5 }} />}
+          <TableCell sx={{ width: 36, p: 1 }} />
+          <TableCell sx={{ p: 1 }}>Nombre</TableCell>
+          <TableCell sx={{ p: 1 }}>Tamaño</TableCell>
+          <TableCell sx={{ p: 1 }}>Fecha</TableCell>
+          <TableCell sx={{ p: 1 }}>Tipo</TableCell>
+          <TableCell sx={{ p: 1 }}>Acciones</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>

@@ -37,7 +37,7 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 10 }}>
       {viewMode === 'list' && (
         <ToggleButtonGroup size="small" value={filter} exclusive onChange={(_, v) => v && onFilterChange(v)}
-          sx={{ '& .MuiToggleButton-root': { px: 1.5, py: 0.5, fontSize: '0.8rem', textTransform: 'none', borderColor: '#0088cc', color: '#222222', '&.Mui-selected': { bgcolor: '#0088cc', color: 'white', '&:hover': { bgcolor: '#0077b3' } } } }}>
+          sx={{ '& .MuiToggleButton-root': { px: 1.5, py: 0.5, fontSize: '0.8rem', textTransform: 'none', '&.Mui-selected': { bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } } } }}>
           <ToggleButton value="all" aria-label="Filtrar Todos">Todos</ToggleButton>
           <ToggleButton value="media" aria-label="Filtrar Multimedia">Multimedia</ToggleButton>
           <ToggleButton value="documents" aria-label="Filtrar Documentos">Documentos</ToggleButton>
@@ -54,18 +54,17 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
           },
           htmlInput: { 'data-testid': 'file-search-input' }
         }}
-        sx={{ minWidth: 200, '& .MuiInputBase-root': { fontSize: '0.875rem', borderRadius: 2 }, '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#0088cc', borderWidth: 2 } }}
+        sx={{ minWidth: 200, '& .MuiInputBase-root': { fontSize: '0.875rem', borderRadius: 2 } }}
       />
 
       <Box sx={{ flex: 1 }} />
       <ToggleButtonGroup size="small" value={viewMode} exclusive onChange={(_, v) => v && onViewModeChange(v)}
-        sx={{ '& .MuiToggleButton-root': { px: 1, py: 0.5, borderColor: '#0088cc', color: '#222222', '&.Mui-selected': { bgcolor: '#0088cc', color: 'white', '&:hover': { bgcolor: '#0077b3' } } } }}>
+        sx={{ '& .MuiToggleButton-root': { px: 1, py: 0.5, '&.Mui-selected': { bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } } } }}>
         <ToggleButton value="list" aria-label="Vista de lista"><ViewListIcon /></ToggleButton>
         <ToggleButton value="gallery" aria-label="Vista de galería"><GridViewIcon /></ToggleButton>
       </ToggleButtonGroup>
       {!selectMode && showUpload && (
-        <Button variant="contained" size="small" startIcon={<CloudUploadIcon />} onClick={onUpload} aria-label="Subir archivos"
-          sx={{ bgcolor: '#F97316', '&:hover': { bgcolor: '#EA580C', transform: 'translateY(-1px)' }, transition: 'all 200ms', fontWeight: 600, borderRadius: 2 }}>
+        <Button variant="contained" color="warning" size="small" startIcon={<CloudUploadIcon />} onClick={onUpload} aria-label="Subir archivos">
           Subir
         </Button>
       )}
@@ -74,24 +73,21 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
       )}
       <Button
         size="small"
-        color={selectMode ? 'error' : 'inherit'}
-        variant={selectMode ? 'outlined' : 'outlined'}
+        color={selectMode ? 'error' : 'primary'}
+        variant="outlined"
         startIcon={selectMode ? <CloseIcon /> : <CheckBoxIcon />}
         onClick={onToggleSelectMode}
         aria-label={selectMode ? 'Cancelar selección' : 'Seleccionar archivos'}
-        sx={selectMode ? {} : { borderColor: '#0088cc', color: '#0088cc', '&:hover': { borderColor: '#0077b3', bgcolor: 'rgba(0,136,204,0.04)' }, textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
       >
         {selectMode ? 'Cancelar' : 'Seleccionar'}
       </Button>
       {selectMode && selectedCount > 0 && (
-        <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={onBatchDownload} aria-label="Descargar seleccionados"
-          sx={{ bgcolor: '#0088cc', '&:hover': { bgcolor: '#0077b3' }, textTransform: 'none', fontWeight: 600, borderRadius: 2 }}>
+        <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={onBatchDownload} aria-label="Descargar seleccionados">
           Descargar
         </Button>
       )}
       {selectMode && selectedCount > 0 && (
-        <Button size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={onBatchDelete} aria-label="Eliminar seleccionados"
-          sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}>
+        <Button size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={onBatchDelete} aria-label="Eliminar seleccionados">
           Eliminar
         </Button>
       )}

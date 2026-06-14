@@ -33,8 +33,7 @@ export default function FileListItem({ file, isReadOnly, selectMode, selected, o
   const isPreviewable = file.mimeType.startsWith('image/') || file.mimeType.startsWith('video/') || file.mimeType === 'application/pdf'
 
   return (
-    <TableRow hover selected={selected} data-testid="file-list-item"
-      sx={{ '&:hover': { bgcolor: 'rgba(0,136,204,0.04)' }, transition: 'background-color 200ms' }}>
+    <TableRow hover selected={selected} data-testid="file-list-item">
       {selectMode && (
         <TableCell sx={{ width: 36, p: 0.5 }}>
           <Checkbox size="small" checked={selected} onChange={() => onToggleSelect(file)} />
@@ -42,7 +41,7 @@ export default function FileListItem({ file, isReadOnly, selectMode, selected, o
       )}
       <TableCell sx={{ width: 36, p: 1 }}>{fileIcon(file.mimeType)}</TableCell>
       <TableCell sx={{ p: 1 }}>
-        <Typography variant="body2" noWrap sx={{ fontWeight: 600, color: '#222222' }}>{file.name}</Typography>
+        <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>{file.name}</Typography>
       </TableCell>
       <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
         <Typography variant="body2" color="text.secondary">{formatFileSize(file.size)}</Typography>
@@ -54,15 +53,12 @@ export default function FileListItem({ file, isReadOnly, selectMode, selected, o
         <Typography variant="body2" color="text.secondary">{file.mimeType.split('/').pop()?.toUpperCase() || file.mimeType}</Typography>
       </TableCell>
       <TableCell sx={{ p: 1, whiteSpace: 'nowrap' }}>
-        <IconButton size="small" onClick={() => onDownload(file)} aria-label="Descargar"
-          sx={{ transition: 'all 200ms', '&:hover': { bgcolor: 'rgba(0,136,204,0.1)' } }}><DownloadIcon fontSize="small" /></IconButton>
+        <IconButton size="small" onClick={() => onDownload(file)} aria-label="Descargar"><DownloadIcon fontSize="small" /></IconButton>
         {isPreviewable && onPreview && (
-          <IconButton size="small" onClick={() => onPreview(file)} aria-label="Vista previa"
-            sx={{ color: '#0088cc', transition: 'all 200ms', '&:hover': { bgcolor: 'rgba(0,136,204,0.1)' } }}><PreviewIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={() => onPreview(file)} aria-label="Vista previa" color="primary"><PreviewIcon fontSize="small" /></IconButton>
         )}
         {!isReadOnly && !selectMode && (
-          <IconButton size="small" onClick={() => onDelete(file)} aria-label="Eliminar"
-            sx={{ transition: 'all 200ms', '&:hover': { bgcolor: 'rgba(239,68,68,0.1)', color: '#EF4444' } }}><DeleteIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={() => onDelete(file)} aria-label="Eliminar"><DeleteIcon fontSize="small" /></IconButton>
         )}
       </TableCell>
     </TableRow>

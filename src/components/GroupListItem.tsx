@@ -37,20 +37,15 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
     <Paper data-testid="group-list-item" elevation={0} onClick={() => onClick(group)}
       sx={{
         mb: 1,
-        borderRadius: '12px',
+        borderRadius: 2,
         cursor: 'pointer',
-        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(30,41,59,0.7)' : '#F0F6FA',
-        backdropFilter: 'blur(10px)',
-        border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,136,204,0.15)'}`,
-        boxShadow: (theme) => theme.palette.mode === 'dark'
-          ? '0 4px 6px -1px rgba(0,0,0,0.3)'
-          : '0 4px 6px -1px rgba(0,136,204,0.1)',
-        transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+        bgcolor: 'background.paper',
+        border: 1, borderColor: 'divider',
+        transition: 'all 200ms',
         '&:hover': {
-          boxShadow: (theme) => theme.palette.mode === 'dark'
-            ? '0 10px 15px -3px rgba(0,0,0,0.4)'
-            : '0 10px 15px -3px rgba(0,136,204,0.15)',
-          transform: 'translateY(-2px)'
+          boxShadow: (t) => t.palette.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,136,204,0.15)',
+          transform: 'translateY(-2px)',
+          borderColor: 'primary.main',
         }
       }}
     >
@@ -59,7 +54,7 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
           {getInitials(group.title)}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body1" noWrap sx={{ fontWeight: 700, color: (theme) => theme.palette.mode === 'dark' ? '#E2E8F0' : '#222222' }}>{group.title}</Typography>
+          <Typography variant="body1" noWrap sx={{ fontWeight: 700 }}>{group.title}</Typography>
           <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
             <Chip
               label={group.isOwner ? 'Propio' : 'Tercero'}
@@ -68,8 +63,7 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
               icon={group.isOwner ? <CheckCircleIcon /> : <GroupIcon />}
             />
             {group.isForum && (
-              <Chip label="Forum" size="small" data-testid="forum-badge"
-                sx={{ bgcolor: '#0088cc', color: '#fff', fontWeight: 600 }} />
+              <Chip label="Forum" size="small" data-testid="forum-badge" color="primary" />
             )}
             {!group.isOwner && (
               <Chip label="Solo lectura" variant="outlined" size="small" />
@@ -98,7 +92,7 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setRenameOpen(false)}>Cancelar</Button>
-        <Button variant="contained" onClick={() => { onRename?.(group, renameTitle); setRenameOpen(false) }} sx={{ bgcolor: '#0088cc' }}>Guardar</Button>
+        <Button variant="contained" onClick={() => { onRename?.(group, renameTitle); setRenameOpen(false) }}>Guardar</Button>
       </DialogActions>
     </Dialog>
     </>

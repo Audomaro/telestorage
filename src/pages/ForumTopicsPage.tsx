@@ -86,16 +86,16 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
 
   if (loading) {
     return (
-      <Box component="main" sx={{ px: 2, pt: 2, pb: 2, bgcolor: '#F0F6FA', minHeight: '100%' }}>
+      <Box sx={{ px: 2, pt: 2, pb: 2 }}>
         <Box sx={{ mb: 1 }}>
-          <Skeleton variant="text" width="30%" sx={{ bgcolor: 'rgba(0,136,204,0.1)' }} />
+          <Skeleton variant="text" width="30%" />
         </Box>
         {[1, 2, 3].map(i => (
           <Box key={i} data-testid="skeleton-loader" sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
-            <Skeleton variant="circular" width={40} height={40} sx={{ bgcolor: 'rgba(0,136,204,0.15)' }} />
+            <Skeleton variant="circular" width={40} height={40} />
             <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="60%" sx={{ bgcolor: 'rgba(0,136,204,0.1)' }} />
-              <Skeleton variant="text" width="30%" sx={{ bgcolor: 'rgba(0,136,204,0.1)' }} />
+              <Skeleton variant="text" width="60%" />
+              <Skeleton variant="text" width="30%" />
             </Box>
           </Box>
         ))}
@@ -104,7 +104,7 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
   }
 
   return (
-    <Box component="main" sx={{ px: 2, pt: 2, pb: 2, bgcolor: '#F0F6FA', minHeight: '100%' }}>
+    <Box component="main" sx={{ px: 2, pt: 2, pb: 2, bgcolor: 'background.default', minHeight: '100%' }}>
       {error && (
         <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2, borderRadius: '8px' }}>
           {error}
@@ -112,19 +112,8 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
       )}
       {group.isOwner && (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1.5 }}>
-          <Button size="small" variant="contained" startIcon={<AddIcon />}
-            onClick={() => { setShowCreateDialog(true); setTimeout(() => createInputRef.current?.focus(), 50) }}
-            sx={{
-              borderRadius: '8px',
-              fontWeight: 600,
-              bgcolor: '#F97316',
-              transition: 'all 200ms',
-              '&:hover': {
-                bgcolor: '#EA580C',
-                transform: 'translateY(-1px)'
-              }
-            }}
-          >
+          <Button size="small" variant="contained" color="warning" startIcon={<AddIcon />}
+            onClick={() => { setShowCreateDialog(true); setTimeout(() => createInputRef.current?.focus(), 50) }}>
             Crear tema
           </Button>
         </Box>

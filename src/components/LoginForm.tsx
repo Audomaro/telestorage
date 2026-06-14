@@ -54,8 +54,11 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
         </Box>
       )}
       <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-        <StorageIcon sx={{ fontSize: 48, color: 'primary.main' }} />
-        <Typography variant="h5">TeleStorage</Typography>
+        <StorageIcon sx={{ fontSize: 56, color: 'primary.main' }} />
+        <Typography variant="h4" sx={{ fontWeight: 700 }}>TeleStorage</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Almacenamiento en la nube de Telegram
+        </Typography>
         {!codeHash && !needs2FA && (
           <Stack direction="row" gap={1} sx={{ width: '100%' }}>
             <Autocomplete
@@ -101,7 +104,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
           </>
         )}
         {error && <Alert severity="error" sx={{ width: '100%' }}>{error}</Alert>}
-        <Button variant="contained" fullWidth type="submit" disabled={loading} sx={{ mt: 1 }} data-testid="submit-button">
+        <Button variant="contained" fullWidth type="submit" disabled={loading} sx={{ mt: 1, py: 1 }} data-testid="submit-button">
           {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
           {loading ? 'Procesando...' : needs2FA ? 'Iniciar sesión' : codeHash ? 'Verificar código' : 'Enviar código'}
         </Button>

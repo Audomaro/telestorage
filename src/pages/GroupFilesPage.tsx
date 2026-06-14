@@ -228,8 +228,8 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#F0F6FA' }}>
-      <Box sx={{ bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(0,136,204,0.15)' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+      <Box sx={{ bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(30,41,59,0.8)' : 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', borderBottom: 1, borderColor: 'divider' }}>
         <Toolbar
         viewMode={viewMode}
         onViewModeChange={setViewMode}

@@ -46,7 +46,7 @@ export default function ForumTopicListItem({ topic, onClick, onRename, canRename
     <>
     <Card
       data-testid="forum-topic-list-item"
-      sx={{ cursor: 'pointer', borderRadius: '12px', bgcolor: '#F0F6FA', border: '1px solid rgba(0,136,204,0.1)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', transition: 'all 0.2s ease', '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.12)', transform: 'translateY(-2px)' } }}
+      sx={{ cursor: 'pointer', borderRadius: 2, bgcolor: 'background.paper', border: 1, borderColor: 'divider', transition: 'all 200ms', '&:hover': { boxShadow: (t) => t.palette.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,136,204,0.15)', transform: 'translateY(-2px)', borderColor: 'primary.main' } }}
       onClick={() => onClick(topic)}
     >
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5, '&:last-child': { pb: 1.5 } }}>
@@ -54,9 +54,9 @@ export default function ForumTopicListItem({ topic, onClick, onRename, canRename
           {initial}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body1" noWrap sx={{ fontWeight: 700, color: '#222222' }}>{topic.title}</Typography>
+          <Typography variant="body1" noWrap sx={{ fontWeight: 700 }}>{topic.title}</Typography>
           <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
-            <Chip label="Tema" size="small" sx={{ bgcolor: 'rgba(0,136,204,0.1)', color: '#0088cc', fontWeight: 600 }} />
+            <Chip label="Tema" size="small" color="primary" variant="outlined" />
           </Box>
         </Box>
         {onRename && canRename && (
@@ -90,7 +90,7 @@ export default function ForumTopicListItem({ topic, onClick, onRename, canRename
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setRenameOpen(false)}>Cancelar</Button>
-        <Button variant="contained" onClick={() => { onRename?.(topic, renameTitle); setRenameOpen(false) }} sx={{ bgcolor: '#0088cc' }}>Guardar</Button>
+        <Button variant="contained" onClick={() => { onRename?.(topic, renameTitle); setRenameOpen(false) }}>Guardar</Button>
       </DialogActions>
     </Dialog>
     </>

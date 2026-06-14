@@ -96,28 +96,17 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
   if (!file) return null
 
   return (
-    <Dialog open fullScreen onClose={onClose}
-      sx={{
-        '& .MuiPaper-root': {
-          backdropFilter: 'blur(16px)',
-          backgroundColor: 'rgba(240, 253, 250, 0.92)',
-        },
-        '& .MuiBackdrop-root': {
-          backdropFilter: 'blur(8px)',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        }
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, py: 0.5, backdropFilter: 'blur(12px)', backgroundColor: 'rgba(255, 255, 255, 0.7)', borderBottom: '1px solid rgba(0, 136, 204, 0.12)' }}>
-        <IconButton aria-label="Cerrar" onClick={onClose} sx={{ '&:hover': { backgroundColor: 'rgba(243, 115, 22, 0.1)' } }}><CloseIcon /></IconButton>
+    <Dialog open fullScreen onClose={onClose}>
+      <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, py: 0.5, backdropFilter: 'blur(12px)', bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(15,23,42,0.85)' : 'rgba(255,255,255,0.85)', borderBottom: 1, borderColor: 'divider' }}>
+        <IconButton aria-label="Cerrar" onClick={onClose}><CloseIcon /></IconButton>
         {!isReadOnly && (
-          <Tooltip title="Eliminar"><IconButton aria-label="Eliminar" onClick={() => { onClose(); onDelete(file) }} sx={{ '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' } }}><DeleteIcon /></IconButton></Tooltip>
+          <Tooltip title="Eliminar"><IconButton aria-label="Eliminar" onClick={() => { onClose(); onDelete(file) }}><DeleteIcon /></IconButton></Tooltip>
         )}
-        <Tooltip title="Guardar en disco"><IconButton aria-label="Guardar en disco" onClick={() => onSaveToDisk?.(file)} sx={{ '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.1)' } }}><DownloadIcon /></IconButton></Tooltip>
+        <Tooltip title="Guardar en disco"><IconButton aria-label="Guardar en disco" onClick={() => onSaveToDisk?.(file)}><DownloadIcon /></IconButton></Tooltip>
         <Box sx={{ flex: 1 }} />
-        <Typography variant="body2" sx={{ color: '#222222', fontWeight: 500 }}>{file.name}</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>{file.name}</Typography>
       </Box>
-      <DialogContent sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(0, 0, 0, 0.06)' }}>
+      <DialogContent sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.04)' }}>
         {loading && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <CircularProgress variant="determinate" value={progress} size={60} />

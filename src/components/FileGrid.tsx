@@ -75,12 +75,10 @@ function GridCard({ file, selectMode, selected, onClick }: { file: TelegramFile;
         position: 'relative', aspectRatio: '1', borderRadius: 2, overflow: 'hidden', cursor: 'pointer',
         background: thumbnail ? 'none' : gradientForMime(file.mimeType), backgroundSize: 'cover',
         outline: selected ? '3px solid' : 'none',
-        outlineColor: '#0088cc',
-        bgcolor: '#F0F6FA', boxShadow: '0 1px 3px rgba(0,136,204,0.1)',
+        outlineColor: 'primary.main',
         transition: 'all 200ms',
-        '&:hover': { boxShadow: '0 8px 25px rgba(0,136,204,0.15)', transform: 'translateY(-2px)' },
-        backdropFilter: 'blur(4px)',
-        border: '1px solid rgba(0,136,204,0.1)',
+        '&:hover': { boxShadow: (t) => t.palette.mode === 'dark' ? '0 8px 25px rgba(0,0,0,0.4)' : '0 8px 25px rgba(0,136,204,0.15)', transform: 'translateY(-2px)' },
+        border: 1, borderColor: 'divider',
       }}
     >
       {thumbnail && (
@@ -94,7 +92,7 @@ function GridCard({ file, selectMode, selected, onClick }: { file: TelegramFile;
       {selectMode && (
         <Checkbox
           checked={selected}
-          sx={{ position: 'absolute', top: 8, left: 8, bgcolor: selected ? '#0088cc' : 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', borderRadius: 0.5, color: selected ? 'white' : '#0088cc', '&.Mui-checked': { color: 'white' }, transition: 'all 200ms' }}
+          sx={{ position: 'absolute', top: 8, left: 8, bgcolor: selected ? 'primary.main' : 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', borderRadius: 0.5, color: selected ? 'white' : 'primary.main', '&.Mui-checked': { color: 'white' }, transition: 'all 200ms' }}
         />
       )}
       {file.mimeType.startsWith('video/') && !selectMode && (
