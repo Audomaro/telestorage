@@ -40,6 +40,11 @@ describe('Group functions', () => {
     expect(mod.deleteGroup).toBeDefined()
   })
 
+  it('should export deleteForumTopic', async () => {
+    const mod = await import('../../../../electron/main/telegram/groups')
+    expect(mod.deleteForumTopic).toBeDefined()
+  })
+
   describe('isGroupAppCreated', () => {
     it('should have isGroupAppCreated exported', async () => {
       const mod = await import('../../../../electron/main/telegram/groups')

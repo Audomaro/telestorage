@@ -188,9 +188,10 @@ export async function deleteForumTopic(groupId: number, topicId: number): Promis
   const str = String(groupId)
   const channelId = str.startsWith('-100') ? BigInt(str.slice(4)) : BigInt(str.slice(1))
 
-  await client.invoke({
-    _: 'channels.deleteForumTopic',
-    channel: channelId,
-    topicId: topicId,
-  } as any)
+  await client.invoke(
+    new (await import('telegram')).Api.channels.DeleteTopicHistory({
+      channel: channelId,
+      topMsgId: topicId,
+    })
+  )
 }
