@@ -94,6 +94,28 @@ export async function registerIpcHandlers(): Promise<void> {
     return uploadFile(groupId, filePath, topicId)
   })
 
+  ipcMain.handle('files:upload:start', async (event, { uploadId, groupId, filePath, topicId }: { uploadId: string; groupId: number; filePath: string; topicId?: number }) => {
+    return uploadFileWithProgress(groupId, filePath, topicId, (progress) => {
+      event.sender.send('files:upload:progress', { uploadId, progress })
+    })
+  })
+
+  ipcMain.handle('files:uploadTemp:start', async (event, { uploadId, groupId, fileName, data, topicId }: { uploadId: string; groupId: number; fileName: string; data: number[]; topicId?: number }) => {
+    const tempDir = join(app.getPath('temp'), 'telestorage_uploads')
+    const { mkdir, writeFile, unlink } = await import('fs/promises')
+    await mkdir(tempDir, { recursive: true })
+    const destPath = join(tempDir, fileName)
+    await writeFile(destPath, Buffer.from(data))
+    try {
+      const result = await uploadFileWithProgress(groupId, destPath, topicId, (progress) => {
+        event.sender.send('files:upload:progress', { uploadId, progress })
+      })
+      return result
+    } finally {
+      await unlink(destPath).catch(() => {})
+    }
+  })
+
   ipcMain.handle('files:uploadMultiple', async (_event, groupId: number, filePaths: string[], topicId?: number) => {
     return uploadMultipleFiles(groupId, filePaths, topicId)
   })
