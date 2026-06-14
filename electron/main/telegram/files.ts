@@ -221,6 +221,25 @@ export async function uploadFile(groupId: number, filePath: string, topicId?: nu
   return { messageId: result.id }
 }
 
+export async function uploadFileWithProgress(
+  groupId: number,
+  filePath: string,
+  topicId: number | undefined,
+  progressCb?: (progress: number) => void
+): Promise<{ messageId: number }> {
+  const client = getClient()
+  if (!client) throw new Error('Not authenticated')
+  if (!filePath) throw new Error('No file path specified')
+
+  const result = await client.sendFile(groupId, {
+    file: filePath,
+    forceDocument: true,
+    ...(topicId ? { replyTo: topicId, topMsgId: topicId } : {}),
+    progressCallback: progressCb,
+  })
+  return { messageId: result.id }
+}
+
 export async function uploadMultipleFiles(groupId: number, filePaths: string[], topicId?: number): Promise<{ messageId: number; name: string; error?: string }[]> {
   const results: { messageId: number; name: string; error?: string }[] = []
   for (const fp of filePaths) {
