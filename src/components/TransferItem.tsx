@@ -10,17 +10,20 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ErrorIcon from '@mui/icons-material/Error'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import { DownloadTask } from '../theme/DownloadContext'
+import { UploadTask } from '../theme/UploadContext'
 
-interface DownloadItemProps {
-  task: DownloadTask
+type TransferTask = DownloadTask | UploadTask
+
+interface TransferItemProps {
+  task: TransferTask
+  type: 'download' | 'upload'
   onRemove: () => void
-  onOpenFolder: () => void
+  onOpenFolder?: () => void
 }
 
-export default function DownloadItem({ task, onRemove, onOpenFolder }: DownloadItemProps) {
+export default function TransferItem({ task, type, onRemove, onOpenFolder }: TransferItemProps) {
   const isCompleted = task.status === 'completed'
   const isError = task.status === 'error'
-  const isDownloading = task.status === 'downloading'
 
   const onRemoveRef = useRef(onRemove)
   onRemoveRef.current = onRemove
@@ -33,16 +36,15 @@ export default function DownloadItem({ task, onRemove, onOpenFolder }: DownloadI
   }, [isCompleted])
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1.5, borderBottom: '1px solid rgba(0, 136, 204, 0.08)', transition: 'all 200ms', '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.02)' } }} data-testid="download-item">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1.5, borderBottom: '1px solid rgba(0, 136, 204, 0.08)', transition: 'all 200ms', '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.02)' } }} data-testid="transfer-item">
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {isCompleted ? <CheckCircleIcon fontSize="small" sx={{ color: '#0088cc' }} /> : isError ? <ErrorIcon fontSize="small" color="error" /> : <InsertDriveFileIcon fontSize="small" sx={{ color: '#0088cc' }} />}
         <Typography variant="body2" noWrap sx={{ flex: 1, fontWeight: 600, color: '#222222' }}>{task.fileName}</Typography>
-        {isCompleted && (
+        {type === 'download' && isCompleted && onOpenFolder && (
           <Tooltip title="Abrir carpeta">
             <IconButton size="small" onClick={onOpenFolder} aria-label="Abrir carpeta" sx={{ '&:hover': { backgroundColor: 'rgba(0, 136, 204, 0.08)' } }}><FolderOpenIcon fontSize="small" sx={{ color: '#0088cc' }} /></IconButton>
           </Tooltip>
         )}
-
         <Tooltip title="Eliminar">
           <IconButton size="small" onClick={onRemove} aria-label="Eliminar" sx={{ '&:hover': { backgroundColor: 'rgba(243, 115, 22, 0.08)' } }}><CloseIcon fontSize="small" /></IconButton>
         </Tooltip>
