@@ -58,6 +58,32 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   pickFiles: () => ipcRenderer.invoke('dialog:pickFiles'),
   uploadTempFile: (groupId: number, fileName: string, data: number[], topicId?: number) =>
     ipcRenderer.invoke('files:uploadTempFile', groupId, fileName, data, topicId),
+  uploadFileWithProgress: (groupId: number, filePath: string, topicId: number | undefined, onProgress: (p: number) => void) => {
+    const uploadId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const handler = (_event: any, data: any) => {
+      if (data.uploadId === uploadId) {
+        onProgress(data.progress)
+      }
+    }
+    ipcRenderer.on('files:upload:progress', handler)
+    return ipcRenderer.invoke('files:upload:start', { uploadId, groupId, filePath, topicId })
+      .finally(() => {
+        ipcRenderer.removeListener('files:upload:progress', handler)
+      })
+  },
+  uploadTempFileWithProgress: (groupId: number, fileName: string, data: number[], topicId: number | undefined, onProgress: (p: number) => void) => {
+    const uploadId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const handler = (_event: any, data: any) => {
+      if (data.uploadId === uploadId) {
+        onProgress(data.progress)
+      }
+    }
+    ipcRenderer.on('files:upload:progress', handler)
+    return ipcRenderer.invoke('files:uploadTemp:start', { uploadId, groupId, fileName, data, topicId })
+      .finally(() => {
+        ipcRenderer.removeListener('files:upload:progress', handler)
+      })
+  },
   showInFolder: (filePath: string) => ipcRenderer.invoke('shell:showInFolder', filePath),
   getLogPath: () => ipcRenderer.invoke('log:getPath'),
   openLogFolder: () => ipcRenderer.invoke('log:open'),
