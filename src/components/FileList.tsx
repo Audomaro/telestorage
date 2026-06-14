@@ -4,6 +4,7 @@ import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 import { TelegramFile } from '../types'
 import FileListItem from './FileListItem'
 
@@ -24,25 +25,27 @@ export default function FileList({ files, isReadOnly, selectMode, selectedIds, o
   }
 
   return (
-    <Table size="small">
-      <TableHead>
-        <TableRow>
-          {selectMode && <TableCell sx={{ width: 36, p: 0.5 }} />}
-          <TableCell sx={{ width: 36, p: 1 }} />
-          <TableCell sx={{ p: 1 }}>Nombre</TableCell>
-          <TableCell sx={{ p: 1 }}>Tamaño</TableCell>
-          <TableCell sx={{ p: 1 }}>Fecha</TableCell>
-          <TableCell sx={{ p: 1 }}>Tipo</TableCell>
-          <TableCell sx={{ p: 1 }}>Acciones</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {files.map(f => (
-          <FileListItem key={f.messageId} file={f} isReadOnly={isReadOnly}
-            selectMode={selectMode} selected={selectedIds.has(f.messageId)}
-            onDownload={onDownload} onDelete={onDelete} onToggleSelect={onToggleSelect} onPreview={onPreview} />
-        ))}
-      </TableBody>
-    </Table>
+    <Box sx={{ overflow: 'auto' }}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            {selectMode && <TableCell sx={{ width: 36, p: 0.5 }} />}
+            <TableCell sx={{ width: 36, p: 1 }} />
+            <TableCell sx={{ p: 1 }}>Nombre</TableCell>
+            <TableCell sx={{ p: 1 }}>Tamaño</TableCell>
+            <TableCell sx={{ p: 1 }}>Fecha</TableCell>
+            <TableCell sx={{ p: 1 }}>Tipo</TableCell>
+            <TableCell sx={{ p: 1 }}>Acciones</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {files.map(f => (
+            <FileListItem key={f.messageId} file={f} isReadOnly={isReadOnly}
+              selectMode={selectMode} selected={selectedIds.has(f.messageId)}
+              onDownload={onDownload} onDelete={onDelete} onToggleSelect={onToggleSelect} onPreview={onPreview} />
+          ))}
+        </TableBody>
+      </Table>
+    </Box>
   )
 }
