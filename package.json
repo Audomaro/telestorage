@@ -2,6 +2,8 @@
   "name": "telestorage",
   "version": "0.0.0",
   "description": "",
+  "author": "Audomaro Glez",
+  "license": "UNLICENSED",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
@@ -26,6 +28,7 @@
     "big-integer": "^1.6.52",
     "dotenv": "^17.4.2",
     "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9",
     "telegram": "^2.26.0"
   },
   "devDependencies": {
