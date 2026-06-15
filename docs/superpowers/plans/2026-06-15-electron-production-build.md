@@ -62,7 +62,7 @@ win:
       arch:
         - x64
   icon: build/icon.ico
-  publisherName: Your Name or Company
+npmRebuild: false
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
@@ -237,6 +237,8 @@ git commit -m "chore: add placeholder app icons"
 **Files:**
 - Verify output in `dist/`
 
+**Note:** The first production build may reveal configuration or environment-specific issues (for example, missing native build tools or schema validation errors). Adjust `electron-builder.yml`, npm scripts, or the build environment as needed and re-run the build until artifacts are produced successfully.
+
 - [ ] **Step 1: Run full production build**
 
 ```bash
@@ -275,9 +277,17 @@ Update `electron-builder.yml` to include comments at the top:
 ```yaml
 # IMPORTANT: Replace placeholder values before publishing:
 # - appId (com.yourcompany.telestorage)
-# - win.publisherName
 # - publish.owner and publish.repo
 # - build/icon.ico and build/icon.png with production-ready assets
+#
+# NOTE: npmRebuild is disabled because the current build environment lacks the
+# Visual Studio C++ build tools workload and the project has no required native
+# Node dependencies. Re-enable this if you add native modules that must be
+# rebuilt for Electron.
+#
+# NOTE: publisherName was omitted because the installed electron-builder version
+# rejected it during schema validation. Configure proper code signing and
+# publisher metadata before a public release.
 ```
 
 - [ ] **Step 2: Commit**
