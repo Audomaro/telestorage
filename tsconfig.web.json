@@ -9,5 +9,6 @@
     "skipLibCheck": true,
     "outDir": "./out"
   },
-  "include": ["src/**/*", "tests/**/*"]
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["tests/unit/electron/**/*"]
 }

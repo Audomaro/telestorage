@@ -107,7 +107,7 @@ describe('initMonitoring', () => {
     vi.clearAllMocks()
     const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
     initMonitoring()
-    const beforeQuitHandler = vi.mocked(app.on).mock.calls.find(([event]) => event === 'before-quit')?.[1] as () => void
+    const beforeQuitHandler = vi.mocked(app.on).mock.calls.find(([event]) => String(event) === 'before-quit')?.[1] as () => void
     expect(beforeQuitHandler).toBeDefined()
     beforeQuitHandler()
     expect(mockStore.flush).toHaveBeenCalled()

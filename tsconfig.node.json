@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "outDir": "./out"
   },
-  "include": ["electron/**/*", "electron.vite.config.ts"]
+  "include": ["electron/**/*", "electron.vite.config.ts", "tests/unit/electron/**/*"]
 }
