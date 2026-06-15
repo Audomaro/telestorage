@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mkdirSync, rmSync, existsSync, readFileSync } from 'fs'
+import { mkdirSync, rmSync, existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { createTelemetryStore } from '../../../../../electron/main/monitoring/telemetry-store'
 import type { TelemetryEvent } from '../../../../../electron/main/monitoring/types'
@@ -106,6 +106,13 @@ describe('telemetry-store', () => {
   })
 
   it('getEvents returns empty array when file does not exist', () => {
+    const store = createTelemetryStore({ retentionDays: 7, filePath })
+    expect(store.getEvents()).toHaveLength(0)
+  })
+
+  it('returns empty events when file is corrupted', () => {
+    mkdirSync(tmpDir, { recursive: true })
+    writeFileSync(filePath, 'not json')
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     expect(store.getEvents()).toHaveLength(0)
   })

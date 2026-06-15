@@ -15,9 +15,11 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
 function isOlderThan(dateString: string, retentionDays: number): boolean {
   const eventDate = new Date(dateString).getTime()
-  const cutoff = Date.now() - retentionDays * 24 * 60 * 60 * 1000
+  const cutoff = Date.now() - retentionDays * MS_PER_DAY
   return eventDate < cutoff
 }
 
@@ -25,27 +27,34 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
   const { filePath, retentionDays } = config
   const batch: TelemetryEvent[] = []
 
-  function persist(): void {
-    const allEvents = existsSync(filePath)
-      ? (JSON.parse(readFileSync(filePath, 'utf-8')) as TelemetryEvent[])
-      : []
+  function persist(): boolean {
+    let allEvents: TelemetryEvent[] = []
+    if (existsSync(filePath)) {
+      try {
+        allEvents = JSON.parse(readFileSync(filePath, 'utf-8')) as TelemetryEvent[]
+      } catch (err) {
+        log.error('Failed to read existing telemetry file, starting fresh:', err)
+        allEvents = []
+      }
+    }
+
     const merged = [...allEvents, ...batch]
     const kept = merged.filter(e => !isOlderThan(e.timestamp, retentionDays))
+
     if (kept.length === 0) {
       if (existsSync(filePath)) {
-        try {
-          unlinkSync(filePath)
-        } catch (err) {
-          log.error('Failed to delete empty telemetry file:', err)
-        }
+        try { unlinkSync(filePath) } catch (err) { log.error('Failed to delete empty telemetry file:', err) }
       }
-      return
+      return true
     }
+
     try {
       mkdirSync(dirname(filePath), { recursive: true })
       writeFileSync(filePath, JSON.stringify(kept, null, 2))
+      return true
     } catch (err) {
       log.error('Failed to persist telemetry events:', err)
+      return false
     }
   }
 
@@ -58,15 +67,18 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
     },
 
     flush() {
-      persist()
-      batch.length = 0
+      if (persist()) batch.length = 0
     },
 
     getEvents() {
       if (!existsSync(filePath)) return []
       try {
         const events = JSON.parse(readFileSync(filePath, 'utf-8')) as TelemetryEvent[]
-        return events.filter(e => !isOlderThan(e.timestamp, retentionDays))
+        const kept = events.filter(e => !isOlderThan(e.timestamp, retentionDays))
+        if (kept.length === 0 && existsSync(filePath)) {
+          try { unlinkSync(filePath) } catch (err) { log.error('Failed to delete stale telemetry file:', err) }
+        }
+        return kept
       } catch (err) {
         log.error('Failed to read telemetry events:', err)
         return []
