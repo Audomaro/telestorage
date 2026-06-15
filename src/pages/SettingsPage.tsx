@@ -82,19 +82,19 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
       } finally {
         URL.revokeObjectURL(url)
       }
-      showSnackbar('Telemetry exported', 'success')
+      showSnackbar('Telemetría exportada', 'success')
     } catch {
-      showSnackbar('Failed to export telemetry', 'error')
+      showSnackbar('No se pudo exportar la telemetría', 'error')
     }
   }
 
   const handleClearTelemetry = async () => {
-    if (!window.confirm('Delete all locally stored telemetry data? This cannot be undone.')) return
+    if (!window.confirm('¿Eliminar todos los datos de telemetría almacenados localmente? Esta acción no se puede deshacer.')) return
     try {
       await window.telegramAPI.clearTelemetry()
-      showSnackbar('Telemetry cleared', 'success')
+      showSnackbar('Telemetría borrada', 'success')
     } catch {
-      showSnackbar('Failed to clear telemetry', 'error')
+      showSnackbar('No se pudo borrar la telemetría', 'error')
     }
   }
 
@@ -102,7 +102,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     try {
       await window.telegramAPI.openCrashesFolder()
     } catch {
-      showSnackbar('Failed to open crashes folder', 'error')
+      showSnackbar('No se pudo abrir la carpeta de fallos', 'error')
     }
   }
 
