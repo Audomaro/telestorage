@@ -1,0 +1,33 @@
+appId: com.yourcompany.telestorage
+productName: TeleStorage
+copyright: Copyright © 2026 Author
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**/*
+  - node_modules/**/*
+  - package.json
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: build/icon.ico
+  publisherName: Your Name or Company
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: TeleStorage
+  uninstallDisplayName: TeleStorage
+portable:
+  artifactName: ${productName} ${version}.exe
+publish:
+  provider: github
+  owner: your-username
+  repo: telestorage
