@@ -31,7 +31,13 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
     let allEvents: TelemetryEvent[] = []
     if (existsSync(filePath)) {
       try {
-        allEvents = JSON.parse(readFileSync(filePath, 'utf-8')) as TelemetryEvent[]
+        const parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
+        if (Array.isArray(parsed)) {
+          allEvents = parsed as TelemetryEvent[]
+        } else {
+          log.warn('Telemetry file contained non-array data, starting fresh')
+          allEvents = []
+        }
       } catch (err) {
         log.error('Failed to read existing telemetry file, starting fresh:', err)
         allEvents = []

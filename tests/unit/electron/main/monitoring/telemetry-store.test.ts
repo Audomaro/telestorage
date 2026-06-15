@@ -116,4 +116,15 @@ describe('telemetry-store', () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     expect(store.getEvents()).toHaveLength(0)
   })
+
+  it('recovers from non-array JSON in events file', () => {
+    mkdirSync(tmpDir, { recursive: true })
+    writeFileSync(filePath, '{"foo":"bar"}')
+    const store = createTelemetryStore({ retentionDays: 7, filePath })
+    expect(store.getEvents()).toHaveLength(0)
+    const event = makeEvent(new Date().toISOString())
+    store.record(event)
+    store.flush()
+    expect(store.getEvents()).toHaveLength(1)
+  })
 })

@@ -11,3 +11,4 @@ test-results/
 playwright-report/
 playwright/.cache/
 graphify-out/
+tmp-monitoring-test/
