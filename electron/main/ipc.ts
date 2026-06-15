@@ -7,6 +7,8 @@ import { getGroups, getArchivedGroups, createGroup, deleteGroup, getForumTopics,
 import { listFiles, listFilesBatch, listFilesByTopic, uploadFile, uploadMultipleFiles, uploadFileWithProgress, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile } from './telegram/files'
 import { startStreamServer, registerStream, unregisterStream, getStreamServerPort } from './streamServer'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
+import { recordTelemetry, getTelemetryEvents, exportTelemetry, clearTelemetry } from './monitoring'
+import type { TelemetryEvent } from './monitoring/types'
 
 export async function registerIpcHandlers(): Promise<void> {
   // Start video stream server
@@ -237,5 +239,21 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   ipcMain.handle('log:open', async () => {
     const logPath = log.transports.file.getFile().path
     shell.showItemInFolder(logPath)
+  })
+
+  ipcMain.handle('telemetry:record', async (_event, event: { category: string; name: string; payload?: Record<string, unknown> }) => {
+    recordTelemetry(event as Omit<TelemetryEvent, 'id' | 'timestamp'>)
+  })
+
+  ipcMain.handle('telemetry:get', async () => {
+    return getTelemetryEvents()
+  })
+
+  ipcMain.handle('telemetry:export', async () => {
+    return exportTelemetry()
+  })
+
+  ipcMain.handle('telemetry:clear', async () => {
+    clearTelemetry()
   })
 }
