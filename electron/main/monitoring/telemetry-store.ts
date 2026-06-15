@@ -79,7 +79,11 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
     getEvents() {
       if (!existsSync(filePath)) return []
       try {
-        const events = JSON.parse(readFileSync(filePath, 'utf-8')) as TelemetryEvent[]
+        const parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
+        const events = Array.isArray(parsed) ? (parsed as TelemetryEvent[]) : []
+        if (!Array.isArray(parsed)) {
+          log.warn('Telemetry file contained non-array data, starting fresh')
+        }
         const kept = events.filter(e => !isOlderThan(e.timestamp, retentionDays))
         if (kept.length === 0 && existsSync(filePath)) {
           try { unlinkSync(filePath) } catch (err) { log.error('Failed to delete stale telemetry file:', err) }
