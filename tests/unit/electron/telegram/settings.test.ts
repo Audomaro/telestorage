@@ -59,3 +59,19 @@ describe('batchSize', () => {
     expect(settings.batchSize).toBe(25)
   })
 })
+
+describe('telemetryEnabled', () => {
+  it('should default to false', async () => {
+    const { getSettings } = await import('../../../../electron/main/telegram/settings')
+    const settings = getSettings()
+    expect(settings.telemetryEnabled).toBe(false)
+  })
+
+  it('should persist telemetryEnabled', async () => {
+    const { setSettings, getSettings } = await import('../../../../electron/main/telegram/settings')
+    setSettings({ telemetryEnabled: true })
+    expect(getSettings().telemetryEnabled).toBe(true)
+    setSettings({ telemetryEnabled: false })
+    expect(getSettings().telemetryEnabled).toBe(false)
+  })
+})

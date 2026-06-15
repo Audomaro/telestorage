@@ -5,6 +5,7 @@ interface AppSettings {
   defaultTab: 'created' | 'active' | 'archived'
   excludedFromMedia: string[]
   themeMode: 'light' | 'dark'
+  telemetryEnabled: boolean
 }
 
 interface TelegramAPI {

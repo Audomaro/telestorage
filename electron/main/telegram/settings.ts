@@ -9,6 +9,7 @@ export interface AppSettings {
   defaultTab: 'created' | 'active' | 'archived'
   excludedFromMedia: string[]
   themeMode: 'light' | 'dark'
+  telemetryEnabled: boolean
 }
 
 const SETTINGS_FILE = join(app.getPath('userData'), 'settings.json')
@@ -19,7 +20,8 @@ const DEFAULTS: AppSettings = {
   batchSize: 50,
   defaultTab: 'created',
   excludedFromMedia: [],
-  themeMode: 'light'
+  themeMode: 'light',
+  telemetryEnabled: false
 }
 
 export function getSettings(): AppSettings {
