@@ -10,10 +10,14 @@ config({ path: existsSync(prodEnvPath) ? prodEnvPath : devEnvPath })
 
 import { autoUpdater } from 'electron-updater'
 import { registerIpcHandlers } from './ipc'
+import { initMonitoring, recordTelemetry, flushTelemetry } from './monitoring'
 
 log.initialize({ preload: true })
 log.transports.file.level = 'info'
 log.transports.console.level = 'debug'
+
+initMonitoring()
+recordTelemetry({ category: 'lifecycle', name: 'app:started' })
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -49,12 +53,15 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  recordTelemetry({ category: 'lifecycle', name: 'app:ready' })
   Menu.setApplicationMenu(null)
   await registerIpcHandlers()
   createWindow()
 
   if (app.isPackaged) {
+    recordTelemetry({ category: 'lifecycle', name: 'update:check-started' })
     autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+      recordTelemetry({ category: 'lifecycle', name: 'update:check-failed' })
       log.warn('Auto-updater check failed:', err)
     })
   }
@@ -67,6 +74,8 @@ app.whenReady().then(async () => {
 })
 
 app.on('window-all-closed', () => {
+  recordTelemetry({ category: 'lifecycle', name: 'app:quit' })
+  flushTelemetry()
   if (process.platform !== 'darwin') {
     app.quit()
   }
