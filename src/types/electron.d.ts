@@ -47,6 +47,11 @@ interface TelegramAPI {
   showInFolder(filePath: string): Promise<void>
   getLogPath(): Promise<string>
   openLogFolder(): Promise<void>
+  recordTelemetry(event: { category: string; name: string; payload?: Record<string, unknown> }): Promise<void>
+  getTelemetry(): Promise<any[]>
+  exportTelemetry(): Promise<string>
+  clearTelemetry(): Promise<void>
+  openCrashesFolder(): Promise<void>
 }
 
 interface AuthState {

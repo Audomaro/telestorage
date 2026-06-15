@@ -261,4 +261,9 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   ipcMain.handle('telemetry:clear', () => {
     clearTelemetry()
   })
+
+  ipcMain.handle('shell:openCrashesFolder', async () => {
+    const crashesPath = app.getPath('crashDumps')
+    shell.openPath(crashesPath)
+  })
 }

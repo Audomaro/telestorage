@@ -91,4 +91,10 @@ contextBridge.exposeInMainWorld('telegramAPI', {
   showInFolder: (filePath: string) => ipcRenderer.invoke('shell:showInFolder', filePath),
   getLogPath: () => ipcRenderer.invoke('log:getPath'),
   openLogFolder: () => ipcRenderer.invoke('log:open'),
+  recordTelemetry: (event: { category: string; name: string; payload?: Record<string, unknown> }) =>
+    ipcRenderer.invoke('telemetry:record', event),
+  getTelemetry: () => ipcRenderer.invoke('telemetry:get'),
+  exportTelemetry: () => ipcRenderer.invoke('telemetry:export'),
+  clearTelemetry: () => ipcRenderer.invoke('telemetry:clear'),
+  openCrashesFolder: () => ipcRenderer.invoke('shell:openCrashesFolder'),
 })
