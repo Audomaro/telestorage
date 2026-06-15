@@ -8,6 +8,7 @@ on:
 jobs:
   release:
     runs-on: windows-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -17,11 +18,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
       - name: Create production .env
+        shell: bash
         run: |
           echo "TELEGRAM_API_ID=${{ secrets.TELEGRAM_API_ID }}" > .env
           echo "TELEGRAM_API_HASH=${{ secrets.TELEGRAM_API_HASH }}" >> .env
@@ -36,3 +39,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run publish
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-build-artifacts
+          path: dist/
