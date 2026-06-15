@@ -1,7 +1,7 @@
 import { app, crashReporter, dialog } from 'electron'
 import { join } from 'path'
 import log from 'electron-log/main'
-import { createTelemetryStore, TelemetryStore } from './telemetry-store'
+import { createTelemetryStore, TelemetryStore, generateId } from './telemetry-store'
 import type { TelemetryEvent } from './types'
 import { getSettings } from '../telegram/settings'
 
@@ -28,7 +28,7 @@ export function recordTelemetry(event: Omit<TelemetryEvent, 'id' | 'timestamp'>)
   if (!isTelemetryEnabled() || !telemetryStore) return
   telemetryStore.record({
     ...event,
-    id: '',
+    id: generateId(),
     timestamp: new Date().toISOString()
   })
 }
@@ -60,11 +60,14 @@ function initCrashReporter(): void {
 function initErrorHandlers(): void {
   process.on('uncaughtException', (error) => {
     logError(error, { source: 'uncaughtException' })
-    dialog.showErrorBox(
-      'Unexpected error',
-      'TeleStorage encountered an error and will close.'
-    )
-    app.quit()
+    try {
+      dialog.showErrorBox(
+        'Unexpected error',
+        'TeleStorage encountered an error and will close.'
+      )
+    } finally {
+      app.quit()
+    }
   })
 
   process.on('unhandledRejection', (reason) => {
