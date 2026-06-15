@@ -70,25 +70,40 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   }
 
   const handleExportTelemetry = async () => {
-    const json = await window.telegramAPI.exportTelemetry()
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `telestorage-telemetry-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-    showSnackbar('Telemetry exported', 'success')
+    try {
+      const json = await window.telegramAPI.exportTelemetry()
+      const blob = new Blob([json], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      try {
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `telestorage-telemetry-${new Date().toISOString().slice(0, 10)}.json`
+        a.click()
+      } finally {
+        URL.revokeObjectURL(url)
+      }
+      showSnackbar('Telemetry exported', 'success')
+    } catch {
+      showSnackbar('Failed to export telemetry', 'error')
+    }
   }
 
   const handleClearTelemetry = async () => {
     if (!window.confirm('Delete all locally stored telemetry data? This cannot be undone.')) return
-    await window.telegramAPI.clearTelemetry()
-    showSnackbar('Telemetry cleared', 'success')
+    try {
+      await window.telegramAPI.clearTelemetry()
+      showSnackbar('Telemetry cleared', 'success')
+    } catch {
+      showSnackbar('Failed to clear telemetry', 'error')
+    }
   }
 
-  const handleOpenCrashesFolder = () => {
-    window.telegramAPI.openCrashesFolder()
+  const handleOpenCrashesFolder = async () => {
+    try {
+      await window.telegramAPI.openCrashesFolder()
+    } catch {
+      showSnackbar('Failed to open crashes folder', 'error')
+    }
   }
 
   const handleSave = async () => {
@@ -186,10 +201,10 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                           onChange={e => setTelemetryEnabled(e.target.checked)}
                         />
                       }
-                      label="Help improve TeleStorage by sharing usage data"
+                      label="Ayuda a mejorar TeleStorage compartiendo datos de uso"
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Usage data is stored locally and is never uploaded automatically.
+                      Los datos de uso se almacenan localmente y nunca se cargan automáticamente.
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                       <Button
@@ -199,7 +214,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                         onClick={handleExportTelemetry}
                         disabled={!telemetryEnabled}
                       >
-                        Export telemetry
+                        Exportar telemetría
                       </Button>
                       <Button
                         size="small"
@@ -208,7 +223,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                         startIcon={<DeleteIcon />}
                         onClick={handleClearTelemetry}
                       >
-                        Clear telemetry
+                        Borrar telemetría
                       </Button>
                       <Button
                         size="small"
@@ -216,7 +231,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                         startIcon={<FolderOpenIcon />}
                         onClick={handleOpenCrashesFolder}
                       >
-                        Open crashes folder
+                        Abrir carpeta de fallos
                       </Button>
                     </Box>
                   </Box>
