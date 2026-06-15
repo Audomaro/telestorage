@@ -64,6 +64,10 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     })
   }, [])
 
+  useEffect(() => {
+    window.telegramAPI.recordTelemetry({ category: 'feature', name: 'settings:opened' })
+  }, [])
+
   const handleSelectFolder = async () => {
     const path = await window.telegramAPI.selectFolder()
     if (path) setDownloadPath(path)

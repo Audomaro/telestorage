@@ -109,6 +109,12 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   })
 
   ipcMain.handle('files:upload', async (_event, groupId: number, filePath: string, topicId?: number) => {
+    try {
+      const stats = await import('fs/promises').then(fs => fs.stat(filePath))
+      recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: stats.size } })
+    } catch {
+      recordTelemetry({ category: 'feature', name: 'file:uploaded' })
+    }
     return uploadFile(groupId, filePath, topicId)
   })
 
@@ -139,7 +145,9 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   })
 
   ipcMain.handle('files:download', async (_event, groupId: number, messageId: number, filePath: string) => {
-    return downloadFile(groupId, messageId, filePath)
+    const result = await downloadFile(groupId, messageId, filePath)
+    recordTelemetry({ category: 'feature', name: 'file:downloaded' })
+    return result
   })
 
   ipcMain.handle('files:listMore', async (_event, { groupId, offsetId, search }: { groupId: number; offsetId?: number; search?: string }) => {
