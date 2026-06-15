@@ -17,7 +17,7 @@ win:
       arch:
         - x64
   icon: build/icon.ico
-  publisherName: Your Name or Company
+npmRebuild: false
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
