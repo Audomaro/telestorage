@@ -98,11 +98,11 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
   return (
     <Dialog open fullScreen onClose={onClose}>
       <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, py: 0.5, backdropFilter: 'blur(12px)', bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(15,23,42,0.85)' : 'rgba(255,255,255,0.85)', borderBottom: 1, borderColor: 'divider' }}>
-        <IconButton aria-label="Cerrar" onClick={onClose}><CloseIcon /></IconButton>
+        <IconButton aria-label="Cerrar vista previa" onClick={onClose}><CloseIcon /></IconButton>
         {!isReadOnly && (
-          <Tooltip title="Eliminar"><IconButton aria-label="Eliminar" onClick={() => { onClose(); onDelete(file) }}><DeleteIcon /></IconButton></Tooltip>
+          <Tooltip title="Eliminar archivo"><IconButton aria-label="Eliminar archivo" onClick={() => { onClose(); onDelete(file) }}><DeleteIcon /></IconButton></Tooltip>
         )}
-        <Tooltip title="Guardar en disco"><IconButton aria-label="Guardar en disco" onClick={() => onSaveToDisk?.(file)}><DownloadIcon /></IconButton></Tooltip>
+        <Tooltip title="Descargar archivo"><IconButton aria-label="Descargar archivo" onClick={() => onSaveToDisk?.(file)}><DownloadIcon /></IconButton></Tooltip>
         <Box sx={{ flex: 1 }} />
         <Typography variant="body2" sx={{ fontWeight: 500 }}>{file.name}</Typography>
       </Box>
@@ -125,12 +125,12 @@ export default function PreviewModal({ file, files, groupId, isReadOnly, onClose
           <Typography color="text.secondary">{file.name}</Typography>
         )}
         {prevFile && (
-          <IconButton onClick={handlePrev} aria-label="Anterior" sx={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', transition: 'all 200ms', '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.05)' } }}>
+          <IconButton onClick={handlePrev} aria-label="Archivo anterior" sx={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', transition: 'all 200ms', '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.05)' } }}>
             <ChevronLeftIcon />
           </IconButton>
         )}
         {nextFile && (
-          <IconButton onClick={handleNext} aria-label="Siguiente" sx={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', transition: 'all 200ms', '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.05)' } }}>
+          <IconButton onClick={handleNext} aria-label="Archivo siguiente" sx={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', transition: 'all 200ms', '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.05)' } }}>
             <ChevronRightIcon />
           </IconButton>
         )}

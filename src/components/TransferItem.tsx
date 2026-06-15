@@ -80,8 +80,8 @@ export default function TransferItem({ task, type, onRemove, onOpenFolder, onRet
           </Typography>
         </Box>
         {type === 'download' && isCompleted && onOpenFolder && (
-          <Tooltip title="Abrir carpeta">
-            <IconButton size="small" onClick={onOpenFolder} aria-label="Abrir carpeta">
+          <Tooltip title="Abrir ubicación">
+            <IconButton size="small" onClick={onOpenFolder} aria-label="Abrir ubicación">
               <FolderOpenIcon fontSize="small" color="primary" />
             </IconButton>
           </Tooltip>
@@ -93,8 +93,8 @@ export default function TransferItem({ task, type, onRemove, onOpenFolder, onRet
             </IconButton>
           </Tooltip>
         )}
-        <Tooltip title="Eliminar">
-          <IconButton size="small" onClick={onRemove} aria-label="Eliminar">
+        <Tooltip title="Quitar de la lista">
+          <IconButton size="small" onClick={onRemove} aria-label="Quitar de la lista">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Tooltip>

@@ -39,7 +39,7 @@ describe('ForumTopicsPage', () => {
       { wrapper: Wrapper }
     )
     await waitFor(() => {
-      expect(screen.getByText('No hay temas en este forum')).toBeDefined()
+      expect(screen.getByText('No hay temas en este foro')).toBeDefined()
     })
   })
 })

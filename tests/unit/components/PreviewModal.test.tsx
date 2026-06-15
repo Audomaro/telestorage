@@ -42,9 +42,9 @@ describe('PreviewModal', () => {
     const onClose = vi.fn()
     render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={onClose} onDelete={vi.fn()} />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByLabelText('Cerrar')).toBeDefined()
+      expect(screen.getByLabelText('Cerrar vista previa')).toBeDefined()
     })
-    fireEvent.click(screen.getByLabelText('Cerrar'))
+    fireEvent.click(screen.getByLabelText('Cerrar vista previa'))
     expect(onClose).toHaveBeenCalled()
   })
 
@@ -53,9 +53,9 @@ describe('PreviewModal', () => {
     const onDelete = vi.fn()
     render(<PreviewModal file={imageFile} files={[imageFile]} groupId={123} isReadOnly={false} onClose={vi.fn()} onDelete={onDelete} />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByLabelText('Eliminar')).toBeDefined()
+      expect(screen.getByLabelText('Eliminar archivo')).toBeDefined()
     })
-    fireEvent.click(screen.getByLabelText('Eliminar'))
+    fireEvent.click(screen.getByLabelText('Eliminar archivo'))
     expect(onDelete).toHaveBeenCalledWith(imageFile)
   })
 

@@ -40,7 +40,7 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
         const t = await window.telegramAPI.getForumTopics(group.id)
         setTopics(t)
       } catch (err: any) {
-        setError(err.message || 'Error al cargar temas')
+        setError(err.message || 'No se pudieron cargar los temas')
       } finally {
         setLoading(false)
       }
@@ -52,9 +52,9 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
     try {
       await window.telegramAPI.renameTopic(group.id, topic.id, newTitle)
       setTopics(prev => prev.map(t => t.id === topic.id ? { ...t, title: newTitle } : t))
-      showSnackbar('Tema renombrado correctamente', 'success')
+      showSnackbar('Tema renombrado', 'success')
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al renombrar tema', 'error')
+      showSnackbar(err.message || 'No se pudo renombrar el tema', 'error')
     }
   }, [group.id, showSnackbar])
 
@@ -62,9 +62,9 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
     try {
       await window.telegramAPI.deleteTopic(group.id, topic.id)
       setTopics(prev => prev.filter(t => t.id !== topic.id))
-      showSnackbar('Tema eliminado correctamente', 'success')
+      showSnackbar('Tema eliminado', 'success')
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al eliminar tema', 'error')
+      showSnackbar(err.message || 'No se pudo eliminar el tema', 'error')
     }
   }, [group.id, showSnackbar])
 
@@ -77,9 +77,9 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
       setNewTopicName('')
       const t = await window.telegramAPI.getForumTopics(group.id)
       setTopics(t)
-      showSnackbar('Tema creado correctamente', 'success')
+      showSnackbar('Tema creado', 'success')
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al crear tema', 'error')
+      showSnackbar(err.message || 'No se pudo crear el tema', 'error')
     } finally {
       setCreating(false)
     }
@@ -126,7 +126,7 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
           <ForumTopicListItem key={t.id} topic={t} onClick={(topic) => onSelectTopic(topic)} onRename={handleRename} canRename={group.isOwner} onDelete={handleDeleteTopic} />
         ))}
         {topics.length === 0 && !error && (
-          <EmptyState icon={<FolderOffIcon />} title="No hay temas en este forum" />
+          <EmptyState icon={<FolderOffIcon />} title="No hay temas en este foro" subtitle="Crea un tema para organizar tus archivos" />
         )}
       </Box>
 
@@ -140,7 +140,7 @@ export default function ForumTopicsPage({ group, onSelectTopic, onBack }: ForumT
         <DialogActions>
           <Button onClick={() => setShowCreateDialog(false)}>Cancelar</Button>
           <Button onClick={handleCreateTopic} variant="contained" disabled={creating || !newTopicName.trim()}>
-            {creating ? 'Creando...' : 'Crear'}
+            {creating ? 'Creando...' : 'Crear tema'}
           </Button>
         </DialogActions>
       </Dialog>

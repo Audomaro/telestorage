@@ -115,12 +115,12 @@ export default function TransferPanel({ onClose }: TransferPanelProps) {
               Descargas{downloads.length > 0 && ` (${downloads.length})`}
             </Typography>
             {completedDownloads.length > 0 && (
-              <Button size="small" onClick={handleClearDownloads} startIcon={<CloseIcon />} sx={{ fontWeight: 600 }}>Limpiar</Button>
+              <Button size="small" onClick={handleClearDownloads} startIcon={<CloseIcon />} sx={{ fontWeight: 600 }}>Limpiar completadas</Button>
             )}
           </Box>
           <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain', flex: 1 }}>
             {sortedDownloads.length === 0
-              ? renderEmpty(<CloudDownloadIcon sx={{ fontSize: 40 }} />, 'Sin descargas activas')
+              ? renderEmpty(<CloudDownloadIcon sx={{ fontSize: 40 }} />, 'No hay descargas')
               : renderItems(sortedDownloads, 'download')}
           </Box>
         </Box>
@@ -133,12 +133,12 @@ export default function TransferPanel({ onClose }: TransferPanelProps) {
               Subidas{uploads.length > 0 && ` (${uploads.length})`}
             </Typography>
             {completedUploads.length > 0 && (
-              <Button size="small" onClick={handleClearUploads} startIcon={<CloseIcon />} sx={{ fontWeight: 600 }}>Limpiar</Button>
+              <Button size="small" onClick={handleClearUploads} startIcon={<CloseIcon />} sx={{ fontWeight: 600 }}>Limpiar completadas</Button>
             )}
           </Box>
           <Box sx={{ overflow: 'auto', overscrollBehavior: 'contain', flex: 1 }}>
             {sortedUploads.length === 0
-              ? renderEmpty(<CloudUploadIcon sx={{ fontSize: 40 }} />, 'Sin subidas activas')
+              ? renderEmpty(<CloudUploadIcon sx={{ fontSize: 40 }} />, 'No hay subidas')
               : renderItems(sortedUploads, 'upload')}
           </Box>
         </Box>

@@ -45,7 +45,7 @@ export default function Toolbar({ viewMode, filter, showUpload, selectMode, sele
       )}
       <TextField
         size="small"
-        placeholder="Buscar archivos..."
+        placeholder="Buscar archivos"
         value={searchQuery || ''}
         onChange={e => onSearchChange?.(e.target.value)}
         slotProps={{

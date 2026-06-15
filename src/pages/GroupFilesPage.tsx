@@ -73,7 +73,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
       hasMoreRef.current = result.hasMore
       offsetRef.current = result.nextOffsetId
     } catch (err: any) {
-      setError(err.message || 'Error al cargar archivos')
+      setError(err.message || 'No se pudieron cargar los archivos')
     } finally {
       setLoading(false)
     }
@@ -109,7 +109,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
       setHasMore(result.hasMore)
       hasMoreRef.current = result.hasMore
     } catch (err: any) {
-      setError(err.message || 'Error al cargar más archivos')
+      setError(err.message || 'No se pudieron cargar más archivos')
     } finally {
       loadingMoreRef.current = false
       setLoadingMore(false)
@@ -143,7 +143,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
     const destPath = `${settings.downloadPath}\\${file.messageId}_${file.name}`
     const downloadId = `${file.messageId}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`
     addDownload(downloadId, file.name, file.size)
-    showSnackbar('Descarga agregada a la lista', 'success')
+    showSnackbar('Descarga añadida', 'success')
     try {
       await window.telegramAPI.downloadFileWithProgress(
         group.id, file.messageId, destPath,
@@ -180,7 +180,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
       setConfirmDeleteFile(null)
       loadInitialFiles(searchQuery || undefined)
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al eliminar', 'error')
+      showSnackbar(err.message || 'No se pudo eliminar el archivo', 'error')
     } finally {
       setDeleting(false)
     }
@@ -207,7 +207,7 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
     await Promise.all(files.map(file => downloadWithTracking(file, 'Error al descargar')))
     setSelectedIds(new Set())
     setSelectMode(false)
-    showSnackbar(`${files.length} archivo(s) agregado(s) a descargas`, 'success')
+      showSnackbar(`${files.length} archivos añadidos a descargas`, 'success')
   }
 
   const handleBatchDelete = async () => {
@@ -219,9 +219,9 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
       setSelectMode(false)
       setConfirmBatchDelete(false)
       loadInitialFiles(searchQuery || undefined)
-      showSnackbar(`${ids.length} archivo(s) eliminado(s)`, 'success')
+      showSnackbar(`${ids.length} archivos eliminados`, 'success')
     } catch (err: any) {
-      showSnackbar(err.message || 'Error al eliminar archivos', 'error')
+      showSnackbar(err.message || 'No se pudieron eliminar los archivos', 'error')
     } finally {
       setDeleting(false)
     }
@@ -283,7 +283,8 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
         {filteredFiles.length === 0 && !loading && !error && (
           <EmptyState
             icon={filter === 'media' ? <ImageOutlined /> : <InsertDriveFileOutlined />}
-            title={filter === 'media' ? 'Sin archivos multimedia' : 'Sin archivos'}
+            title={filter === 'media' ? 'No hay archivos multimedia' : 'No hay archivos'}
+            subtitle="Los archivos del grupo aparecerán aquí"
           />
         )}
         {loadingMore && viewMode === 'list' && (
@@ -318,32 +319,32 @@ export default function GroupFilesPage({ group, onBack, onSettings, topic }: Gro
         />
       )}
 
-      <Dialog open={!!confirmDeleteFile} onClose={() => setConfirmDeleteFile(null)}>
+      <Dialog open={!!confirmDeleteFile} onClose={() => setConfirmDeleteFile(null)} maxWidth="xs" fullWidth>
         <DialogTitle>Eliminar archivo</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Estás seguro de eliminar "{confirmDeleteFile?.name}"? Esta acción no se puede deshacer.
+            ¿Eliminar "{confirmDeleteFile?.name}"? Esta acción no se puede deshacer.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDeleteFile(null)}>Cancelar</Button>
           <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={deleting}>
-            {deleting ? 'Eliminando...' : 'Eliminar'}
+            {deleting ? 'Eliminando...' : 'Eliminar archivo'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={confirmBatchDelete} onClose={() => setConfirmBatchDelete(false)}>
+      <Dialog open={confirmBatchDelete} onClose={() => setConfirmBatchDelete(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Eliminar archivos</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Estás seguro de eliminar {selectedIds.size} archivo(s)? Esta acción no se puede deshacer.
+            ¿Eliminar {selectedIds.size} archivos seleccionados? Esta acción no se puede deshacer.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmBatchDelete(false)}>Cancelar</Button>
           <Button onClick={handleBatchDelete} color="error" variant="contained" disabled={deleting}>
-            {deleting ? 'Eliminando...' : 'Eliminar'}
+            {deleting ? 'Eliminando...' : 'Eliminar archivos'}
           </Button>
         </DialogActions>
       </Dialog>

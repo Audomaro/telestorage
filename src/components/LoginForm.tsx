@@ -201,7 +201,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, '')
                       setPhone(v)
-                      setPhoneError(v.length > 0 && v.length < 7 ? 'Número muy corto' : '')
+                      setPhoneError(v.length > 0 && v.length < 7 ? 'Ingresa al menos 7 dígitos' : '')
                     }}
                     error={!!phoneError}
                     helperText={phoneError}
@@ -213,7 +213,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
               {currentStep === 'code' && (
                 <TextField
                   label="Código de verificación"
-                  placeholder="Ingresa el código"
+                  placeholder="Código de 5 dígitos"
                   fullWidth
                   sx={{ mb: 2 }}
                   slotProps={{
@@ -230,7 +230,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
                 <TextField
                   label="Contraseña 2FA"
                   type="password"
-                  placeholder="Ingresa tu contraseña"
+                  placeholder="Contraseña de verificación"
                   fullWidth
                   sx={{ mb: 2 }}
                   slotProps={{

@@ -100,16 +100,16 @@ export default function ForumTopicListItem({ topic, onClick, onRename, canRename
       </CardContent>
     </Card>
     <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)} maxWidth="xs" fullWidth>
-      <DialogTitle>Eliminar tema</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          ¿Estás seguro de eliminar "{topic.title}"? Los archivos de este tema se eliminarán permanentemente.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setConfirmDeleteOpen(false)}>Cancelar</Button>
-        <Button variant="contained" color="error" onClick={() => { onDelete?.(topic); setConfirmDeleteOpen(false) }}>Eliminar</Button>
-      </DialogActions>
+        <DialogTitle>Eliminar tema</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Eliminar "{topic.title}"? Todos los archivos de este tema se eliminarán permanentemente.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancelar</Button>
+          <Button variant="contained" color="error" onClick={() => { onDelete?.(topic); setConfirmDeleteOpen(false) }}>Eliminar tema</Button>
+        </DialogActions>
     </Dialog>
     <Dialog open={renameOpen} onClose={() => setRenameOpen(false)} maxWidth="xs" fullWidth>
       <DialogTitle>Renombrar tema</DialogTitle>
@@ -118,7 +118,7 @@ export default function ForumTopicListItem({ topic, onClick, onRename, canRename
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setRenameOpen(false)}>Cancelar</Button>
-        <Button variant="contained" onClick={() => { onRename?.(topic, renameTitle); setRenameOpen(false) }}>Guardar</Button>
+          <Button variant="contained" onClick={() => { onRename?.(topic, renameTitle); setRenameOpen(false) }}>Guardar cambios</Button>
       </DialogActions>
     </Dialog>
     </>

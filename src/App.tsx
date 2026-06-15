@@ -64,7 +64,7 @@ function AppContent() {
           <StorageIcon sx={{ fontSize: 32, color: 'primary.main' }} />
         </Box>
         <CircularProgress size={20} />
-        <Typography variant="body2" color="text.secondary">Conectando...</Typography>
+        <Typography variant="body2" color="text.secondary">Conectando con Telegram...</Typography>
       </Box>
     )
   }
@@ -100,8 +100,8 @@ function AppContent() {
             <Fade in={showBack}>
               <Box>
                 {showBack && (
-                  <Tooltip title="Volver">
-                    <IconButton color="inherit" edge="start" onClick={handleBack} aria-label="Volver" size="small">
+                  <Tooltip title="Volver atrás">
+                    <IconButton color="inherit" edge="start" onClick={handleBack} aria-label="Volver atrás" size="small">
                       <ArrowBackIcon />
                     </IconButton>
                   </Tooltip>
@@ -160,7 +160,7 @@ function AppContent() {
         <DialogTitle>Cerrar sesión</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Estás seguro de que quieres cerrar sesión? Se eliminará la sesión actual y tendrás que iniciar sesión de nuevo.
+            ¿Cerrar sesión? Tu sesión actual se cerrará y deberás volver a iniciar sesión.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

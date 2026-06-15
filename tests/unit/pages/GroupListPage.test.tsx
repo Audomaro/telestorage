@@ -64,7 +64,7 @@ describe('GroupListPage app filter', () => {
     ])
     render(<GroupListPage />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByText(/No hay grupos en TeleStorage/i)).toBeDefined()
+      expect(screen.getByText(/No tienes grupos de TeleStorage/i)).toBeDefined()
     })
   })
 })

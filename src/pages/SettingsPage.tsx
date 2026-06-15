@@ -73,7 +73,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
       setMode(themeMode)
       showSnackbar('Configuración guardada', 'success')
     } catch {
-      showSnackbar('Error al guardar configuración', 'error')
+      showSnackbar('No se pudo guardar la configuración', 'error')
     } finally {
       setSaving(false)
     }
@@ -116,8 +116,8 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
 
                 {section.key === 'nav' && (
                   <FormControl size="small" sx={{ minWidth: 220 }}>
-                    <InputLabel id="default-tab-label">Pestaña por defecto al iniciar</InputLabel>
-                    <Select value={defaultTab} label="Pestaña por defecto al iniciar" labelId="default-tab-label" id="default-tab-select"
+                    <InputLabel id="default-tab-label">Pestaña inicial</InputLabel>
+                    <Select value={defaultTab} label="Pestaña inicial" labelId="default-tab-label" id="default-tab-select"
                       onChange={e => setDefaultTab(e.target.value as 'created' | 'active' | 'archived')}>
                       <MenuItem value="created">TeleStorage</MenuItem>
                       <MenuItem value="active">Activos</MenuItem>
@@ -133,12 +133,12 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                       <TextField data-testid="download-path-field" fullWidth size="small" value={downloadPath} slotProps={{
                         input: {
                           readOnly: true,
-                          endAdornment: <Button size="small" onClick={handleSelectFolder} startIcon={<FolderIcon />}>Cambiar</Button>
+                          endAdornment: <Button size="small" onClick={handleSelectFolder} startIcon={<FolderIcon />}>Seleccionar carpeta</Button>
                         }
                       }} />
                     </Box>
                     <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Archivos por carga (batch size)</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Archivos por carga</Typography>
                       <TextField data-testid="batch-size-input" type="number" size="small" sx={{ width: 120 }}
                         value={batchSize} onChange={e => setBatchSize(Math.max(1, parseInt(e.target.value) || 1))} />
                     </Box>
@@ -148,7 +148,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                 {section.key === 'advanced' && (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Extensiones ignoradas en galería y multimedia</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Extensiones excluidas de multimedia</Typography>
                       <Autocomplete
                         data-testid="excluded-extensions-input"
                         multiple
@@ -162,16 +162,16 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                           ))
                         }
                         renderInput={params => (
-                          <TextField {...params} size="small" placeholder="svg, webp, bmp..." />
+                          <TextField {...params} size="small" placeholder="Ej: svg, webp, bmp" />
                         )}
                       />
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                        Estos archivos se tratarán como documentos y no aparecerán en Multimedia ni Galería.
+                        Estas extensiones se tratarán como documentos y no aparecerán en Multimedia ni Galería.
                       </Typography>
                     </Box>
                     <Box>
                       <Button size="small" variant="outlined" color="warning" startIcon={<DescriptionIcon />} onClick={() => window.telegramAPI.openLogFolder()}>
-                        Abrir carpeta de logs
+                        Abrir carpeta de registros
                       </Button>
                     </Box>
                   </Box>

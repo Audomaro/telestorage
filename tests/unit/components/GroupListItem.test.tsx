@@ -22,15 +22,15 @@ describe('GroupListItem', () => {
     expect(screen.getByText('MiDrive-Fotos')).toBeDefined()
   })
 
-  it('should show "Propio" badge when isOwner is true', () => {
+  it('should show "Tuyo" badge when isOwner is true', () => {
     render(<GroupListItem group={mockGroup} onClick={() => {}} />, { wrapper: Wrapper })
-    expect(screen.getByText('Propio')).toBeDefined()
+    expect(screen.getByText('Tuyo')).toBeDefined()
   })
 
-  it('should show "Tercero" badge when isOwner is false', () => {
+  it('should show "Externo" badge when isOwner is false', () => {
     const thirdParty = { ...mockGroup, isOwner: false }
     render(<GroupListItem group={thirdParty} onClick={() => {}} />, { wrapper: Wrapper })
-    expect(screen.getByText('Tercero')).toBeDefined()
+    expect(screen.getByText('Externo')).toBeDefined()
   })
 
   it('should call onClick with group when clicked', () => {

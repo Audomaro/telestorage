@@ -49,7 +49,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
       if ((f as any).path) return false
       return f.size > 100 * 1024 * 1024
     })
-    tooBig.forEach(f => showSnackbar(`"${f.name}" es demasiado grande para arrastrar (máx. 100 MB)`, 'warning'))
+    tooBig.forEach(f => showSnackbar(`"${f.name}" es demasiado grande. Arrastra archivos de hasta 100 MB.`, 'warning'))
 
     const valid = Array.from(e.dataTransfer.files).filter(f => {
       if ((f as any).path) return true
@@ -77,10 +77,10 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
 
       return uploadPromise
         .then(() => completeUpload(uploadId))
-        .catch((err: any) => failUpload(uploadId, err.message || 'Error al subir'))
+        .catch((err: any) => failUpload(uploadId, err.message || 'No se pudo subir el archivo'))
     })
 
-    showSnackbar(`${files.length} archivo(s) agregados a la cola de subida`, 'success')
+    showSnackbar(`${files.length} archivos añadidos a la cola de subida`, 'success')
     onUploadComplete()
 
     Promise.allSettled(uploadPromises).then(() => {
@@ -90,7 +90,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
 
   return (
     <Dialog open onClose={uploading ? undefined : onClose} maxWidth="sm" fullWidth data-testid="upload-dialog">
-      <DialogTitle>{uploading ? 'Iniciando subidas...' : 'Subir archivos'}</DialogTitle>
+      <DialogTitle>{uploading ? 'Preparando subidas...' : 'Subir archivos'}</DialogTitle>
       <DialogContent sx={{ py: 2 }}>
         <Box
           onDrop={handleDrop}
@@ -113,7 +113,7 @@ export default function UploadDialog({ groupId, onClose, onUploadComplete, topic
           data-testid="upload-dropzone"
         >
           <CloudUploadIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-          <Typography>Arrastra archivos aquí o haz clic para seleccionar</Typography>
+          <Typography>Arrastra archivos aquí o haz clic para seleccionarlos</Typography>
         </Box>
         {files.length > 0 && (
           <List dense>

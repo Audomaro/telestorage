@@ -249,7 +249,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
           <Button data-testid="btn-vincular" size="small" variant="outlined" startIcon={<LinkIcon />}
             onClick={() => setShowAddExistingDialog(true)}>
-            Vincular propio
+            Vincular grupo
           </Button>
           <Button data-testid="btn-nuevo-grupo" size="small" variant="contained" color="warning" startIcon={<AddIcon />}
             onClick={() => { setShowCreateDialog(true); setTimeout(() => createInputRef.current?.focus(), 50) }}>
@@ -273,10 +273,10 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         ))}
         {visibleGroups.length === 0 && !archivedLoading && (
           tab === 'created'
-            ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos en TeleStorage" subtitle="Crea tu primer grupo para empezar" />
+            ? <EmptyState icon={<FolderOffIcon />} title="No tienes grupos de TeleStorage" subtitle="Crea un grupo para comenzar a almacenar archivos" />
             : tab === 'active'
-              ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos activos" subtitle="Crea uno nuevo en TeleStorage" />
-              : <EmptyState icon={<FolderOffIcon />} title="No hay grupos archivados" />
+              ? <EmptyState icon={<FolderOffIcon />} title="No hay grupos activos" subtitle="Crea un grupo nuevo en TeleStorage" />
+              : <EmptyState icon={<FolderOffIcon />} title="No hay grupos archivados" subtitle="Los grupos archivados aparecerán aquí" />
         )}
         {tab === 'archived' && archivedLoading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -295,24 +295,24 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
             <InputLabel>Tipo de grupo</InputLabel>
             <Select value={isForumGroup ? 'forum' : 'simple'} label="Tipo de grupo"
               onChange={e => setIsForumGroup(e.target.value === 'forum')}>
-              <MenuItem value="simple">Grupo simple</MenuItem>
-              <MenuItem value="forum">Grupo foro</MenuItem>
+              <MenuItem value="simple">Grupo estándar</MenuItem>
+              <MenuItem value="forum">Grupo con foros</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowCreateDialog(false)}>Cancelar</Button>
           <Button onClick={handleConfirmCreate} variant="contained" disabled={creating || !newGroupName.trim()}>
-            {creating ? 'Creando...' : 'Crear'}
+            {creating ? 'Creando...' : 'Crear grupo'}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={showAddExistingDialog} onClose={() => { setShowAddExistingDialog(false); setSelectedAddGroup(null); setAddGroupSearch('') }} maxWidth="xs" fullWidth>
-        <DialogTitle>Vincular grupo propio</DialogTitle>
+        <DialogTitle>Vincular grupo existente</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 1 }}>
-            Selecciona un grupo propio para agregarlo a TeleStorage
+            Selecciona uno de tus grupos para usarlo con TeleStorage.
           </DialogContentText>
           <TextField
             data-testid="vincular-search-input"
@@ -338,7 +338,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
             ))}
             {filteredOwnGroups.length === 0 && (
               <Typography color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                {addGroupSearch ? 'Sin resultados' : 'No hay grupos propios sin vincular'}
+                {addGroupSearch ? 'Sin resultados' : 'No tienes grupos disponibles para vincular'}
               </Typography>
             )}
           </Box>
@@ -346,7 +346,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         <DialogActions>
           <Button onClick={() => setShowAddExistingDialog(false)}>Cancelar</Button>
           <Button onClick={handleConfirmAddExisting} variant="contained" disabled={!selectedAddGroup || addingGroup}>
-            {addingGroup ? 'Vinculando...' : 'Vincular'}
+            {addingGroup ? 'Vinculando...' : 'Vincular grupo'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -355,7 +355,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
         <DialogTitle>Eliminar grupo</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Estás seguro de eliminar "{deletingGroup?.title}"? Los archivos no se podrán recuperar.
+            ¿Eliminar "{deletingGroup?.title}"? Esta acción no se puede deshacer y todos los archivos del grupo se perderán.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

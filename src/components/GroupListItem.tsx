@@ -65,13 +65,13 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
           <Typography variant="body1" noWrap sx={{ fontWeight: 700 }}>{group.title}</Typography>
           <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
             <Chip
-              label={group.isOwner ? 'Propio' : 'Tercero'}
+              label={group.isOwner ? 'Tuyo' : 'Externo'}
               color={group.isOwner ? 'primary' : 'warning'}
               size="small"
               icon={group.isOwner ? <CheckCircleIcon /> : <GroupIcon />}
             />
             {group.isForum && (
-              <Chip label="Forum" size="small" data-testid="forum-badge" color="primary" />
+              <Chip label="Foro" size="small" data-testid="forum-badge" color="primary" />
             )}
             {!group.isOwner && (
               <Chip label="Solo lectura" variant="outlined" size="small" />
@@ -106,7 +106,7 @@ export default function GroupListItem({ group, onClick, onDelete, onRename }: Gr
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setRenameOpen(false)}>Cancelar</Button>
-        <Button variant="contained" onClick={() => { onRename?.(group, renameTitle); setRenameOpen(false) }}>Guardar</Button>
+          <Button variant="contained" onClick={() => { onRename?.(group, renameTitle); setRenameOpen(false) }}>Guardar cambios</Button>
       </DialogActions>
     </Dialog>
     </>
