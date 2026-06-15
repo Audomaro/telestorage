@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { app, BrowserWindow, Menu, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import log from 'electron-log/main'
+import { autoUpdater } from 'electron-updater'
 import { registerIpcHandlers } from './ipc'
 
 log.initialize({ preload: true })
@@ -45,6 +46,12 @@ app.whenReady().then(async () => {
   Menu.setApplicationMenu(null)
   await registerIpcHandlers()
   createWindow()
+
+  try {
+    autoUpdater.checkForUpdatesAndNotify()
+  } catch (err) {
+    log.warn('Auto-updater check failed:', err)
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
