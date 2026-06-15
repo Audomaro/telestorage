@@ -47,10 +47,10 @@ app.whenReady().then(async () => {
   await registerIpcHandlers()
   createWindow()
 
-  try {
-    autoUpdater.checkForUpdatesAndNotify()
-  } catch (err) {
-    log.warn('Auto-updater check failed:', err)
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+      log.warn('Auto-updater check failed:', err)
+    })
   }
 
   app.on('activate', () => {

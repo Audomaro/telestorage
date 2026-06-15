@@ -13,13 +13,12 @@
 # publisher metadata before a public release.
 appId: com.yourcompany.telestorage
 productName: TeleStorage
-copyright: Copyright © 2026 Author
+copyright: Copyright © 2026 Audomaro Glez
 directories:
   output: dist
   buildResources: build
 files:
   - out/**/*
-  - node_modules/**/*
   - package.json
 win:
   target:
