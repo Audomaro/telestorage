@@ -250,11 +250,11 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
     recordTelemetry(event)
   })
 
-  ipcMain.handle('telemetry:get', async () => {
+  ipcMain.handle('telemetry:get', () => {
     return getTelemetryEvents()
   })
 
-  ipcMain.handle('telemetry:export', async () => {
+  ipcMain.handle('telemetry:export', () => {
     return exportTelemetry()
   })
 
