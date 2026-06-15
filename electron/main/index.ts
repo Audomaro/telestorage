@@ -1,7 +1,13 @@
-import 'dotenv/config'
+import { config } from 'dotenv'
 import { app, BrowserWindow, Menu, ipcMain, shell } from 'electron'
+import { existsSync } from 'fs'
 import { join } from 'path'
 import log from 'electron-log/main'
+
+const prodEnvPath = join(process.resourcesPath, '.env')
+const devEnvPath = join(process.cwd(), '.env')
+config({ path: existsSync(prodEnvPath) ? prodEnvPath : devEnvPath })
+
 import { autoUpdater } from 'electron-updater'
 import { registerIpcHandlers } from './ipc'
 
