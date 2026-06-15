@@ -20,6 +20,10 @@ directories:
 files:
   - out/**/*
   - package.json
+
+extraResources:
+  - .env
+
 win:
   target:
     - target: nsis
@@ -41,5 +45,5 @@ portable:
   artifactName: ${productName} ${version}.exe
 publish:
   provider: github
-  owner: your-username
+  owner: Audomaro
   repo: telestorage
