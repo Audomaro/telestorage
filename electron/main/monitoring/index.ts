@@ -51,11 +51,20 @@ export function clearTelemetry(): void {
 }
 
 function initCrashReporter(): void {
-  crashReporter.start({
-    submitURL: '',
-    uploadToServer: false,
-    ignoreSystemCrashHandler: true
-  })
+  try {
+    crashReporter.start({
+      submitURL: '',
+      uploadToServer: false,
+      ignoreSystemCrashHandler: true
+    })
+  } catch (err) {
+    log.error({
+      message: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+      context: { source: 'initCrashReporter' },
+      timestamp: new Date().toISOString()
+    })
+  }
 }
 
 function initErrorHandlers(): void {
@@ -79,7 +88,6 @@ function initErrorHandlers(): void {
 
 export function initMonitoring(): void {
   if (initialized) return
-  initialized = true
 
   const telemetryFile = join(app.getPath('userData'), 'telemetry', 'events.json')
   telemetryStore = createTelemetryStore({ retentionDays: 7, filePath: telemetryFile })
@@ -90,4 +98,6 @@ export function initMonitoring(): void {
   app.on('before-quit', () => {
     flushTelemetry()
   })
+
+  initialized = true
 }

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import type { AppSettings } from '../../../../../electron/main/telegram/settings'
 
 vi.mock('electron', () => ({
   app: {
@@ -157,7 +158,7 @@ describe('telemetry wrappers', () => {
     vi.resetModules()
     vi.clearAllMocks()
     const settings = await import('../../../../../electron/main/telegram/settings')
-    vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: true } as any)
+    vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: true } as AppSettings)
     const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
     initMonitoring()
   })
@@ -178,7 +179,7 @@ describe('telemetry wrappers', () => {
 
   it('recordTelemetry does nothing when disabled', async () => {
     const settings = await import('../../../../../electron/main/telegram/settings')
-    vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: false } as any)
+    vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: false } as AppSettings)
     const { recordTelemetry } = await import('../../../../../electron/main/monitoring/index')
     recordTelemetry({ category: 'feature', name: 'test:event' })
     expect(mockStore.record).not.toHaveBeenCalled()
@@ -207,8 +208,9 @@ describe('telemetry wrappers', () => {
 
   it('exportTelemetry delegates to store', async () => {
     const { exportTelemetry } = await import('../../../../../electron/main/monitoring/index')
-    exportTelemetry()
+    const json = exportTelemetry()
     expect(mockStore.export).toHaveBeenCalled()
+    expect(json).toBe('[]')
   })
 
   it('clearTelemetry delegates to store', async () => {
