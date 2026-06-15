@@ -11,16 +11,16 @@ _Status: skipped (no code-signing certificate)_
 - [x] Replace placeholder `copyright` with author name — already done
 - [ ] ~~Sign NSIS installer and portable `.exe`~~ — skipped
 - [ ] ~~Verify Windows SmartScreen on clean VM~~ — skipped
-- [ ] Add publisher info to Add/Remove Programs — can be revisited if signing is added later
+- [x] Add publisher info to Add/Remove Programs — done via `nsis.shortcutName` and `nsis.uninstallDisplayName`
 
 ## B. Updates & distribution
-_Status: design approved, ready for implementation_
+_Status: pipeline implemented, pending secrets and first tag push_
 
 - [x] Auto-updater check on startup
-- [ ] GitHub Actions release pipeline (build + publish on tag push)
-- [ ] Update `publish.owner` and `publish.repo` in `electron-builder.yml`
-- [ ] Ship production `.env` via `extraResources`
-- [ ] Load `.env` from `process.resourcesPath` in main process
+- [x] GitHub Actions release pipeline (build + publish on tag push)
+- [x] Update `publish.owner` and `publish.repo` in `electron-builder.yml`
+- [x] Ship production `.env` via `extraResources`
+- [x] Load `.env` from `process.resourcesPath` in main process
 - [ ] In-app update progress / "Update available" dialog
 - [ ] Support release channels (stable / beta / alpha)
 - [ ] Generated release notes
