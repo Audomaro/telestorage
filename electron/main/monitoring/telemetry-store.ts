@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, unlinkSync, mkdirSync } from 'fs'
 import { dirname } from 'path'
+import log from 'electron-log/main'
 import type { TelemetryEvent, TelemetryStoreConfig } from './types'
 
 export interface TelemetryStore {
@@ -31,14 +32,24 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
     const merged = [...allEvents, ...batch]
     const kept = merged.filter(e => !isOlderThan(e.timestamp, retentionDays))
     if (kept.length === 0) {
-      if (existsSync(filePath)) unlinkSync(filePath)
+      if (existsSync(filePath)) {
+        try {
+          unlinkSync(filePath)
+        } catch (err) {
+          log.error('Failed to delete empty telemetry file:', err)
+        }
+      }
       return
     }
-    mkdirSync(dirname(filePath), { recursive: true })
-    writeFileSync(filePath, JSON.stringify(kept, null, 2))
+    try {
+      mkdirSync(dirname(filePath), { recursive: true })
+      writeFileSync(filePath, JSON.stringify(kept, null, 2))
+    } catch (err) {
+      log.error('Failed to persist telemetry events:', err)
+    }
   }
 
-  return {
+  const store: TelemetryStore = {
     record(event) {
       batch.push({
         ...event,
@@ -54,16 +65,30 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
 
     getEvents() {
       if (!existsSync(filePath)) return []
-      return JSON.parse(readFileSync(filePath, 'utf-8')) as TelemetryEvent[]
+      try {
+        const events = JSON.parse(readFileSync(filePath, 'utf-8')) as TelemetryEvent[]
+        return events.filter(e => !isOlderThan(e.timestamp, retentionDays))
+      } catch (err) {
+        log.error('Failed to read telemetry events:', err)
+        return []
+      }
     },
 
     export() {
-      return JSON.stringify(this.getEvents(), null, 2)
+      return JSON.stringify([...store.getEvents(), ...batch], null, 2)
     },
 
     clear() {
       batch.length = 0
-      if (existsSync(filePath)) unlinkSync(filePath)
+      if (existsSync(filePath)) {
+        try {
+          unlinkSync(filePath)
+        } catch (err) {
+          log.error('Failed to clear telemetry file:', err)
+        }
+      }
     }
   }
+
+  return store
 }
