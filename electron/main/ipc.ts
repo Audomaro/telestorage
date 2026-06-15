@@ -8,7 +8,7 @@ import { listFiles, listFilesBatch, listFilesByTopic, uploadFile, uploadMultiple
 import { startStreamServer, registerStream, unregisterStream, getStreamServerPort } from './streamServer'
 import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './telegram/settings'
 import { recordTelemetry, getTelemetryEvents, exportTelemetry, clearTelemetry } from './monitoring'
-import type { TelemetryEvent } from './monitoring/types'
+import type { TelemetryCategory, TelemetryEvent } from './monitoring/types'
 
 export async function registerIpcHandlers(): Promise<void> {
   // Start video stream server
@@ -241,8 +241,13 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
     shell.showItemInFolder(logPath)
   })
 
-  ipcMain.handle('telemetry:record', async (_event, event: { category: string; name: string; payload?: Record<string, unknown> }) => {
-    recordTelemetry(event as Omit<TelemetryEvent, 'id' | 'timestamp'>)
+  const VALID_CATEGORIES: TelemetryCategory[] = ['lifecycle', 'feature', 'error']
+
+  ipcMain.handle('telemetry:record', (_event, event: Omit<TelemetryEvent, 'id' | 'timestamp'>) => {
+    if (!VALID_CATEGORIES.includes(event.category)) {
+      throw new Error(`Invalid telemetry category: ${event.category}`)
+    }
+    recordTelemetry(event)
   })
 
   ipcMain.handle('telemetry:get', async () => {
@@ -253,7 +258,7 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
     return exportTelemetry()
   })
 
-  ipcMain.handle('telemetry:clear', async () => {
+  ipcMain.handle('telemetry:clear', () => {
     clearTelemetry()
   })
 }
