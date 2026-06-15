@@ -1,6 +1,5 @@
 # IMPORTANT: Replace placeholder values before publishing:
 # - appId (com.yourcompany.telestorage)
-# - publish.owner and publish.repo
 # - build/icon.ico and build/icon.png with production-ready assets
 #
 # NOTE: npmRebuild is disabled because the current build environment lacks the
