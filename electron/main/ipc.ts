@@ -1,6 +1,7 @@
 import { ipcMain, dialog, app, shell } from 'electron'
 import log from 'electron-log/main'
 import { join } from 'path'
+import { stat, mkdir, writeFile, unlink } from 'fs/promises'
 import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup, getForumTopics, renameGroup, renameForumTopic, createForumTopic, deleteForumTopic } from './telegram/groups'
@@ -109,31 +110,36 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   })
 
   ipcMain.handle('files:upload', async (_event, groupId: number, filePath: string, topicId?: number) => {
-    try {
-      const stats = await import('fs/promises').then(fs => fs.stat(filePath))
-      recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: stats.size } })
-    } catch {
-      recordTelemetry({ category: 'feature', name: 'file:uploaded' })
-    }
     return uploadFile(groupId, filePath, topicId)
   })
 
   ipcMain.handle('files:upload:start', async (event, { uploadId, groupId, filePath, topicId }: { uploadId: string; groupId: number; filePath: string; topicId?: number }) => {
-    return uploadFileWithProgress(groupId, filePath, topicId, (progress) => {
-      event.sender.send('files:upload:progress', { uploadId, progress })
-    })
+    try {
+      const result = await uploadFileWithProgress(groupId, filePath, topicId, (progress) => {
+        event.sender.send('files:upload:progress', { uploadId, progress })
+      })
+      try {
+        const stats = await stat(filePath)
+        recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: stats.size } })
+      } catch {
+        recordTelemetry({ category: 'feature', name: 'file:uploaded' })
+      }
+      return result
+    } catch (err) {
+      throw err
+    }
   })
 
   ipcMain.handle('files:uploadTemp:start', async (event, { uploadId, groupId, fileName, data, topicId }: { uploadId: string; groupId: number; fileName: string; data: number[]; topicId?: number }) => {
     const tempDir = join(app.getPath('temp'), 'telestorage_uploads')
-    const { mkdir, writeFile, unlink } = await import('fs/promises')
-    await mkdir(tempDir, { recursive: true })
     const destPath = join(tempDir, fileName)
+    await mkdir(tempDir, { recursive: true })
     await writeFile(destPath, Buffer.from(data))
     try {
       const result = await uploadFileWithProgress(groupId, destPath, topicId, (progress) => {
         event.sender.send('files:upload:progress', { uploadId, progress })
       })
+      recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: data.length } })
       return result
     } finally {
       await unlink(destPath).catch(() => {})
@@ -145,9 +151,7 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   })
 
   ipcMain.handle('files:download', async (_event, groupId: number, messageId: number, filePath: string) => {
-    const result = await downloadFile(groupId, messageId, filePath)
-    recordTelemetry({ category: 'feature', name: 'file:downloaded' })
-    return result
+    return downloadFile(groupId, messageId, filePath)
   })
 
   ipcMain.handle('files:listMore', async (_event, { groupId, offsetId, search }: { groupId: number; offsetId?: number; search?: string }) => {
@@ -156,9 +160,11 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   })
 
   ipcMain.handle('files:download:start', async (event, { downloadId, groupId, messageId, destPath }) => {
-    return downloadFileWithProgress(groupId, messageId, destPath, (progress) => {
+    const result = await downloadFileWithProgress(groupId, messageId, destPath, (progress) => {
       event.sender.send('files:download:progress', { downloadId, progress })
     })
+    recordTelemetry({ category: 'feature', name: 'file:downloaded' })
+    return result
   })
 
   ipcMain.handle('files:delete', async (_event, groupId: number, messageId: number) => {
