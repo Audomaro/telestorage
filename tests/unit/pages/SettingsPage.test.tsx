@@ -14,6 +14,7 @@ const mockSettings = {
   defaultTab: 'created' as const,
   excludedFromMedia: [],
   themeMode: 'light' as const,
+  telemetryEnabled: false,
 }
 
 beforeEach(() => {
@@ -23,6 +24,10 @@ beforeEach(() => {
     getSettings: vi.fn().mockResolvedValue(mockSettings),
     setSettings: vi.fn().mockResolvedValue(mockSettings),
     selectFolder: vi.fn().mockResolvedValue('/tmp/new'),
+    exportTelemetry: vi.fn().mockResolvedValue('[]'),
+    clearTelemetry: vi.fn().mockResolvedValue(undefined),
+    openCrashesFolder: vi.fn().mockResolvedValue(undefined),
+    recordTelemetry: vi.fn().mockResolvedValue(undefined),
   }
 })
 
