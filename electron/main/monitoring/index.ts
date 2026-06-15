@@ -6,6 +6,7 @@ import type { TelemetryEvent } from './types'
 import { getSettings } from '../telegram/settings'
 
 let telemetryStore: TelemetryStore | null = null
+let initialized = false
 
 export function logError(error: Error, context?: Record<string, unknown>): void {
   log.error({
@@ -77,6 +78,9 @@ function initErrorHandlers(): void {
 }
 
 export function initMonitoring(): void {
+  if (initialized) return
+  initialized = true
+
   const telemetryFile = join(app.getPath('userData'), 'telemetry', 'events.json')
   telemetryStore = createTelemetryStore({ retentionDays: 7, filePath: telemetryFile })
 

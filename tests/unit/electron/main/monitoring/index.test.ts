@@ -10,6 +10,35 @@ vi.mock('electron', () => ({
   dialog: { showErrorBox: vi.fn() }
 }))
 
+const { mockStore, mockCreateTelemetryStore } = vi.hoisted(() => {
+  const mockStore = {
+    record: vi.fn(),
+    flush: vi.fn(),
+    getEvents: vi.fn().mockReturnValue([{ id: '1', timestamp: 't', category: 'feature', name: 'test' }]),
+    export: vi.fn().mockReturnValue('[]'),
+    clear: vi.fn()
+  }
+  return {
+    mockStore,
+    mockCreateTelemetryStore: vi.fn(() => mockStore)
+  }
+})
+
+vi.mock('../../../../../electron/main/monitoring/telemetry-store', () => ({
+  createTelemetryStore: mockCreateTelemetryStore,
+  generateId: vi.fn(() => 'generated-id')
+}))
+
+vi.mock('../../../../../electron/main/telegram/settings', () => ({
+  getSettings: vi.fn(() => ({ telemetryEnabled: false })),
+  setSettings: vi.fn()
+}))
+
+afterEach(() => {
+  process.removeAllListeners('uncaughtException')
+  process.removeAllListeners('unhandledRejection')
+})
+
 describe('monitoring logError', () => {
   beforeEach(async () => {
     vi.resetModules()
@@ -100,5 +129,63 @@ describe('initMonitoring', () => {
     expect(logMock).toHaveBeenCalled()
     const logged = logMock.mock.calls[0][0]
     expect(logged.message).toBe('some reason')
+  })
+})
+
+describe('telemetry wrappers', () => {
+  beforeEach(async () => {
+    vi.resetModules()
+    vi.clearAllMocks()
+    const settings = await import('../../../../../electron/main/telegram/settings')
+    vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: true } as any)
+    const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
+    initMonitoring()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('recordTelemetry delegates to store when enabled', async () => {
+    const { recordTelemetry } = await import('../../../../../electron/main/monitoring/index')
+    recordTelemetry({ category: 'feature', name: 'test:event' })
+    expect(mockStore.record).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'generated-id',
+      category: 'feature',
+      name: 'test:event'
+    }))
+  })
+
+  it('recordTelemetry does nothing when disabled', async () => {
+    const settings = await import('../../../../../electron/main/telegram/settings')
+    vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: false } as any)
+    const { recordTelemetry } = await import('../../../../../electron/main/monitoring/index')
+    recordTelemetry({ category: 'feature', name: 'test:event' })
+    expect(mockStore.record).not.toHaveBeenCalled()
+  })
+
+  it('flushTelemetry delegates to store', async () => {
+    const { flushTelemetry } = await import('../../../../../electron/main/monitoring/index')
+    flushTelemetry()
+    expect(mockStore.flush).toHaveBeenCalled()
+  })
+
+  it('getTelemetryEvents delegates to store', async () => {
+    const { getTelemetryEvents } = await import('../../../../../electron/main/monitoring/index')
+    const events = getTelemetryEvents()
+    expect(mockStore.getEvents).toHaveBeenCalled()
+    expect(events).toHaveLength(1)
+  })
+
+  it('exportTelemetry delegates to store', async () => {
+    const { exportTelemetry } = await import('../../../../../electron/main/monitoring/index')
+    exportTelemetry()
+    expect(mockStore.export).toHaveBeenCalled()
+  })
+
+  it('clearTelemetry delegates to store', async () => {
+    const { clearTelemetry } = await import('../../../../../electron/main/monitoring/index')
+    clearTelemetry()
+    expect(mockStore.clear).toHaveBeenCalled()
   })
 })
