@@ -43,7 +43,7 @@ export function getTelemetryEvents(): TelemetryEvent[] {
 }
 
 export function exportTelemetry(): string {
-  return telemetryStore?.export() ?? '[]'
+  return telemetryStore?.export() ?? JSON.stringify([], null, 2)
 }
 
 export function clearTelemetry(): void {

@@ -92,6 +92,26 @@ describe('initMonitoring', () => {
     })
   })
 
+  it('is idempotent', async () => {
+    const { crashReporter } = await import('electron')
+    vi.clearAllMocks()
+    const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
+    initMonitoring()
+    initMonitoring()
+    expect(crashReporter.start).toHaveBeenCalledTimes(1)
+  })
+
+  it('flushes telemetry on before-quit', async () => {
+    const { app } = await import('electron')
+    vi.clearAllMocks()
+    const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
+    initMonitoring()
+    const beforeQuitHandler = vi.mocked(app.on).mock.calls.find(([event]) => event === 'before-quit')?.[1] as () => void
+    expect(beforeQuitHandler).toBeDefined()
+    beforeQuitHandler()
+    expect(mockStore.flush).toHaveBeenCalled()
+  })
+
   it('registers uncaughtException handler that logs and quits', async () => {
     const processOnSpy = vi.spyOn(process, 'on')
     const { app, dialog } = await import('electron')
@@ -103,7 +123,7 @@ describe('initMonitoring', () => {
     const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
     initMonitoring()
 
-    const uncaughtHandler = processOnSpy.mock.calls.find(([event]) => event === 'uncaughtException')?.[1] as Function
+    const uncaughtHandler = processOnSpy.mock.calls.find(([event]) => event === 'uncaughtException')?.[1] as (error: Error) => void
     expect(uncaughtHandler).toBeDefined()
     uncaughtHandler(new Error('crash'))
 
@@ -122,7 +142,7 @@ describe('initMonitoring', () => {
     const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
     initMonitoring()
 
-    const rejectionHandler = processOnSpy.mock.calls.find(([event]) => event === 'unhandledRejection')?.[1] as Function
+    const rejectionHandler = processOnSpy.mock.calls.find(([event]) => event === 'unhandledRejection')?.[1] as (reason: unknown) => void
     expect(rejectionHandler).toBeDefined()
     rejectionHandler('some reason')
 
@@ -159,6 +179,14 @@ describe('telemetry wrappers', () => {
   it('recordTelemetry does nothing when disabled', async () => {
     const settings = await import('../../../../../electron/main/telegram/settings')
     vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: false } as any)
+    const { recordTelemetry } = await import('../../../../../electron/main/monitoring/index')
+    recordTelemetry({ category: 'feature', name: 'test:event' })
+    expect(mockStore.record).not.toHaveBeenCalled()
+  })
+
+  it('recordTelemetry does nothing if getSettings throws', async () => {
+    const settings = await import('../../../../../electron/main/telegram/settings')
+    vi.mocked(settings.getSettings).mockImplementation(() => { throw new Error('settings failed') })
     const { recordTelemetry } = await import('../../../../../electron/main/monitoring/index')
     recordTelemetry({ category: 'feature', name: 'test:event' })
     expect(mockStore.record).not.toHaveBeenCalled()
