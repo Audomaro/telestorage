@@ -12,12 +12,18 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
 import Fade from '@mui/material/Fade'
+import Switch from '@mui/material/Switch'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import FolderIcon from '@mui/icons-material/Folder'
 import DescriptionIcon from '@mui/icons-material/Description'
 import PaletteIcon from '@mui/icons-material/Palette'
 import NavigationIcon from '@mui/icons-material/Navigation'
 import DownloadIcon from '@mui/icons-material/Download'
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest'
+import AnalyticsIcon from '@mui/icons-material/Analytics'
+import DeleteIcon from '@mui/icons-material/Delete'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import SaveIcon from '@mui/icons-material/Save'
 import { useSnackbar } from '../theme/SnackbarContext'
 import { useColorMode } from '../theme/ColorModeContext'
@@ -30,6 +36,7 @@ const SECTIONS = [
   { key: 'theme', icon: <PaletteIcon />, title: 'Apariencia' },
   { key: 'nav', icon: <NavigationIcon />, title: 'Navegación' },
   { key: 'download', icon: <DownloadIcon />, title: 'Descargas' },
+  { key: 'telemetry', icon: <AnalyticsIcon />, title: 'Telemetría' },
   { key: 'advanced', icon: <SettingsSuggestIcon />, title: 'Avanzado' },
 ] as const
 
@@ -39,6 +46,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [defaultTab, setDefaultTab] = useState<'created' | 'active' | 'archived'>('created')
   const [excludedTags, setExcludedTags] = useState<string[]>([])
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light')
+  const [telemetryEnabled, setTelemetryEnabled] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const { showSnackbar } = useSnackbar()
@@ -51,6 +59,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
       setDefaultTab(s.defaultTab ?? 'created')
       if (s.excludedFromMedia) setExcludedTags(s.excludedFromMedia)
       setThemeMode(s.themeMode ?? 'light')
+      setTelemetryEnabled(s.telemetryEnabled ?? false)
       setLoaded(true)
     })
   }, [])
@@ -58,6 +67,28 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const handleSelectFolder = async () => {
     const path = await window.telegramAPI.selectFolder()
     if (path) setDownloadPath(path)
+  }
+
+  const handleExportTelemetry = async () => {
+    const json = await window.telegramAPI.exportTelemetry()
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `telestorage-telemetry-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    showSnackbar('Telemetry exported', 'success')
+  }
+
+  const handleClearTelemetry = async () => {
+    if (!window.confirm('Delete all locally stored telemetry data? This cannot be undone.')) return
+    await window.telegramAPI.clearTelemetry()
+    showSnackbar('Telemetry cleared', 'success')
+  }
+
+  const handleOpenCrashesFolder = () => {
+    window.telegramAPI.openCrashesFolder()
   }
 
   const handleSave = async () => {
@@ -69,6 +100,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         defaultTab,
         excludedFromMedia: [...new Set(excludedTags.map(t => t.toLowerCase().trim()))].filter(Boolean),
         themeMode,
+        telemetryEnabled,
       })
       setMode(themeMode)
       showSnackbar('Configuración guardada', 'success')
@@ -141,6 +173,51 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                       <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Archivos por carga</Typography>
                       <TextField data-testid="batch-size-input" type="number" size="small" sx={{ width: 120 }}
                         value={batchSize} onChange={e => setBatchSize(Math.max(1, parseInt(e.target.value) || 1))} />
+                    </Box>
+                  </Box>
+                )}
+
+                {section.key === 'telemetry' && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={telemetryEnabled}
+                          onChange={e => setTelemetryEnabled(e.target.checked)}
+                        />
+                      }
+                      label="Help improve TeleStorage by sharing usage data"
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      Usage data is stored locally and is never uploaded automatically.
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<FileDownloadIcon />}
+                        onClick={handleExportTelemetry}
+                        disabled={!telemetryEnabled}
+                      >
+                        Export telemetry
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="error"
+                        startIcon={<DeleteIcon />}
+                        onClick={handleClearTelemetry}
+                      >
+                        Clear telemetry
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<FolderOpenIcon />}
+                        onClick={handleOpenCrashesFolder}
+                      >
+                        Open crashes folder
+                      </Button>
                     </Box>
                   </Box>
                 )}
