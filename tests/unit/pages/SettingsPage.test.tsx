@@ -42,6 +42,14 @@ describe('SettingsPage', () => {
       )
     })
   })
+
+  it('records settings:opened telemetry on mount', async () => {
+    render(<SettingsPage onBack={vi.fn()} />, { wrapper: Wrapper })
+    await waitFor(() => expect(window.telegramAPI.getSettings).toHaveBeenCalled())
+    expect(window.telegramAPI.recordTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({ category: 'feature', name: 'settings:opened' })
+    )
+  })
 })
 
 describe('SettingsPage batchSize', () => {
