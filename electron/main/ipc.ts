@@ -264,6 +264,7 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
 
   ipcMain.handle('shell:openCrashesFolder', async () => {
     const crashesPath = app.getPath('crashDumps')
-    shell.openPath(crashesPath)
+    const result = await shell.openPath(crashesPath)
+    if (result) throw new Error(result)
   })
 }
