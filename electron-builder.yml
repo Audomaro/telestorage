@@ -1,3 +1,16 @@
+# IMPORTANT: Replace placeholder values before publishing:
+# - appId (com.yourcompany.telestorage)
+# - publish.owner and publish.repo
+# - build/icon.ico and build/icon.png with production-ready assets
+#
+# NOTE: npmRebuild is disabled because the current build environment lacks the
+# Visual Studio C++ build tools workload and the project has no required native
+# Node dependencies. Re-enable this if you add native modules that must be
+# rebuilt for Electron.
+#
+# NOTE: publisherName was omitted because the installed electron-builder version
+# rejected it during schema validation. Configure proper code signing and
+# publisher metadata before a public release.
 appId: com.yourcompany.telestorage
 productName: TeleStorage
 copyright: Copyright © 2026 Author
