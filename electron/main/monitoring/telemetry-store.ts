@@ -58,7 +58,6 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
     },
 
     flush() {
-      if (batch.length === 0) return
       persist()
       batch.length = 0
     },
@@ -75,7 +74,8 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
     },
 
     export() {
-      return JSON.stringify([...store.getEvents(), ...batch], null, 2)
+      const recentBatch = batch.filter(e => !isOlderThan(e.timestamp, retentionDays))
+      return JSON.stringify([...store.getEvents(), ...recentBatch], null, 2)
     },
 
     clear() {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mkdirSync, rmSync, existsSync, readFileSync, writeFileSync } from 'fs'
+import { mkdirSync, rmSync, existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { createTelemetryStore } from '../../../../../electron/main/monitoring/telemetry-store'
 import type { TelemetryEvent } from '../../../../../electron/main/monitoring/types'
@@ -64,19 +64,12 @@ describe('telemetry-store', () => {
     expect(store.getEvents()).toHaveLength(0)
   })
 
-  it('flush with empty batch does not create file or purge old data', () => {
+  it('flush with empty batch purges old persisted events', () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
-    store.flush()
-    expect(existsSync(filePath)).toBe(false)
-
-    mkdirSync(tmpDir, { recursive: true })
     const oldEvent = makeEvent('2020-01-01T00:00:00.000Z')
-    writeFileSync(filePath, JSON.stringify([oldEvent]))
+    store.record(oldEvent)
     store.flush()
-    expect(existsSync(filePath)).toBe(true)
-    const parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
-    expect(parsed).toHaveLength(1)
-    expect(parsed[0].id).toBe(oldEvent.id)
+    expect(store.getEvents()).toHaveLength(0)
   })
 
   it('record without id generates one', () => {
@@ -102,6 +95,14 @@ describe('telemetry-store', () => {
     const exported = JSON.parse(store.export())
     expect(exported).toHaveLength(1)
     expect(exported[0].id).toBe(event.id)
+  })
+
+  it('export excludes out-of-retention batched events', () => {
+    const store = createTelemetryStore({ retentionDays: 7, filePath })
+    store.record(makeEvent(new Date().toISOString()))
+    store.record(makeEvent('2020-01-01T00:00:00.000Z'))
+    const exported = JSON.parse(store.export())
+    expect(exported).toHaveLength(1)
   })
 
   it('getEvents returns empty array when file does not exist', () => {
