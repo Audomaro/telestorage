@@ -4,16 +4,24 @@ import { StringSession } from 'telegram/sessions'
 let client: TelegramClient | null = null
 let stringSession: StringSession
 
-const API_ID = Number(process.env.TELEGRAM_API_ID) || 0
-const API_HASH = process.env.TELEGRAM_API_HASH || ''
+let cachedApiId = 0
+let cachedApiHash = ''
 
-if (!API_ID || !API_HASH) {
-  console.warn('TeleStorage: TELEGRAM_API_ID and TELEGRAM_API_HASH must be set in environment')
-  console.warn('Get them at https://my.telegram.org/apps')
+function loadApiCredentials(): { apiId: number; apiHash: string } {
+  if (!cachedApiId || !cachedApiHash) {
+    cachedApiId = Number(process.env.TELEGRAM_API_ID) || 0
+    cachedApiHash = process.env.TELEGRAM_API_HASH || ''
+    if (!cachedApiId || !cachedApiHash) {
+      console.warn('TeleStorage: TELEGRAM_API_ID and TELEGRAM_API_HASH must be set in environment')
+      console.warn('Get them at https://my.telegram.org/apps')
+    }
+  }
+  return { apiId: cachedApiId, apiHash: cachedApiHash }
 }
 
 export function areApiCredentialsConfigured(): boolean {
-  return !!API_ID && !!API_HASH
+  const { apiId, apiHash } = loadApiCredentials()
+  return !!apiId && !!apiHash
 }
 
 let pendingPhone: string | undefined
@@ -33,8 +41,12 @@ export function getClient(): TelegramClient | null {
 }
 
 export async function initClient(session?: string): Promise<void> {
+  const { apiId, apiHash } = loadApiCredentials()
+  if (!apiId || !apiHash) {
+    throw new Error('Telegram API credentials are missing')
+  }
   stringSession = new StringSession(session || '')
-  client = new TelegramClient(stringSession, API_ID, API_HASH, {
+  client = new TelegramClient(stringSession, apiId, apiHash, {
     connectionRetries: 5,
   })
 }
@@ -60,8 +72,9 @@ export async function startClient(): Promise<void> {
 
 export async function startPhoneAuth(phone: string): Promise<{ codeHash: string }> {
   if (!client) throw new Error('Client not initialized')
+  const { apiId, apiHash } = loadApiCredentials()
   const result = await client.sendCode(
-    { apiId: API_ID, apiHash: API_HASH },
+    { apiId, apiHash },
     phone
   )
   pendingPhone = phone
@@ -102,8 +115,9 @@ export async function verify2FAPassword(password: string): Promise<void> {
   if (!pendingPhone) throw new Error('No pending auth')
 
   try {
+    const { apiId, apiHash } = loadApiCredentials()
     await client.signInWithPassword(
-      { apiId: API_ID, apiHash: API_HASH },
+      { apiId, apiHash },
       {
         password: async () => password,
         onError: (err) => { throw err }
