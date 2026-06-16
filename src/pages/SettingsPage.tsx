@@ -14,6 +14,13 @@ import Skeleton from '@mui/material/Skeleton'
 import Fade from '@mui/material/Fade'
 import Switch from '@mui/material/Switch'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
 import FolderIcon from '@mui/icons-material/Folder'
 import DescriptionIcon from '@mui/icons-material/Description'
 import PaletteIcon from '@mui/icons-material/Palette'
@@ -24,6 +31,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics'
 import DeleteIcon from '@mui/icons-material/Delete'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import SaveIcon from '@mui/icons-material/Save'
 import { useSnackbar } from '../theme/SnackbarContext'
 import { useColorMode } from '../theme/ColorModeContext'
@@ -49,6 +57,8 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [telemetryEnabled, setTelemetryEnabled] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false)
+  const [telemetryEvents, setTelemetryEvents] = useState<any[]>([])
   const { showSnackbar } = useSnackbar()
   const { setMode } = useColorMode()
 
@@ -81,7 +91,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
       try {
         const a = document.createElement('a')
         a.href = url
-        a.download = `telestorage-telemetry-${new Date().toISOString().slice(0, 10)}.json`
+        a.download = 'telemetry-export.json'
         a.click()
       } finally {
         URL.revokeObjectURL(url)
@@ -99,6 +109,16 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
       showSnackbar('Telemetría borrada', 'success')
     } catch {
       showSnackbar('No se pudo borrar la telemetría', 'error')
+    }
+  }
+
+  const handleViewTelemetry = async () => {
+    try {
+      const events = await window.telegramAPI.getTelemetry()
+      setTelemetryEvents(events)
+      setTelemetryDialogOpen(true)
+    } catch {
+      showSnackbar('No se pudo cargar la telemetría', 'error')
     }
   }
 
@@ -223,6 +243,15 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
                       <Button
                         size="small"
                         variant="outlined"
+                        startIcon={<VisibilityIcon />}
+                        onClick={handleViewTelemetry}
+                        disabled={!telemetryEnabled}
+                      >
+                        Ver telemetría
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
                         color="error"
                         startIcon={<DeleteIcon />}
                         onClick={handleClearTelemetry}
@@ -282,6 +311,29 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
           </Box>
         )}
       </Paper>
+
+      <Dialog open={telemetryDialogOpen} onClose={() => setTelemetryDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Datos de telemetría</DialogTitle>
+        <DialogContent>
+          {telemetryEvents.length === 0 ? (
+            <Typography>No hay datos de telemetría.</Typography>
+          ) : (
+            <List dense>
+              {telemetryEvents.map((event) => (
+                <ListItem key={event.id}>
+                  <ListItemText
+                    primary={`${event.name} (${event.category})`}
+                    secondary={new Date(event.timestamp).toLocaleString()}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTelemetryDialogOpen(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

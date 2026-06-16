@@ -11,6 +11,15 @@ import { getSettings, setSettings, addCreatedGroupId, AppSettings } from './tele
 import { recordTelemetry, getTelemetryEvents, exportTelemetry, clearTelemetry } from './monitoring'
 import type { TelemetryCategory, TelemetryEvent } from './monitoring/types'
 
+function getMimeCategory(filePath: string): string {
+  const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) return 'image'
+  if (['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(ext)) return 'video'
+  if (['mp3', 'wav', 'ogg', 'flac'].includes(ext)) return 'audio'
+  if (['pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) return 'document'
+  return 'other'
+}
+
 export async function registerIpcHandlers(): Promise<void> {
   // Start video stream server
   await startStreamServer()
@@ -120,9 +129,9 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
       })
       try {
         const stats = await stat(filePath)
-        recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: stats.size } })
+        recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: stats.size, mimeCategory: getMimeCategory(filePath) } })
       } catch {
-        recordTelemetry({ category: 'feature', name: 'file:uploaded' })
+        recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { mimeCategory: getMimeCategory(filePath) } })
       }
       return result
     } catch (err) {
@@ -139,7 +148,7 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
       const result = await uploadFileWithProgress(groupId, destPath, topicId, (progress) => {
         event.sender.send('files:upload:progress', { uploadId, progress })
       })
-      recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: data.length } })
+      recordTelemetry({ category: 'feature', name: 'file:uploaded', payload: { sizeBytes: data.length, mimeCategory: getMimeCategory(fileName) } })
       return result
     } finally {
       await unlink(destPath).catch(() => {})
@@ -163,7 +172,12 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
     const result = await downloadFileWithProgress(groupId, messageId, destPath, (progress) => {
       event.sender.send('files:download:progress', { downloadId, progress })
     })
-    recordTelemetry({ category: 'feature', name: 'file:downloaded' })
+    try {
+      const stats = await stat(destPath)
+      recordTelemetry({ category: 'feature', name: 'file:downloaded', payload: { sizeBytes: stats.size } })
+    } catch {
+      recordTelemetry({ category: 'feature', name: 'file:downloaded' })
+    }
     return result
   })
 
@@ -201,7 +215,11 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
   })
 
   ipcMain.handle('settings:set', async (_event, partial: Partial<AppSettings>) => {
-    return setSettings(partial)
+    const result = setSettings(partial)
+    Object.keys(partial).forEach(key => {
+      recordTelemetry({ category: 'feature', name: 'settings:changed', payload: { key } })
+    })
+    return result
   })
 
   ipcMain.handle('shell:showInFolder', async (_event, filePath: string) => {

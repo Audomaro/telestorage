@@ -15,6 +15,7 @@ export function logError(error: Error, context?: Record<string, unknown>): void 
     context,
     timestamp: new Date().toISOString()
   })
+  recordTelemetry({ category: 'error', name: 'error:logged', payload: { source: context?.source, message: error.message } })
 }
 
 function isTelemetryEnabled(): boolean {
@@ -34,8 +35,8 @@ export function recordTelemetry(event: Omit<TelemetryEvent, 'id' | 'timestamp'>)
   })
 }
 
-export function flushTelemetry(): void {
-  telemetryStore?.flush()
+export async function flushTelemetry(): Promise<void> {
+  await telemetryStore?.flush()
 }
 
 export function getTelemetryEvents(): TelemetryEvent[] {

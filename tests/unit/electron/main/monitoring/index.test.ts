@@ -14,7 +14,7 @@ vi.mock('electron', () => ({
 const { mockStore, mockCreateTelemetryStore } = vi.hoisted(() => {
   const mockStore = {
     record: vi.fn(),
-    flush: vi.fn(),
+    flush: vi.fn().mockResolvedValue(undefined),
     getEvents: vi.fn().mockReturnValue([{ id: '1', timestamp: 't', category: 'feature', name: 'test' }]),
     export: vi.fn().mockReturnValue('[]'),
     clear: vi.fn()
@@ -70,6 +70,30 @@ describe('monitoring logError', () => {
     expect(logged.stack).toContain('Error: boom')
     expect(logged.timestamp).toBeDefined()
   })
+
+  it('logError records error:logged telemetry when enabled', async () => {
+    const logMock = vi.fn()
+    vi.doMock('electron-log/main', () => ({
+      default: {
+        error: logMock,
+        initialize: vi.fn(),
+        transports: { file: { level: 'info' }, console: { level: 'debug' } }
+      }
+    }))
+    const settings = await import('../../../../../electron/main/telegram/settings')
+    vi.mocked(settings.getSettings).mockReturnValue({ telemetryEnabled: true } as AppSettings)
+
+    const { logError, initMonitoring } = await import('../../../../../electron/main/monitoring/index')
+    initMonitoring()
+    const error = new Error('boom')
+    logError(error, { source: 'test' })
+
+    expect(mockStore.record).toHaveBeenCalledWith(expect.objectContaining({
+      category: 'error',
+      name: 'error:logged',
+      payload: { source: 'test', message: 'boom' }
+    }))
+  })
 })
 
 describe('initMonitoring', () => {
@@ -107,9 +131,9 @@ describe('initMonitoring', () => {
     vi.clearAllMocks()
     const { initMonitoring } = await import('../../../../../electron/main/monitoring/index')
     initMonitoring()
-    const beforeQuitHandler = vi.mocked(app.on).mock.calls.find(([event]) => String(event) === 'before-quit')?.[1] as () => void
+    const beforeQuitHandler = vi.mocked(app.on).mock.calls.find(([event]) => String(event) === 'before-quit')?.[1] as () => Promise<void>
     expect(beforeQuitHandler).toBeDefined()
-    beforeQuitHandler()
+    await beforeQuitHandler()
     expect(mockStore.flush).toHaveBeenCalled()
   })
 
@@ -195,7 +219,7 @@ describe('telemetry wrappers', () => {
 
   it('flushTelemetry delegates to store', async () => {
     const { flushTelemetry } = await import('../../../../../electron/main/monitoring/index')
-    flushTelemetry()
+    await flushTelemetry()
     expect(mockStore.flush).toHaveBeenCalled()
   })
 

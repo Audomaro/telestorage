@@ -73,9 +73,9 @@ app.whenReady().then(async () => {
   })
 })
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   recordTelemetry({ category: 'lifecycle', name: 'app:quit' })
-  flushTelemetry()
+  await flushTelemetry()
   if (process.platform !== 'darwin') {
     app.quit()
   }

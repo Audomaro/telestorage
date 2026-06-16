@@ -43,7 +43,11 @@ describe('telemetry IPC handlers', () => {
     const event = { sender: { send: vi.fn() } }
     await uploadHandler(event, { uploadId: 'u1', groupId: 1, filePath: join(process.cwd(), 'tests/unit/electron/main/telegram/fixtures/sample.txt') })
 
-    expect(recordTelemetryMock).toHaveBeenCalledWith(expect.objectContaining({ category: 'feature', name: 'file:uploaded' }))
+    expect(recordTelemetryMock).toHaveBeenCalledWith(expect.objectContaining({
+      category: 'feature',
+      name: 'file:uploaded',
+      payload: expect.objectContaining({ mimeCategory: 'document' })
+    }))
   })
 
   it('does not record file:uploaded when upload:start fails', async () => {
@@ -58,19 +62,27 @@ describe('telemetry IPC handlers', () => {
     expect(recordTelemetryMock).not.toHaveBeenCalled()
   })
 
-  it('records file:downloaded after successful download:start', async () => {
-    downloadFileWithProgressMock.mockResolvedValue({ path: '/tmp/file.txt' })
+  it('records file:downloaded with sizeBytes after successful download:start', async () => {
+    const destPath = join(process.cwd(), 'tmp-monitoring-test', 'downloaded.txt')
+    const { mkdirSync, writeFileSync } = await import('fs')
+    mkdirSync(join(process.cwd(), 'tmp-monitoring-test'), { recursive: true })
+    writeFileSync(destPath, 'hello')
+    downloadFileWithProgressMock.mockResolvedValue({ path: destPath })
     const { registerIpcHandlers } = await import('../../../../../electron/main/ipc')
     await registerIpcHandlers()
 
     const downloadHandler = vi.mocked(ipcMain.handle).mock.calls.find(([channel]) => channel === 'files:download:start')?.[1] as Function
     const event = { sender: { send: vi.fn() } }
-    await downloadHandler(event, { downloadId: 'd1', groupId: 1, messageId: 1, destPath: '/tmp/file.txt' })
+    await downloadHandler(event, { downloadId: 'd1', groupId: 1, messageId: 1, destPath })
 
-    expect(recordTelemetryMock).toHaveBeenCalledWith({ category: 'feature', name: 'file:downloaded' })
+    expect(recordTelemetryMock).toHaveBeenCalledWith({
+      category: 'feature',
+      name: 'file:downloaded',
+      payload: { sizeBytes: 5 }
+    })
   })
 
-  it('records file:uploaded with sizeBytes after successful uploadTemp:start', async () => {
+  it('records file:uploaded with sizeBytes and mimeCategory after successful uploadTemp:start', async () => {
     uploadFileWithProgressMock.mockResolvedValue({ messageId: 2 })
     const { registerIpcHandlers } = await import('../../../../../electron/main/ipc')
     await registerIpcHandlers()
@@ -83,7 +95,7 @@ describe('telemetry IPC handlers', () => {
     expect(recordTelemetryMock).toHaveBeenCalledWith({
       category: 'feature',
       name: 'file:uploaded',
-      payload: { sizeBytes: data.length }
+      payload: { sizeBytes: data.length, mimeCategory: 'document' }
     })
   })
 
@@ -101,5 +113,24 @@ describe('telemetry IPC handlers', () => {
     const downloadHandler = vi.mocked(ipcMain.handle).mock.calls.find(([channel]) => channel === 'files:download')?.[1] as Function
     await downloadHandler({}, 1, 1, join(process.cwd(), 'tests/unit/electron/main/telegram/fixtures/sample.txt'))
     expect(recordTelemetryMock).not.toHaveBeenCalled()
+  })
+
+  it('records settings:changed for each key in settings:set', async () => {
+    const { registerIpcHandlers } = await import('../../../../../electron/main/ipc')
+    await registerIpcHandlers()
+
+    const settingsHandler = vi.mocked(ipcMain.handle).mock.calls.find(([channel]) => channel === 'settings:set')?.[1] as Function
+    await settingsHandler({}, { telemetryEnabled: true, batchSize: 100 })
+
+    expect(recordTelemetryMock).toHaveBeenCalledWith({
+      category: 'feature',
+      name: 'settings:changed',
+      payload: { key: 'telemetryEnabled' }
+    })
+    expect(recordTelemetryMock).toHaveBeenCalledWith({
+      category: 'feature',
+      name: 'settings:changed',
+      payload: { key: 'batchSize' }
+    })
   })
 })

@@ -5,11 +5,13 @@ import type { TelemetryEvent, TelemetryStoreConfig } from './types'
 
 export interface TelemetryStore {
   record(event: TelemetryEvent): void
-  flush(): void
+  flush(): Promise<void>
   getEvents(): TelemetryEvent[]
   export(): string
   clear(): void
 }
+
+const FLUSH_DEBOUNCE_MS = 2000
 
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
@@ -26,6 +28,7 @@ function isOlderThan(dateString: string, retentionDays: number): boolean {
 export function createTelemetryStore(config: TelemetryStoreConfig): TelemetryStore {
   const { filePath, retentionDays } = config
   const batch: TelemetryEvent[] = []
+  let flushTimer: NodeJS.Timeout | null = null
 
   function persist(): boolean {
     let allEvents: TelemetryEvent[] = []
@@ -70,9 +73,20 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
         ...event,
         id: event.id || generateId()
       })
+      if (!flushTimer) {
+        flushTimer = setTimeout(() => {
+          flushTimer = null
+          this.flush()
+        }, FLUSH_DEBOUNCE_MS)
+      }
     },
 
-    flush() {
+    async flush() {
+      if (flushTimer) {
+        clearTimeout(flushTimer)
+        flushTimer = null
+      }
+      if (batch.length === 0) return
       if (persist()) batch.length = 0
     },
 
@@ -101,6 +115,10 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
     },
 
     clear() {
+      if (flushTimer) {
+        clearTimeout(flushTimer)
+        flushTimer = null
+      }
       batch.length = 0
       if (existsSync(filePath)) {
         try {

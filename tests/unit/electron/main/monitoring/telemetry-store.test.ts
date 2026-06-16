@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdirSync, rmSync, existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { createTelemetryStore } from '../../../../../electron/main/monitoring/telemetry-store'
@@ -15,6 +15,11 @@ describe('telemetry-store', () => {
   beforeEach(() => {
     rmSync(tmpDir, { recursive: true, force: true })
     mkdirSync(tmpDir, { recursive: true })
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('does not create file until flush', () => {
@@ -23,56 +28,56 @@ describe('telemetry-store', () => {
     expect(existsSync(filePath)).toBe(false)
   })
 
-  it('writes events on flush', () => {
+  it('writes events on flush', async () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     const event = makeEvent(new Date().toISOString())
     store.record(event)
-    store.flush()
+    await store.flush()
     expect(existsSync(filePath)).toBe(true)
     const parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
     expect(parsed).toHaveLength(1)
     expect(parsed[0].id).toBe(event.id)
   })
 
-  it('purges events older than retentionDays', () => {
+  it('purges events older than retentionDays', async () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     const oldEvent = makeEvent('2020-01-01T00:00:00.000Z')
     const recentEvent = makeEvent(new Date().toISOString())
     store.record(oldEvent)
     store.record(recentEvent)
-    store.flush()
+    await store.flush()
     const events = store.getEvents()
     expect(events).toHaveLength(1)
     expect(events[0].id).toBe(recentEvent.id)
   })
 
-  it('exports events as JSON string', () => {
+  it('exports events as JSON string', async () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     const event = makeEvent(new Date().toISOString())
     store.record(event)
-    store.flush()
+    await store.flush()
     const exported = store.export()
     expect(JSON.parse(exported)).toHaveLength(1)
   })
 
-  it('clears events and deletes file', () => {
+  it('clears events and deletes file', async () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     store.record(makeEvent(new Date().toISOString()))
-    store.flush()
+    await store.flush()
     store.clear()
     expect(existsSync(filePath)).toBe(false)
     expect(store.getEvents()).toHaveLength(0)
   })
 
-  it('flush with empty batch purges old persisted events', () => {
+  it('flush with empty batch purges old persisted events', async () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     const oldEvent = makeEvent('2020-01-01T00:00:00.000Z')
     store.record(oldEvent)
-    store.flush()
+    await store.flush()
     expect(store.getEvents()).toHaveLength(0)
   })
 
-  it('record without id generates one', () => {
+  it('record without id generates one', async () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     const event: TelemetryEvent = {
       id: '',
@@ -81,7 +86,7 @@ describe('telemetry-store', () => {
       name: 'test:event'
     }
     store.record(event)
-    store.flush()
+    await store.flush()
     const parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
     expect(parsed[0].id).toBeTruthy()
     expect(parsed[0].id).not.toBe('')
@@ -117,14 +122,22 @@ describe('telemetry-store', () => {
     expect(store.getEvents()).toHaveLength(0)
   })
 
-  it('recovers from non-array JSON in events file', () => {
+  it('recovers from non-array JSON in events file', async () => {
     mkdirSync(tmpDir, { recursive: true })
     writeFileSync(filePath, '{"foo":"bar"}')
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     expect(store.getEvents()).toHaveLength(0)
     const event = makeEvent(new Date().toISOString())
     store.record(event)
-    store.flush()
+    await store.flush()
     expect(store.getEvents()).toHaveLength(1)
+  })
+
+  it('flushes debounced after record', async () => {
+    const store = createTelemetryStore({ retentionDays: 7, filePath })
+    store.record(makeEvent(new Date().toISOString()))
+    expect(existsSync(filePath)).toBe(false)
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(existsSync(filePath)).toBe(true)
   })
 })

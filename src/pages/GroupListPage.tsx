@@ -121,6 +121,7 @@ export default function GroupListPage({ onSelectGroup, onSettings }: GroupListPa
     const t = labels[newTab]
     setTab(t)
     saveTab(t)
+    window.telegramAPI.recordTelemetry({ category: 'feature', name: 'tab:changed', payload: { tab: t } })
     if (t === 'archived') loadArchived()
     else loadGroups()
   }

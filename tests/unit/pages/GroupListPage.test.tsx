@@ -17,6 +17,7 @@ beforeEach(() => {
     createGroup: vi.fn().mockResolvedValue({}),
     deleteGroup: vi.fn().mockResolvedValue(undefined),
     getSettings: vi.fn().mockResolvedValue({ defaultTab: 'created' }),
+    recordTelemetry: vi.fn().mockResolvedValue(undefined),
   }
 })
 
@@ -34,6 +35,7 @@ describe('GroupListPage app filter', () => {
       createGroup: vi.fn(),
       deleteGroup: vi.fn(),
       getSettings: vi.fn().mockResolvedValue({ defaultTab: 'created' }),
+      recordTelemetry: vi.fn().mockResolvedValue(undefined),
     } as any
   })
 
@@ -55,6 +57,21 @@ describe('GroupListPage app filter', () => {
     await waitFor(() => {
       expect(screen.getByText('App Group')).toBeDefined()
       expect(screen.getByText('Other Group')).toBeDefined()
+    })
+  })
+
+  it('records tab:changed telemetry when tab is clicked', async () => {
+    render(<GroupListPage />, { wrapper: Wrapper })
+    await waitFor(() => {
+      expect(screen.getByText('App Group')).toBeDefined()
+    })
+    fireEvent.click(screen.getByText('Activos'))
+    await waitFor(() => {
+      expect(window.telegramAPI.recordTelemetry).toHaveBeenCalledWith({
+        category: 'feature',
+        name: 'tab:changed',
+        payload: { tab: 'active' }
+      })
     })
   })
 
