@@ -36,7 +36,14 @@ vi.mock('../../../../../electron/main/telegram/files', () => ({
   downloadFile: vi.fn()
 }))
 
-describe('telemetry IPC handlers', () => {
+vi.mock('../../../../../electron/main/streamServer', () => ({
+  startStreamServer: vi.fn(() => Promise.resolve(0)),
+  registerStream: vi.fn(),
+  unregisterStream: vi.fn(),
+  getStreamServerPort: vi.fn(() => 0)
+}))
+
+describe('telemetry IPC handlers', { timeout: 15000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
