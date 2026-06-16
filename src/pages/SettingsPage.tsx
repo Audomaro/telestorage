@@ -85,18 +85,10 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
 
   const handleExportTelemetry = async () => {
     try {
-      const json = await window.telegramAPI.exportTelemetry()
-      const blob = new Blob([json], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      try {
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'telemetry-export.json'
-        a.click()
-      } finally {
-        URL.revokeObjectURL(url)
+      const savedPath = await window.telegramAPI.exportTelemetryToFile()
+      if (savedPath) {
+        showSnackbar('Telemetría exportada', 'success')
       }
-      showSnackbar('Telemetría exportada', 'success')
     } catch {
       showSnackbar('No se pudo exportar la telemetría', 'error')
     }

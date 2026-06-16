@@ -95,6 +95,7 @@ contextBridge.exposeInMainWorld('telegramAPI', {
     ipcRenderer.invoke('telemetry:record', event),
   getTelemetry: () => ipcRenderer.invoke('telemetry:get'),
   exportTelemetry: () => ipcRenderer.invoke('telemetry:export'),
+  exportTelemetryToFile: () => ipcRenderer.invoke('telemetry:exportToFile'),
   clearTelemetry: () => ipcRenderer.invoke('telemetry:clear'),
   openCrashesFolder: () => ipcRenderer.invoke('shell:openCrashesFolder'),
 })

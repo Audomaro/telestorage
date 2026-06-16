@@ -9,6 +9,7 @@ export interface TelemetryStore {
   getEvents(): TelemetryEvent[]
   export(): string
   clear(): void
+  purgeOldEvents(): void
 }
 
 const FLUSH_DEBOUNCE_MS = 2000
@@ -73,12 +74,13 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
         ...event,
         id: event.id || generateId()
       })
-      if (!flushTimer) {
-        flushTimer = setTimeout(() => {
-          flushTimer = null
-          this.flush()
-        }, FLUSH_DEBOUNCE_MS)
+      if (flushTimer) {
+        clearTimeout(flushTimer)
       }
+      flushTimer = setTimeout(() => {
+        flushTimer = null
+        this.flush()
+      }, FLUSH_DEBOUNCE_MS)
     },
 
     async flush() {
@@ -125,6 +127,19 @@ export function createTelemetryStore(config: TelemetryStoreConfig): TelemetrySto
           unlinkSync(filePath)
         } catch (err) {
           log.error('Failed to clear telemetry file:', err)
+        }
+      }
+    },
+
+    purgeOldEvents() {
+      const events = this.getEvents()
+      if (events.length === 0 && existsSync(filePath)) {
+        try { unlinkSync(filePath) } catch (err) { log.error('Failed to delete stale telemetry file:', err) }
+      } else if (events.length > 0) {
+        try {
+          writeFileSync(filePath, JSON.stringify(events, null, 2))
+        } catch (err) {
+          log.error('Failed to purge old telemetry events:', err)
         }
       }
     }

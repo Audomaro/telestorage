@@ -14,9 +14,16 @@ vi.mock('../../../../../electron/main/telegram/settings', () => ({
   setSettings: vi.fn()
 }))
 
-const recordTelemetryMock = vi.fn()
+const recordTelemetryMock = vi.hoisted(() => vi.fn())
+const getTelemetryEventsMock = vi.hoisted(() => vi.fn())
+const exportTelemetryMock = vi.hoisted(() => vi.fn())
+const clearTelemetryMock = vi.hoisted(() => vi.fn())
+
 vi.mock('../../../../../electron/main/monitoring', () => ({
   recordTelemetry: recordTelemetryMock,
+  getTelemetryEvents: getTelemetryEventsMock,
+  exportTelemetry: exportTelemetryMock,
+  clearTelemetry: clearTelemetryMock,
   initMonitoring: vi.fn()
 }))
 
@@ -132,5 +139,39 @@ describe('telemetry IPC handlers', () => {
       name: 'settings:changed',
       payload: { key: 'batchSize' }
     })
+  })
+
+  it('telemetry:record delegates to recordTelemetry', async () => {
+    const { registerIpcHandlers } = await import('../../../../../electron/main/ipc')
+    await registerIpcHandlers()
+    const recordHandler = vi.mocked(ipcMain.handle).mock.calls.find(([channel]) => channel === 'telemetry:record')?.[1] as Function
+    await recordHandler({}, { category: 'feature', name: 'test:event' })
+    expect(recordTelemetryMock).toHaveBeenCalledWith({ category: 'feature', name: 'test:event' })
+  })
+
+  it('telemetry:get returns events', async () => {
+    getTelemetryEventsMock.mockReturnValue([{ id: '1', timestamp: 't', category: 'feature', name: 'test' }])
+    const { registerIpcHandlers } = await import('../../../../../electron/main/ipc')
+    await registerIpcHandlers()
+    const getHandler = vi.mocked(ipcMain.handle).mock.calls.find(([channel]) => channel === 'telemetry:get')?.[1] as Function
+    const result = await getHandler()
+    expect(result).toHaveLength(1)
+  })
+
+  it('telemetry:export returns JSON', async () => {
+    exportTelemetryMock.mockReturnValue('[]')
+    const { registerIpcHandlers } = await import('../../../../../electron/main/ipc')
+    await registerIpcHandlers()
+    const exportHandler = vi.mocked(ipcMain.handle).mock.calls.find(([channel]) => channel === 'telemetry:export')?.[1] as Function
+    const result = await exportHandler()
+    expect(result).toBe('[]')
+  })
+
+  it('telemetry:clear delegates to clearTelemetry', async () => {
+    const { registerIpcHandlers } = await import('../../../../../electron/main/ipc')
+    await registerIpcHandlers()
+    const clearHandler = vi.mocked(ipcMain.handle).mock.calls.find(([channel]) => channel === 'telemetry:clear')?.[1] as Function
+    await clearHandler()
+    expect(clearTelemetryMock).toHaveBeenCalled()
   })
 })

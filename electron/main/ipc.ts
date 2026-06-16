@@ -294,6 +294,17 @@ ipcMain.handle('files:list', async (_event, groupId: number) => {
     clearTelemetry()
   })
 
+  ipcMain.handle('telemetry:exportToFile', async () => {
+    const result = await dialog.showSaveDialog({
+      defaultPath: 'telemetry-export.json',
+      filters: [{ name: 'JSON Files', extensions: ['json'] }]
+    })
+    if (result.canceled || !result.filePath) return null
+    const json = exportTelemetry()
+    await writeFile(result.filePath, json, 'utf-8')
+    return result.filePath
+  })
+
   ipcMain.handle('shell:openCrashesFolder', async () => {
     const crashesPath = app.getPath('crashDumps')
     const result = await shell.openPath(crashesPath)

@@ -50,6 +50,7 @@ interface TelegramAPI {
   recordTelemetry(event: { category: string; name: string; payload?: Record<string, unknown> }): Promise<void>
   getTelemetry(): Promise<any[]>
   exportTelemetry(): Promise<string>
+  exportTelemetryToFile(): Promise<string | null>
   clearTelemetry(): Promise<void>
   openCrashesFolder(): Promise<void>
 }

@@ -77,6 +77,34 @@ describe('telemetry-store', () => {
     expect(store.getEvents()).toHaveLength(0)
   })
 
+  it('purgeOldEvents removes old events and rewrites the file', async () => {
+    const store = createTelemetryStore({ retentionDays: 7, filePath })
+    const oldEvent = makeEvent('2020-01-01T00:00:00.000Z')
+    const recentEvent = makeEvent(new Date().toISOString())
+    store.record(oldEvent)
+    store.record(recentEvent)
+    await store.flush()
+    store.purgeOldEvents()
+    const events = store.getEvents()
+    expect(events).toHaveLength(1)
+    expect(events[0].id).toBe(recentEvent.id)
+    const parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
+    expect(parsed).toHaveLength(1)
+    expect(parsed[0].id).toBe(recentEvent.id)
+  })
+
+  it('resets the debounce timer on each record', async () => {
+    const store = createTelemetryStore({ retentionDays: 7, filePath })
+    store.record(makeEvent(new Date().toISOString()))
+    await vi.advanceTimersByTimeAsync(1500)
+    expect(existsSync(filePath)).toBe(false)
+    store.record(makeEvent(new Date().toISOString()))
+    await vi.advanceTimersByTimeAsync(500)
+    expect(existsSync(filePath)).toBe(false)
+    await vi.advanceTimersByTimeAsync(1500)
+    expect(existsSync(filePath)).toBe(true)
+  })
+
   it('record without id generates one', async () => {
     const store = createTelemetryStore({ retentionDays: 7, filePath })
     const event: TelemetryEvent = {
