@@ -184,7 +184,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
                     getOptionLabel={(o) => `${getCountryFlagEmoji(o.code)} ${o.phone}`}
                     renderOption={(props, o) => (
                       <li {...props}>
-                        {getCountryFlagEmoji(o.code)} {o.label} ({o.phone})
+                        {getCountryFlagEmoji(o.code)} {o.phone}
                       </li>
                     )}
                     value={selectedCountry}
