@@ -184,7 +184,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
                     getOptionLabel={(o) => `${o.phone} ${o.label}`}
                     value={selectedCountry}
                     onChange={(_, v) => setSelectedCountry(v || COUNTRY_CODES[0])}
-                    sx={{ minWidth: { xs: '100%', sm: 170 } }}
+                    sx={{ minWidth: { xs: '100%', sm: 240 } }}
                     disabled={loading}
                     renderInput={(params) => (
                       <TextField
