@@ -35,14 +35,27 @@ jobs:
       - name: Build app
         run: npm run build
 
-      - name: Build installer and publish release
+      - name: Build installer + portable and publish release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run publish
 
-      - name: Upload build artifacts
+      - name: Upload Windows installer artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: windows-build-artifacts
-          path: dist/
+          name: telestorage-windows-installer-${{ github.ref_name }}
+          path: |
+            dist/*Setup*.exe
+            dist/*Setup*.exe.blockmap
+
+      - name: Upload Windows portable artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: telestorage-windows-portable-${{ github.ref_name }}
+          path: |
+            dist/*.exe
+            dist/*.exe.blockmap
+            !dist/*Setup*.exe
+            !dist/*Setup*.exe.blockmap

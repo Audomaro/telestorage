@@ -114,7 +114,7 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
         elevation={0}
         sx={{
           width: '100%',
-          maxWidth: 400,
+          maxWidth: 520,
           mx: 2,
           p: { xs: 3, sm: 4 },
           borderRadius: 3,
