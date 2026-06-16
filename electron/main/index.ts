@@ -6,7 +6,11 @@ import log from 'electron-log/main'
 
 const prodEnvPath = join(process.resourcesPath, '.env')
 const devEnvPath = join(process.cwd(), '.env')
-config({ path: existsSync(prodEnvPath) ? prodEnvPath : devEnvPath })
+const activeEnvPath = existsSync(prodEnvPath) ? prodEnvPath : devEnvPath
+config({ path: activeEnvPath })
+log.info('Loaded .env from:', activeEnvPath, 'exists:', existsSync(activeEnvPath))
+log.info('TELEGRAM_API_ID present:', !!process.env.TELEGRAM_API_ID)
+log.info('TELEGRAM_API_HASH present:', !!process.env.TELEGRAM_API_HASH)
 
 import { autoUpdater } from 'electron-updater'
 import { registerIpcHandlers } from './ipc'

@@ -23,6 +23,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify Telegram secrets are set
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.TELEGRAM_API_ID }}" ] || [ -z "${{ secrets.TELEGRAM_API_HASH }}" ]; then
+            echo "ERROR: TELEGRAM_API_ID or TELEGRAM_API_HASH secret is empty or missing."
+            echo "Make sure they are saved as repository secrets under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
       - name: Create production .env
         shell: bash
         run: |

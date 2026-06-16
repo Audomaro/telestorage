@@ -2,7 +2,7 @@ import { ipcMain, dialog, app, shell } from 'electron'
 import log from 'electron-log/main'
 import { join } from 'path'
 import { stat, mkdir, writeFile, unlink } from 'fs/promises'
-import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient } from './telegram/auth'
+import { initClient, startClient, startPhoneAuth, verifyPhoneCode, verify2FAPassword, getAuthState, getSession, logout, setLoggedIn, getClient, areApiCredentialsConfigured } from './telegram/auth'
 import { saveSession, loadSession, clearSession } from './telegram/storage'
 import { getGroups, getArchivedGroups, createGroup, deleteGroup, getForumTopics, renameGroup, renameForumTopic, createForumTopic, deleteForumTopic } from './telegram/groups'
 import { listFiles, listFilesBatch, listFilesByTopic, uploadFile, uploadMultipleFiles, uploadFileWithProgress, downloadFile, downloadFileWithProgress, downloadThumbnail, deleteFile } from './telegram/files'
@@ -27,11 +27,16 @@ export async function registerIpcHandlers(): Promise<void> {
   ipcMain.handle('auth:init', async () => {
     const session = loadSession()
     try {
+      if (!areApiCredentialsConfigured()) {
+        const msg = 'Telegram API credentials are missing. Check that .env was packaged correctly.'
+        log.error('auth:init:', msg)
+        return { initialized: false, error: msg }
+      }
       await initClient(session || undefined)
       // Add timeout to prevent hanging in test environments or when network is unavailable
       await Promise.race([
         startClient(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 3000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
       ])
       if (session && getClient()) {
         setLoggedIn(true)
@@ -39,12 +44,18 @@ export async function registerIpcHandlers(): Promise<void> {
       }
       return { initialized: false }
     } catch (err: any) {
-      console.error('auth:init error:', err.message)
+      log.error('auth:init error:', err.message)
       return { initialized: false, error: err.message }
     }
   })
 
   ipcMain.handle('auth:sendCode', async (_event, phone: string) => {
+    if (!areApiCredentialsConfigured()) {
+      throw new Error('Telegram API credentials are missing. The .env file may not have been packaged correctly.')
+    }
+    if (!getClient()) {
+      throw new Error('Telegram client is not initialized. Please restart the app.')
+    }
     return startPhoneAuth(phone)
   })
 

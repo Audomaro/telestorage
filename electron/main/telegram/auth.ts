@@ -12,6 +12,10 @@ if (!API_ID || !API_HASH) {
   console.warn('Get them at https://my.telegram.org/apps')
 }
 
+export function areApiCredentialsConfigured(): boolean {
+  return !!API_ID && !!API_HASH
+}
+
 let pendingPhone: string | undefined
 let pendingPhoneCodeHash: string | undefined
 
