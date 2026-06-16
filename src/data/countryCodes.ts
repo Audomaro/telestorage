@@ -4,6 +4,14 @@ export interface CountryCode {
   phone: string
 }
 
+export function getCountryFlagEmoji(code: string): string {
+  return code
+    .toUpperCase()
+    .split('')
+    .map((char) => String.fromCodePoint(0x1F1E6 + char.charCodeAt(0) - 65))
+    .join('')
+}
+
 export const COUNTRY_CODES: CountryCode[] = [
   { code: 'MX', label: 'México', phone: '+52' },
   { code: 'US', label: 'Estados Unidos', phone: '+1' },

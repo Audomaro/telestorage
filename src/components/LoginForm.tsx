@@ -18,7 +18,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import PhoneIcon from '@mui/icons-material/Phone'
 import PublicIcon from '@mui/icons-material/Public'
-import { COUNTRY_CODES, CountryCode } from '../data/countryCodes'
+import { COUNTRY_CODES, CountryCode, getCountryFlagEmoji } from '../data/countryCodes'
 
 interface LoginFormProps {
   onSendCode: (phone: string) => void
@@ -181,10 +181,15 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
                   <Autocomplete
                     size="small"
                     options={COUNTRY_CODES}
-                    getOptionLabel={(o) => `${o.phone} ${o.label}`}
+                    getOptionLabel={(o) => `${getCountryFlagEmoji(o.code)} ${o.phone}`}
+                    renderOption={(props, o) => (
+                      <li {...props}>
+                        {getCountryFlagEmoji(o.code)} {o.label} ({o.phone})
+                      </li>
+                    )}
                     value={selectedCountry}
                     onChange={(_, v) => setSelectedCountry(v || COUNTRY_CODES[0])}
-                    sx={{ minWidth: { xs: '100%', sm: 240 } }}
+                    sx={{ minWidth: { xs: '100%', sm: 180 } }}
                     disabled={loading}
                     renderInput={(params) => (
                       <TextField
