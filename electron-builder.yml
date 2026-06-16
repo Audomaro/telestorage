@@ -13,6 +13,9 @@
 appId: com.yourcompany.telestorage
 productName: TeleStorage
 copyright: Copyright © 2026 Audomaro Glez
+electronLanguages:
+  - en
+
 directories:
   output: dist
   buildResources: build
