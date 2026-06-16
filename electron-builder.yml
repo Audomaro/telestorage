@@ -19,6 +19,10 @@ directories:
 files:
   - out/**/*
   - package.json
+  - "!node_modules/**/*.map"
+  - "!node_modules/**/{README,CHANGELOG,CONTRIBUTING,CODE_OF_CONDUCT}.*"
+  - "!node_modules/**/{.github,.gitignore,.npmignore,.editorconfig}"
+  - "!node_modules/**/{docs,test,tests,example,examples}/**/*"
 
 extraResources:
   - .env
