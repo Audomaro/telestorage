@@ -17,6 +17,7 @@ import SendIcon from '@mui/icons-material/Send'
 import LockIcon from '@mui/icons-material/Lock'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import PhoneIcon from '@mui/icons-material/Phone'
+import PublicIcon from '@mui/icons-material/Public'
 import { COUNTRY_CODES, CountryCode } from '../data/countryCodes'
 
 interface LoginFormProps {
@@ -186,10 +187,26 @@ export default function LoginForm({ onSendCode, onVerifyCode, onCheck2FA, onBack
                     sx={{ minWidth: { xs: '100%', sm: 170 } }}
                     disabled={loading}
                     renderInput={(params) => (
-                      <TextField {...params} label="País" />
+                      <TextField
+                        {...params}
+                        label="País"
+                        slotProps={{
+                          ...params.slotProps,
+                          input: {
+                            ...params.slotProps.input,
+                            startAdornment: (
+                              <>
+                                <PublicIcon sx={{ mr: 0.5, fontSize: 18, color: 'text.secondary' }} />
+                                {params.slotProps.input.startAdornment}
+                              </>
+                            ),
+                          },
+                        }}
+                      />
                     )}
                   />
                   <TextField
+                    size="small"
                     label="Número de teléfono"
                     placeholder="555 123 4567"
                     fullWidth
